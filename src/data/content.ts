@@ -55,11 +55,11 @@ export const QUOTE = {
 };
 
 export const PLAN_ITEMS: PlanItem[] = [
-  { id: "p1", time: "08:30", label: "Kendine zaman ayır", note: "Sadece sen, sadece 15 dakika" },
-  { id: "p2", time: "10:00", label: "Bol su iç", note: "Yanından ayırma" },
-  { id: "p3", time: "13:00", label: "Sevdiğin bir şeyler ye", note: "Zevkine göre" },
-  { id: "p4", time: "19:00", label: "Akşam yürüyüşü", note: "Hava güzel, çık" },
-  { id: "p5", time: "22:00", label: "Ve tabii ki... mutlu ol!", note: "En önemlisi bu" },
+  { id: "p1", time: "07:30", label: "Burak'ı sev (zorla değil, istersen)", note: "Sabah koşusu gibi düşün, 10 dakika" },
+  { id: "p2", time: "09:45", label: "Bol su iç", note: "Bunu da sevmek zorunda değilsin ama iç" },
+  { id: "p3", time: "13:15", label: "Burak'ı bir daha sev", note: "Öğle arası, ısınma turu" },
+  { id: "p4", time: "17:30", label: "Bol su iç (2. raunt)", note: "Susuzluğu bu kadar erteleme" },
+  { id: "p5", time: "21:45", label: "Burak'ı günün sonunda sev", note: "Uyumadan önce, en kolayı bu" },
 ];
 
 export type PlanItem = { id: string; time: string; label: string; note?: string };

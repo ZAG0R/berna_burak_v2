@@ -316,52 +316,52 @@ ol {
 /* ============================================================
    Minik dostlar (three.js) — sahnedeki iki karakter
 
-   Sahnenin sol üst köşesinde, illüstrasyonun üstünde durur; tıklanınca
-   zıplar ve konuşur. Balon tıklamayı engellemez, gövde engeller.
+   Katman tüm ekranı kaplar; karakterler kartların tam üstünde,
+   ekranın ortasında durur ve kenarlardan yürüyerek girer.
+   Katman tıklamayı engellemez (vuruş testi JS'te yapılır).
    ============================================================ */
 
 .buddy {
   position: fixed;
-  /* Kenar çubuğu zoom ile ölçeklendiği için genişliği de --hz ile çarpılır. */
-  left: calc(var(--sidebar-w) * var(--hz, 1) + 6px);
-  bottom: 26vh;
-  width: 300px;
-  height: 250px;
+  inset: 0;
   z-index: 3;
-  cursor: pointer;
+  pointer-events: none;
   -webkit-tap-highlight-color: transparent;
 }
 
 .buddy canvas {
   display: block;
-  filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.34));
 }
 
-/* Konuşma balonu: karakterlerin üstünde, ok aşağı bakar. */
+/* Konuşma balonu: konuşan karakterin başının üstünde.
+   Konum JS ile (left/top) verilir, ok aşağı bakar. */
 .buddy__bubble {
   position: absolute;
   left: 50%;
-  bottom: 82%;
-  transform: translate(-50%, 8px) scale(0.94);
+  top: 60%;
+  transform: translate(-50%, calc(-100% - 10px)) scale(0.94);
   transform-origin: 50% 100%;
-  max-width: 230px;
+  max-width: 260px;
   width: max-content;
-  padding: 9px 13px;
+  padding: 10px 15px;
   border-radius: 14px;
   border: 1px solid rgba(255, 236, 214, 0.22);
-  background: rgba(16, 20, 34, 0.86);
-  color: #fff6ea;
-  font-family: var(--font-hand);
-  font-size: 15px;
-  line-height: 1.28;
+  background: rgba(16, 20, 34, 0.9);
+  color: #fff8ef;
+  font-family: var(--font-sans);
+  font-size: 14.5px;
+  font-weight: 600;
+  letter-spacing: 0.005em;
+  line-height: 1.35;
   text-align: center;
   white-space: pre-line;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.42);
+  text-wrap: balance;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(14px) saturate(1.3);
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transition: opacity 0.32s var(--ease-out), transform 0.32s var(--ease-out);
+  transition: opacity 0.28s var(--ease-out), transform 0.28s var(--ease-out);
 }
 
 .buddy__bubble::after {
@@ -375,7 +375,7 @@ ol {
   margin-top: -5px;
   transform: rotate(45deg);
   border-radius: 2px;
-  background: rgba(16, 20, 34, 0.86);
+  background: rgba(16, 20, 34, 0.9);
   border-right: 1px solid rgba(255, 236, 214, 0.22);
   border-bottom: 1px solid rgba(255, 236, 214, 0.22);
 }
@@ -383,42 +383,14 @@ ol {
 .buddy__bubble.is-in {
   opacity: 1;
   visibility: visible;
-  transform: translate(-50%, 0) scale(1);
+  transform: translate(-50%, calc(-100% - 4px)) scale(1);
 }
 
-/* Dar ekranda kenar çubuğu yok; dostlar sol alta iner ve küçülür. */
 @media (max-width: 900px) {
-  .buddy {
-    left: auto;
-    right: 2px;
-    top: auto;
-    /* Ambiyans düğmeleri ve alt menünün üstünde kalır. */
-    bottom: calc(128px + env(safe-area-inset-bottom));
-    width: 148px;
-    height: 126px;
-    opacity: 0.9;
-    /* Dokunmayı engellemesin: mobilede yalnızca dekoratif. */
-    pointer-events: none;
-    cursor: default;
-  }
-
   .buddy__bubble {
-    left: auto;
-    right: 0;
-    transform: translate(0, 6px) scale(0.94);
-    transform-origin: 100% 100%;
-    font-size: 12px;
-    max-width: 176px;
-    padding: 6px 9px;
-  }
-
-  .buddy__bubble.is-in {
-    transform: translate(0, 0) scale(1);
-  }
-
-  .buddy__bubble::after {
-    left: auto;
-    right: 46px;
+    max-width: 210px;
+    font-size: 13px;
+    padding: 8px 12px;
   }
 }
 

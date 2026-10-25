@@ -84,6 +84,18 @@ export function textForHour(hour: number) {
   return SLOT_TEXT[slotForHour(hour)];
 }
 
+/* Sekme başlığı — saate göre değişir. */
+const TAB_TITLE: Record<Slot, string> = {
+  morning: "Günaydın Berna ♡",
+  work: "Kolay gelsin Berna ♡",
+  evening: "İyi akşamlar Berna ♡",
+  night: "İyi geceler Berna ♡",
+};
+
+export function titleForHour(hour: number) {
+  return TAB_TITLE[slotForHour(hour)];
+}
+
 type Slice = { from: number; to: number; image: string; mobile: string };
 
 /* Gün içi dilimler: her dilim saatin ilerleyişine göre kendi görseline
@@ -102,7 +114,9 @@ const DAY_PLAN: Slice[] = [
   { from: 21, to: 22, image: oyun, mobile: oyunM },
   { from: 22, to: 24, image: uyku, mobile: uykuM },
   { from: 0, to: 2, image: uyku, mobile: uykuM },
-  { from: 2, to: 6, image: arkaplan, mobile: arkaplanM },
+  { from: 2, to: 5, image: uyku, mobile: uykuM },
+  /* Gün doğumuna uyanış: şafak vakti yatak odası. */
+  { from: 5, to: 6, image: arkaplan, mobile: arkaplanM },
 ];
 
 /* "2"li görseller aynı sahnenin varyantı: gündüz/gece ayrımıyla kullanılır. */
@@ -110,7 +124,10 @@ function conditionSlice(condition: Condition, hour: number): { image: string; mo
   const isDay = hour >= 6 && hour < 18;
   if (condition === "rain") return isDay ? { image: yagmurlu, mobile: yagmurluM } : { image: yagmurlu2, mobile: yagmurlu2M };
   if (condition === "snow") return isDay ? { image: yagmurlu2, mobile: yagmurlu2M } : { image: yagmurlu, mobile: yagmurluM };
-  return { image: arkaplan, mobile: arkaplanM };
+  /* "soğuk hava" yalnızca bir hava notu; arkaplan yine saate göre seçilir
+     (gece yarısı gün batımı görseli çıkmasın). */
+  const slice = sliceForHour(hour);
+  return { image: slice.image, mobile: slice.mobile };
 }
 
 export function slotForHour(hour: number): Slot {

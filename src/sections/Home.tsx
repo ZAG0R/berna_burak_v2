@@ -39,6 +39,8 @@ type Props = {
   onNext: () => void;
   onPrev: () => void;
   onOpenLetter: () => void;
+  buddiesOn: boolean;
+  onToggleBuddies: () => void;
 };
 
 export default function Home({
@@ -59,6 +61,8 @@ export default function Home({
   onPlayToggle,
   onNext,
   onPrev,
+  buddiesOn,
+  onToggleBuddies,
 }: Props) {
   return (
     <section className="home" aria-label="Ana sayfa">
@@ -111,10 +115,16 @@ export default function Home({
 
         <div className="home__foot">
           <AmbienceBar active={ambience} onToggle={onAmbience} volume={volume} onVolume={onVolume} />
-          <p className="home__sig">
+          <button
+            type="button"
+            className={`home__sig ${buddiesOn ? "is-on" : ""}`}
+            onClick={onToggleBuddies}
+            aria-pressed={buddiesOn}
+            title={buddiesOn ? "Dostları gizle" : "Dostları çağır ♡"}
+          >
             Seni seviyorum
             <span>— Burak ♡</span>
-          </p>
+          </button>
         </div>
       </div>
     </section>

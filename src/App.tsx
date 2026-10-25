@@ -22,7 +22,7 @@ import {
   type AmbienceId,
   type PlanItem,
 } from "./data/content";
-import { buildScene } from "./data/scenes";
+import { buildScene, titleForHour } from "./data/scenes";
 import { useStoredState, useToast, useMediaQuery } from "./hooks/useAppState";
 import { useWeather } from "./hooks/useWeather";
 
@@ -38,9 +38,12 @@ export default function App() {
   const [volume, setVolume] = useStoredState<number>("ui:volume", 0.6);
   const [reducedMotion, setReducedMotion] = useStoredState<boolean>("ui:reduced", false);
   const [ambience, setAmbience] = useStoredState<Record<string, boolean>>("ui:ambience", {});
+  /* Dostlar varsayılan olarak gizli; alttaki imzaya basınca açılır ve
+     yenilemede de açık kalır (kullanıcı tekrar basana kadar). */
+  const [buddies, setBuddies] = useStoredState<boolean>("ui:buddies", false);
 
-  const [planItems, setPlanItems] = useStoredState<PlanItem[]>("plan:items", PLAN_ITEMS);
-  const [planDone, setPlanDone] = useStoredState<Record<string, boolean>>("plan:done", {});
+  const [planItems, setPlanItems] = useStoredState<PlanItem[]>("plan:items:v2", PLAN_ITEMS);
+  const [planDone, setPlanDone] = useStoredState<Record<string, boolean>>("plan:done:v2", {});
 
   const [songIndex, setSongIndex] = useStoredState<number>("music:index", 0);
   const [playing, setPlaying] = useState(false);
@@ -76,6 +79,11 @@ export default function App() {
   }, [hourOverride]);
 
   const scene = useMemo(() => buildScene(hour, code, weather.temp), [hour, code, weather.temp]);
+
+  /* Sekme başlığı saate göre değişir: Günaydın / Kolay gelsin / İyi akşamlar / İyi geceler. */
+  useEffect(() => {
+    document.title = titleForHour(hour);
+  }, [hour]);
 
   /* ---------- tema ---------- */
   useEffect(() => {
@@ -140,11 +148,18 @@ export default function App() {
     const p = new MusicPlayer();
     playerRef.current = p;
     p.onProgress = (r) => setProgress((prev) => (Math.abs(prev - r) > 0.008 ? r : prev));
+    p.onEnded = () => {
+      setSongIndex((i) => (i + 1) % SONGS.length);
+    };
+    p.onError = (message) => {
+      setPlaying(false);
+      show(message);
+    };
     return () => {
       p.dispose();
       playerRef.current = null;
     };
-  }, []);
+  }, [setSongIndex, show]);
 
   useEffect(() => {
     const p = playerRef.current;
@@ -160,6 +175,7 @@ export default function App() {
     });
     setProgress(0);
     if (wasPlaying) p.play();
+    setPlaying(wasPlaying);
   }, [song]);
 
   const togglePlay = useCallback(() => {
@@ -311,6 +327,8 @@ export default function App() {
             onNext={nextSong}
             onPrev={prevSong}
             onOpenLetter={() => go("letter")}
+            buddiesOn={buddies}
+            onToggleBuddies={() => setBuddies((b) => !b)}
           />
         );
     }
@@ -324,7 +342,7 @@ export default function App() {
 
       <AmbientCanvas />
 
-      {nav === "home" && introDone ? (
+      {nav === "home" && introDone && buddies ? (
         <Buddy scene={scene} reducedMotion={reducedMotion} dancing={playing} />
       ) : null}
 

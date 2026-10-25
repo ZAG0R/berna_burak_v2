@@ -10,6 +10,10 @@ type Stop = () => void
 let ctx: AudioContext | null = null
 let master: GainNode | null = null
 
+/* HTMLAudioElement ile çalan parçalar da ana ses seviyesine bağlansın. */
+const mediaElements = new Set<HTMLAudioElement>()
+let currentVolume = 0.6
+
 function audio(): AudioContext {
   if (!ctx) {
     const Ctor: typeof AudioContext =
@@ -38,8 +42,13 @@ export function unlockAudio() {
 }
 
 export function setMasterVolume(v: number) {
+  const vol = Math.max(0, Math.min(1, v))
+  currentVolume = vol
   const bus = masterBus()
-  bus.gain.setTargetAtTime(Math.max(0, Math.min(1, v)) * 0.8, audio().currentTime, 0.05)
+  bus.gain.setTargetAtTime(vol * 0.8, audio().currentTime, 0.05)
+  mediaElements.forEach((el) => {
+    el.volume = vol
+  })
 }
 
 /* ---------- yardımcılar ---------- */
@@ -408,15 +417,14 @@ export class MusicPlayer {
   private totalSteps = 0
   private audioElement: HTMLAudioElement | null = null
   private useRealAudio = false
+  private statePlaying = false
 
   onProgress: ((ratio: number) => void) | null = null
   onEnded: (() => void) | null = null
+  onError: ((message: string) => void) | null = null
 
   get playing() {
-    if (this.useRealAudio && this.audioElement) {
-      return !this.audioElement.paused
-    }
-    return this.timer !== null
+    return this.statePlaying
   }
 
   private bus(): GainNode {
@@ -539,28 +547,51 @@ export class MusicPlayer {
   load(spec: SongSpec & { audioFile?: string }) {
     this.spec = spec
     this.totalSteps = spec.chords.length * 4 * 2
-    
+
     // Eğer gerçek audio dosyası varsa onu kullan
     if (spec.audioFile) {
       this.useRealAudio = true
       if (this.audioElement) {
         this.audioElement.pause()
-        this.audioElement.src = ''
+        mediaElements.delete(this.audioElement)
+        this.audioElement.removeAttribute('src')
+        this.audioElement.load()
       }
-      this.audioElement = new Audio(spec.audioFile)
-      this.audioElement.volume = 0.6
-      this.audioElement.loop = true
-      
+      // Yol, sayfanın bulunduğu adrese göre çözülür (gh-pages alt dizini dahil).
+      const src = new URL(spec.audioFile, document.baseURI).href
+      const el = new Audio(src)
+      el.preload = 'auto'
+      el.loop = false
+      el.volume = currentVolume
+      mediaElements.add(el)
+      this.audioElement = el
+
+      /* Dosya yüklenemezse sessiz kalmak yerine sentezlenmiş parçaya dön. */
+      el.addEventListener('error', () => {
+        if (this.audioElement !== el) return
+        this.useRealAudio = false
+        mediaElements.delete(el)
+        this.onError?.('Parça dosyası yüklenemedi, söylenen müzik çalıyor')
+        if (this.statePlaying) {
+          this.statePlaying = false
+          this.playSynth()
+        }
+      })
+
       // Progress tracking
-      this.audioElement.addEventListener('timeupdate', () => {
-        if (this.audioElement && this.audioElement.duration) {
-          const ratio = this.audioElement.currentTime / this.audioElement.duration
+      el.addEventListener('timeupdate', () => {
+        if (this.audioElement === el && el.duration) {
+          const ratio = el.currentTime / el.duration
           this.onProgress?.(ratio)
         }
       })
-      
-      this.audioElement.addEventListener('ended', () => {
-        this.onEnded?.()
+
+      el.addEventListener('ended', () => this.onEnded?.())
+      el.addEventListener('play', () => {
+        if (this.audioElement === el) this.statePlaying = true
+      })
+      el.addEventListener('pause', () => {
+        if (this.audioElement === el && !el.ended) this.statePlaying = false
       })
     } else {
       this.useRealAudio = false
@@ -568,15 +599,29 @@ export class MusicPlayer {
   }
 
   play() {
-    // Gerçek audio dosyası varsa onu oynat
     if (this.useRealAudio && this.audioElement) {
       unlockAudio()
-      this.audioElement.play().catch(() => {
-        // Autoplay policy nedeniyle başarısız olabilir
+      this.statePlaying = true
+      const el = this.audioElement
+      el.play().catch(() => {
+        /* Autoplay engeli: kullanıcı henüz dokunmamış olabilir. */
+        if (this.audioElement !== el) return
+        this.statePlaying = false
+        this.onError?.('Tarayıcı sesi engelledi, tekrar dokun')
       })
       return
     }
-    
+    this.playSynth()
+  }
+
+  /* Ses kaydırıcısı gerçek mp3'e de uygulanır. */
+  setVolume(v: number) {
+    const vol = Math.max(0, Math.min(1, v))
+    if (this.audioElement) this.audioElement.volume = vol
+    if (this.out) this.out.gain.setTargetAtTime(vol * 0.8, audio().currentTime, 0.05)
+  }
+
+  private playSynth() {
     // Sentezlenmiş müzik
     if (this.timer !== null || !this.spec) return
     unlockAudio()
@@ -586,6 +631,7 @@ export class MusicPlayer {
     const beat = 60 / this.spec.bpm
     this.t0 = c.currentTime + 0.08
     this.step = 0
+    this.statePlaying = true
 
     const tick = () => {
       if (!this.spec) return
@@ -605,12 +651,13 @@ export class MusicPlayer {
   }
 
   pause() {
+    this.statePlaying = false
     // Gerçek audio dosyası varsa onu duraklat
     if (this.useRealAudio && this.audioElement) {
       this.audioElement.pause()
       return
     }
-    
+
     // Sentezlenmiş müzik
     if (this.timer !== null) {
       window.clearInterval(this.timer)
@@ -629,7 +676,9 @@ export class MusicPlayer {
     this.pause()
     if (this.audioElement) {
       this.audioElement.pause()
-      this.audioElement.src = ''
+      mediaElements.delete(this.audioElement)
+      this.audioElement.removeAttribute('src')
+      this.audioElement.load()
       this.audioElement = null
     }
     this.out?.disconnect()
