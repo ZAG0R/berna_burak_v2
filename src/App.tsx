@@ -5,6 +5,7 @@ import MobileNav from "./components/MobileNav";
 import Intro from "./components/Intro";
 import AmbientCanvas from "./three/AmbientCanvas";
 import WeatherFX from "./three/WeatherFX";
+import Buddy from "./three/Buddy";
 import Home from "./sections/Home";
 import Letter from "./sections/Letter";
 import Planner from "./sections/Planner";
@@ -322,6 +323,10 @@ export default function App() {
       <WeatherFX condition={scene.condition} />
 
       <AmbientCanvas />
+
+      {nav === "home" && introDone ? (
+        <Buddy scene={scene} reducedMotion={reducedMotion} dancing={playing} />
+      ) : null}
 
       {!introDone ? <Intro onDone={() => setIntroDone(true)} hour={hour} /> : null}
 
