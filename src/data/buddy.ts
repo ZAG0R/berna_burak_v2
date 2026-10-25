@@ -263,9 +263,3 @@ export function linesFor(kind: LineKind, scene: BuddyScene): string[] {
 export function pickLine(kind: LineKind, scene: BuddyScene): string {
   return pickFrom(linesFor(kind, scene), kind);
 }
-
-/* Sırayla konuşan ikili için: iki tarafın da havuzunu birleştirir. */
-export function pickDialog(scene: BuddyScene, who: 0 | 1, hero: boolean): string {
-  if (!hero) return pickLine(who === 0 ? "squabbleHer" : "squabbleHim", scene);
-  return pickLine(who === 0 ? "love" : "arrive", scene);
-}

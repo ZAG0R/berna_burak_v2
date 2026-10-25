@@ -115,11 +115,12 @@ function makeBuddy(opts: { body: string; accent: string; crown?: boolean; lash?:
   }
 
   const blushMat = new THREE.MeshBasicMaterial({ color: opts.accent, transparent: true, opacity: 0.4 });
-  const blushGeo = new THREE.CircleGeometry(0.072, 16);
+  /* Yanak: ince bir küre — yandan bakıldığında da havada duran disk gibi görünmez. */
+  const blushGeo = new THREE.SphereGeometry(0.062, 16, 12);
   for (const sx of [-1, 1]) {
     const blush = new THREE.Mesh(blushGeo, blushMat);
-    blush.position.set(sx * 0.29, -0.06, surfZ(sx * 0.29, -0.06) + 0.003);
-    blush.rotation.y = sx * 0.6;
+    blush.position.set(sx * 0.29, -0.06, surfZ(sx * 0.29, -0.06) - 0.02);
+    blush.scale.set(1, 0.9, 0.35);
     face.add(blush);
   }
 
@@ -135,7 +136,7 @@ function makeBuddy(opts: { body: string; accent: string; crown?: boolean; lash?:
   const arms: THREE.Mesh[] = [];
   for (const sx of [-1, 1]) {
     const arm = new THREE.Mesh(armGeo, bodyMat);
-    arm.position.set(sx * 0.46, -0.1, 0.04);
+    arm.position.set(sx * 0.44, -0.14, 0.05);
     arm.scale.set(0.85, 1.15, 0.85);
     root.add(arm);
     arms.push(arm);
@@ -145,7 +146,7 @@ function makeBuddy(opts: { body: string; accent: string; crown?: boolean; lash?:
   const feet: THREE.Mesh[] = [];
   for (const sx of [-1, 1]) {
     const foot = new THREE.Mesh(footGeo, bodyMat);
-    foot.position.set(sx * 0.16, -0.4, 0.1);
+    foot.position.set(sx * 0.16, -0.44, 0.1);
     foot.scale.set(1, 0.6, 1.15);
     root.add(foot);
     feet.push(foot);
@@ -339,7 +340,8 @@ export default function Buddy({ scene, reducedMotion, dancing = false }: Props) 
       visH = VIS_H;
       visW = VIS_H * (vw / vh);
       unit = Math.min(0.8, visW / 8.5);
-      offX = visW / 2 + 1.15 * unit;
+      /* Gövdenin tamamı ekran dışında kalacak kadar uzağa. */
+      offX = visW / 2 + 1.2 * unit + 0.5;
       meetX = 0.62 * unit;
       idleX = 0.85 * unit;
     };
@@ -475,19 +477,24 @@ export default function Buddy({ scene, reducedMotion, dancing = false }: Props) 
     let ambientAt = 0.6;
     let nextIdle = 12;
 
+    /* Yürüme hızı: süreleri mesafeye göre hesaplarken de bunu kullanıyoruz,
+       yoksa karakterler hedefe varmadan sahne değişiyor (ortada belirme). */
+    const walkTime = (a: Actor, target: number) =>
+      Math.abs(a.x - target) / (1.15 * unit) + 0.35;
+
     const setPhase = (p: Phase) => {
       phase = p;
       pt = 0;
       switch (p) {
         case "exit":
-          phaseDur = 3.2;
           herA.targetX = -offX;
           himA.targetX = offX;
+          phaseDur = Math.max(walkTime(herA, herA.targetX), walkTime(himA, himA.targetX));
           sayKind("leave", 0);
           break;
         case "enterHer":
           herA.targetX = -meetX;
-          phaseDur = Math.max(2.6, Math.abs(herA.x - herA.targetX) / (1.25 * unit));
+          phaseDur = walkTime(herA, herA.targetX);
           break;
         case "bored":
           phaseDur = 6;
@@ -495,7 +502,7 @@ export default function Buddy({ scene, reducedMotion, dancing = false }: Props) 
           break;
         case "enterHim":
           himA.targetX = meetX;
-          phaseDur = Math.max(2.6, Math.abs(himA.x - himA.targetX) / (1.25 * unit));
+          phaseDur = walkTime(himA, himA.targetX);
           sayKind("arrive", 1);
           break;
         case "meet":
@@ -750,12 +757,12 @@ export default function Buddy({ scene, reducedMotion, dancing = false }: Props) 
           if (a.moving) {
             const s = Math.sin(a.walk + (fi === 0 ? 0 : Math.PI));
             foot.position.z = 0.1 + s * 0.24;
-            foot.position.y = -0.55 + Math.max(0, s) * 0.09;
+            foot.position.y = -0.44 + Math.max(0, s) * 0.09;
           } else {
             const tap = phase === "bored" && fi === 1 ? Math.max(0, Math.sin(t * 7)) * 0.07 : 0;
             const dz = phase === "bored" && fi === 1 ? 0.14 : 0;
             foot.position.z = damp(foot.position.z, 0.1 + dz, dt * 8);
-            foot.position.y = damp(foot.position.y, -0.55 + tap, dt * 8);
+            foot.position.y = damp(foot.position.y, -0.44 + tap, dt * 8);
           }
           foot.position.x = sx * 0.15;
         }
@@ -763,9 +770,10 @@ export default function Buddy({ scene, reducedMotion, dancing = false }: Props) 
         for (let ai = 0; ai < b.arms.length; ai += 1) {
           const arm = b.arms[ai];
           const sx = ai === 0 ? -1 : 1;
-          let ay = -0.2;
+          let ay = -0.14;
           let az = 0.06;
-          let ax = sx * 0.58;
+          /* Kol gövdenin yüzeyinde kalsın, kopmuş gibi durmasın. */
+          let ax = sx * 0.45;
           if (dancingNow) {
             const s = Math.sin(t * 4.4 + ai * Math.PI + i);
             ay = 0.1 + s * 0.22;
@@ -774,7 +782,7 @@ export default function Buddy({ scene, reducedMotion, dancing = false }: Props) 
           } else if (a.moving) {
             const s = Math.sin(a.walk + (ai === 0 ? Math.PI : 0));
             az = 0.06 + s * 0.24;
-            ay = -0.2 + Math.abs(s) * 0.04;
+            ay = -0.14 + Math.abs(s) * 0.04;
           } else if (a.angry > 0.4) {
             ay = -0.02 + Math.sin(t * 18 + ai) * 0.06;
             ax = sx * 0.44;
@@ -788,7 +796,7 @@ export default function Buddy({ scene, reducedMotion, dancing = false }: Props) 
           const brow = b.brows[bi];
           const sx = bi === 0 ? -1 : 1;
           brow.rotation.z = damp(brow.rotation.z, a.angry * sx * 0.5, dt * 8);
-          brow.position.y = damp(brow.position.y, 0.245 - a.angry * 0.035, dt * 8);
+          brow.position.y = damp(brow.position.y, 0.225 - a.angry * 0.035, dt * 8);
         }
 
         const blinkCycle = 4.6 + i * 1.3;
