@@ -281,16 +281,48 @@ export default function Buddy({ scene, reducedMotion, dancing = false }: Props) 
     /* ---------- iki dost ---------- */
     const her = makeBuddy({ body: "#ffd7c4", accent: PINK, lash: true });
     const him = makeBuddy({ body: "#ffe8cc", accent: "#ffb37a", crown: true });
-    her.root.position.set(-0.62, -0.1, 0);
-    him.root.position.set(0.64, -0.02, -0.12);
+    her.root.position.set(-0.62, -0.18, 0);
+    him.root.position.set(0.64, -0.1, -0.12);
     him.root.scale.setScalar(0.95);
     scene3.add(her.root, him.root);
+
+    /* Yumuşak zemin gölgesi: dostlar havada süzülmesin, yere bassın. */
+    const shadowTex = (() => {
+      const c = document.createElement("canvas");
+      c.width = 128;
+      c.height = 128;
+      const g = c.getContext("2d")!;
+      const grd = g.createRadialGradient(64, 64, 4, 64, 64, 62);
+      grd.addColorStop(0, "rgba(18,12,24,0.62)");
+      grd.addColorStop(0.55, "rgba(18,12,24,0.24)");
+      grd.addColorStop(1, "rgba(18,12,24,0)");
+      g.fillStyle = grd;
+      g.fillRect(0, 0, 128, 128);
+      return new THREE.CanvasTexture(c);
+    })();
+    const shadows: THREE.Mesh[] = [];
+    for (const b of [her, him]) {
+      const sh = new THREE.Mesh(
+        new THREE.CircleGeometry(0.5, 28),
+        new THREE.MeshBasicMaterial({
+          map: shadowTex,
+          transparent: true,
+          depthWrite: false,
+          opacity: 0.5,
+        }),
+      );
+      sh.position.set(b.root.position.x, b.root.position.y - 0.66, -0.32);
+      sh.scale.set(1.4, 0.46, 1);
+      scene3.add(sh);
+      shadows.push(sh);
+    }
 
     const pointers = [her, him];
     const bobSpeed = [1.15, 0.92];
     const bobPhase = [0, 1.7];
     const baseY = [her.root.position.y, him.root.position.y];
     const baseScale = [1, him.root.scale.x];
+    const shadowBaseY = [her.root.position.y - 0.66, him.root.position.y - 0.66];
 
     /* ---------- etrafta uçuşan kalpler ---------- */
     const heartGeo = new THREE.ExtrudeGeometry(heartShape(0.11), {
@@ -410,6 +442,15 @@ export default function Buddy({ scene, reducedMotion, dancing = false }: Props) 
           arm.position.y = -0.2 + bob * 0.018 * (ai ? -1 : 1);
         });
 
+        /* Gölge: yükseldikçe küçülür ve soluklaşır. */
+        const lift = Math.max(0, b.root.position.y - baseY[i]);
+        const grow = 1 + lift * 0.6;
+        const sh = shadows[i];
+        sh.position.x = b.root.position.x;
+        sh.position.y = shadowBaseY[i];
+        sh.scale.set(1.4 * grow, 0.46 * grow, 1);
+        (sh.material as THREE.MeshBasicMaterial).opacity = 0.5 / (1 + lift * 3.4);
+
         if (b.heart) {
           b.heart.rotation.y = Math.sin(t * 0.9 + i) * 0.4;
           b.heart.scale.setScalar(0.92 + Math.sin(t * 2.4) * 0.05);
@@ -492,6 +533,11 @@ export default function Buddy({ scene, reducedMotion, dancing = false }: Props) 
         else mat?.dispose();
       });
       heartGeo.dispose();
+      shadowTex.dispose();
+      shadows.forEach((sh) => {
+        (sh.geometry as THREE.BufferGeometry).dispose();
+        (sh.material as THREE.Material).dispose();
+      });
       floaters.forEach((f) => (f.mesh.material as THREE.Material).dispose());
       renderer.dispose();
       if (renderer.domElement.parentNode === host) host.removeChild(renderer.domElement);
