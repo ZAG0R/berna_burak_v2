@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import type { Scene } from "../data/scenes";
-import { pickLine, type LineKind } from "../data/buddy";
+import { NAMES, pickLine, type LineKind, type Who } from "../data/buddy";
 
 /* ============================================================
    Minik dostlar - kalp antenli kiz ve tacli oglan.
@@ -236,12 +236,12 @@ export default function Buddy({ scene, reducedMotion, dancing = false }: Props) 
   danceRef.current = dancing;
   const [line, setLine] = useState<string | null>(null);
   const lineRef = useRef<string | null>(null);
-  const whoRef = useRef<0 | 1>(0);
+  const whoRef = useRef<Who>(0);
   const hideTimer = useRef<number | undefined>(undefined);
 
   lineRef.current = line;
 
-  const say = (text: string, who: 0 | 1 = 0) => {
+  const say = (text: string, who: Who = 0) => {
     whoRef.current = who;
     setLine(text);
     window.clearTimeout(hideTimer.current);
@@ -266,13 +266,13 @@ export default function Buddy({ scene, reducedMotion, dancing = false }: Props) 
   const sceneRef = useRef({ slot: scene.slot, condition: scene.condition });
   sceneRef.current = { slot: scene.slot, condition: scene.condition };
 
-  /* Sahne bağımlı konuşma: replikler saate ve hava durumuna göre seçilir. */
-  const sayKind = (kind: LineKind, who: 0 | 1 = 0) =>
-    sayRef.current?.(pickLine(kind, sceneRef.current), who);
+  /* Sahne bağımlı konuşma: her karakterin kendi repliği vardır. */
+  const sayKind = (kind: LineKind, who: Who = 0) =>
+    sayRef.current?.(pickLine(kind, sceneRef.current, who), who);
 
   useEffect(() => {
     const id = window.setTimeout(() => {
-      sayRef.current?.(pickLine("greet", { slot: slotKey, condition: condKey }), 0);
+      sayRef.current?.(pickLine("greet", { slot: slotKey, condition: condKey }, 0), 0);
     }, 1600);
     return () => window.clearTimeout(id);
   }, [slotKey, condKey]);
@@ -520,7 +520,7 @@ export default function Buddy({ scene, reducedMotion, dancing = false }: Props) 
           squabbleAt = 1.4;
           squabbleRound = 0;
           steamAt = 0;
-          sayKind("squabbleHer", 0);
+          sayKind("squabble", 0);
           break;
       }
     };
@@ -673,7 +673,7 @@ export default function Buddy({ scene, reducedMotion, dancing = false }: Props) 
           if (squabbleRound >= 3) squabbleAt = -1;
           else {
             squabbleRound += 1;
-            sayKind(squabbleRound % 2 === 1 ? "squabbleHim" : "squabbleHer", squabbleRound % 2 === 1 ? 1 : 0);
+            sayKind("squabble", squabbleRound % 2 === 1 ? 1 : 0);
           }
         }
         steamAt -= dt;
@@ -890,10 +890,16 @@ export default function Buddy({ scene, reducedMotion, dancing = false }: Props) 
       <div
         ref={bubbleRef}
         className={`buddy__bubble ${line ? "is-in" : ""}`}
+        data-who={whoRef.current === 0 ? "her" : "him"}
         role="status"
         aria-live="polite"
       >
-        {line ?? ""}
+        {line ? (
+          <>
+            <b className="buddy__who">{NAMES[whoRef.current]}</b>
+            <span>{line}</span>
+          </>
+        ) : null}
       </div>
     </div>
   );

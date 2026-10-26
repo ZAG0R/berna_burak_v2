@@ -63,7 +63,17 @@ export const PLAN_ITEMS: PlanItem[] = [
 ];
 
 export type PlanItem = { id: string; time: string; label: string; note?: string };
-export type SurpriseIdea = { emoji: string; title: string; text: string };
+export type Surprise = {
+  id: string;
+  emoji: string;
+  tag: string;
+  title: string;
+  text: string;
+  /** Yapılacak somut şey — süs cümlesi değil. */
+  action: string;
+  /** Yaklaşık süre. */
+  minutes: number;
+};
 export type Memory = { id: string; image: string; caption: string; date: string; place: string };
 export type Milestone = { when: string; what: string; desc: string };
 
@@ -127,24 +137,103 @@ export const NOTE_CARDS = [
    Sürprizler
    ============================================================ */
 
-export const SURPRISE = {
-  hint: "Kutuyu aç",
-  sub: "bir dokunuş yeter",
-  title: "Küçük bir sürpriz",
-  text: "Bugünün sürprizi: bu akşam telefonunu bir kenara bırak, en sevdiğin şarkıyı aç ve pencereden gökyüzüne bak. Ben de aynısını yapacağım. Aynı gökyüzü, aynı şarkı, aynı biz.",
-  cta: "Yeniden kapat",
-};
+export const SURPRISE_HINT = "Kutuyu aç";
+export const SURPRISE_SUB = "bugünün sürprizi seni bekliyor";
 
-export const SURPRISE_IDEAS: SurpriseIdea[] = [
-  { emoji: "☕", title: "Kahve falı", text: "Birlikte içelim, fincanıma bakıp geleceği uyduralım." },
-  { emoji: "🎬", title: "Film gecesi", text: "Aynı filmi aynı anda başlatalım, telefonda yorumlayalım." },
-  { emoji: "🧺", title: "Piknik", text: "Battaniye, iki sandviç, güneş. Fazlasına gerek yok." },
-  { emoji: "✉️", title: "El yazısı mektup", text: "Postaya verilen bir mektup, ekrandan daha ağır." },
-  { emoji: "🌌", title: "Yıldızların altında", text: "Işıklar kapalı, battaniye açık, gökyüzü konuşsun." },
-  { emoji: "🍝", title: "Birlikte yemek", text: "Aynı tarifi seçip aynı anda pişirmek." },
-  { emoji: "🎶", title: "Ortak çalma listesi", text: "İkimizin şarkılarından tek bir liste yapalım." },
-  { emoji: "📷", title: "Anı çekimi", text: "Bugünü kaydet. Yarın gülerek bakacağız." },
+/* Her gün biri açılır. Hepsi tek başına yapılabilir, somut ve gerçek. */
+export const SURPRISES: Surprise[] = [
+  {
+    id: "sarki",
+    emoji: "🎧",
+    tag: "Aynı anda",
+    title: "Aynı şarkı, aynı dakika",
+    text: "Bu akşam 21:00'de kulaklığını tak ve 'İçim Dolu Her Şeyim'i baştan başlat. Ben de aynı anda başlatacağım.",
+    action: "Şarkı bitince bana ilk aklına gelen cümleyi yaz.",
+    minutes: 4,
+  },
+  {
+    id: "kahve",
+    emoji: "☕",
+    tag: "Sabah",
+    title: "Pencere kenarında ilk kahve",
+    text: "Yarın güne telefonu eline almadan başla. Kahveni al, pencerenin önüne geç, üç dakika sadece dışarı bak.",
+    action: "O üç dakikanın fotoğrafını çek, bana gönder.",
+    minutes: 5,
+  },
+  {
+    id: "mektup",
+    emoji: "✉️",
+    tag: "Sessizlik",
+    title: "Yirmi dakika uçak modu",
+    text: "Bu akşam telefonunu uçak moduna al ve kimseye cevap verme. Yirmi dakika boyunca sadece sen varsın.",
+    action: "Süre bitince bana tek cümleyle ne düşündüğünü yaz.",
+    minutes: 20,
+  },
+  {
+    id: "foto",
+    emoji: "📷",
+    tag: "Anı",
+    title: "Galeriden bir kare seç",
+    text: "Telefonunun galerisinde bizimle ilgili en sevdiğin kareyi bul. Silmeye kıyamadığın o kare.",
+    action: "Fotoğrafı bana at ve neden o kare olduğunu tek satırda anlat.",
+    minutes: 6,
+  },
+  {
+    id: "yemek",
+    emoji: "🍝",
+    tag: "Mutfak",
+    title: "Aynı tarifi pişirelim",
+    text: "Bu akşam basit bir makarna yap: tereyağı, domates, biraz tuz. Abartmaya gerek yok, aynısını ben de yapacağım.",
+    action: "Tabak hazır olunca fotoğrafını çek, karşılaştıralım.",
+    minutes: 25,
+  },
+  {
+    id: "yildiz",
+    emoji: "🌌",
+    tag: "Gece",
+    title: "Beş dakika gökyüzü",
+    text: "Hava karardığında ışıkları kapat ve beş dakika gökyüzüne bak. Şehirde yıldız az, biliyorum; yine de bak.",
+    action: "Gördüğün ilk şeyi bana yaz: yıldız mı, bulut mu, uçak mı?",
+    minutes: 5,
+  },
+  {
+    id: "soru",
+    emoji: "💭",
+    tag: "Soru",
+    title: "Cevabı merak ettiğim soru",
+    text: "Bu hafta kendin için yaptığın en iyi şey neydi? Küçük de olabilir, saçma da olabilir.",
+    action: "Cevabı bana yaz. Ben de kendi cevabımı yazacağım.",
+    minutes: 3,
+  },
+  {
+    id: "ses",
+    emoji: "🎙️",
+    tag: "Ses",
+    title: "Otuz saniyelik ses kaydı",
+    text: "Bugünün sesini kaydet: dışarıdaki bir ses, kendi sesin, ne olursa. Otuz saniye yeter.",
+    action: "Kaydı bana gönder. Ben de aynı gün bir tane kaydedeceğim.",
+    minutes: 2,
+  },
+  {
+    id: "yuruyus",
+    emoji: "🚶",
+    tag: "Hareket",
+    title: "On dakika yürüyüş",
+    text: "Telefonu cebine koy, müziği aç ve on dakika yürü. Nereye gittiğin önemli değil.",
+    action: "Döndüğünde bana tek kelimeyle nasıl hissettiğini yaz.",
+    minutes: 10,
+  },
+  {
+    id: "defter",
+    emoji: "📝",
+    tag: "Küçük not",
+    title: "Yarına bir not bırak",
+    text: "Yarın uyandığında göreceğin bir yere küçük bir not bırak. Kendi el yazınla.",
+    action: "Notu bulduğunda bana haber ver.",
+    minutes: 4,
+  },
 ];
+
 
 export const COUNTDOWN_LABEL = "Bir sonraki buluşmamıza";
 

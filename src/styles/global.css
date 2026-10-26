@@ -386,6 +386,21 @@ ol {
   transform: translate(-50%, calc(-100% - 4px)) scale(1);
 }
 
+/* Balonda konuşanın adı: sol karakter pembe, sağ karakter altın. */
+.buddy__who {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #ffb3c7;
+}
+
+.buddy__bubble[data-who="him"] .buddy__who {
+  color: #ffcf8f;
+}
+
 @media (max-width: 900px) {
   .buddy__bubble {
     max-width: 210px;

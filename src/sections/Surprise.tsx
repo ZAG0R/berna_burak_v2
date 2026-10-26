@@ -1,14 +1,32 @@
 import { useEffect, useMemo, useState } from "react";
 import { Icon } from "../components/Icons";
 import GiftBox from "../three/GiftBox";
-import { COUNTDOWN_LABEL, SURPRISE, SURPRISE_IDEAS } from "../data/content";
+import { COUNTDOWN_LABEL, SURPRISES, SURPRISE_HINT, SURPRISE_SUB } from "../data/content";
 import { burstHearts, daysUntil, useReveal, useStoredState } from "../hooks/useAppState";
+
+/* ============================================================
+   Sürprizler
+
+   - Bugünün sürprizi güne göre sabittir: aynı gün hep aynı sürpriz,
+     ertesi gün bir sonraki. Yani gerçekten "bugüne özel".
+   - Her sürprizin somut bir yapılacak işi ve süresi vardır; süs
+     cümlesinden ibaret değildir.
+   - "Başka sürpriz" ile listede ilerlenir, "yaptım" işaretlenir ve
+     ilerleme kaydedilir. Tek bir sürprize bağlı kalmaz.
+   ============================================================ */
 
 export default function Surprise() {
   const [open, setOpen] = useState(false);
   const [revealed, setRevealed] = useState(false);
-  const [picked, setPicked] = useStoredState<string | null>("surprise:picked", null);
+  const [offset, setOffset] = useStoredState<number>("surprise:offset", 0);
+  const [doneMap, setDoneMap] = useStoredState<Record<string, boolean>>("surprise:done", {});
   const sideRef = useReveal<HTMLDivElement>(110);
+
+  /* Gün numarası: sürpriz gün içinde değişmez, ertesi gün değişir. */
+  const dayIndex = Math.floor(Date.now() / 86_400_000);
+  const surprise = SURPRISES[(dayIndex + offset) % SURPRISES.length];
+  const done = Boolean(doneMap[surprise.id]);
+  const doneCount = SURPRISES.filter((s) => doneMap[s.id]).length;
 
   // bir sonraki ayın 1'i — örnek bir geri sayım hedefi
   const target = useMemo(() => {
@@ -22,29 +40,48 @@ export default function Surprise() {
     return () => window.clearInterval(id);
   }, [target]);
 
+  const reveal = () => {
+    window.setTimeout(() => setRevealed(true), 620);
+    window.setTimeout(() => burstHearts(window.innerWidth / 2, window.innerHeight * 0.45, 12), 520);
+  };
+
   const toggle = () => {
     setOpen((v) => {
       const next = !v;
-      if (next) {
-        window.setTimeout(() => setRevealed(true), 620);
-        window.setTimeout(() => burstHearts(window.innerWidth / 2, window.innerHeight * 0.45, 12), 520);
-      } else {
-        setRevealed(false);
-      }
+      if (next) reveal();
+      else setRevealed(false);
       return next;
     });
   };
+
+  /* Listedeki sıradaki sürprize geç ve kutuyu yeniden aç. */
+  const another = () => {
+    setOffset((o) => o + 1);
+    setRevealed(false);
+    setOpen(true);
+    reveal();
+  };
+
+  const toggleDone = () =>
+    setDoneMap((m) => {
+      const next = { ...m };
+      if (next[surprise.id]) delete next[surprise.id];
+      else next[surprise.id] = true;
+      return next;
+    });
 
   return (
     <section className="section" aria-label="Sürprizler">
       <header className="section__head">
         <div>
-          <p className="section__eyebrow">Bugüne özel</p>
+          <p className="section__eyebrow">
+            Bugüne özel · {doneCount}/{SURPRISES.length} tamamlandı
+          </p>
           <h2 className="section__title">
-            Küçük bir <em>sürpriz</em>
+            Bugünün <em>sürprizi</em>
           </h2>
           <p className="section__lead">
-            Kutuyu açmak için dokun. İçinden çıkanı okuyunca belki gülümsersin.
+            Her gün bir tane. Kutuyu aç, içindeki işi yap, işaretle. Yarına başka bir sürpriz var.
           </p>
         </div>
       </header>
@@ -55,21 +92,43 @@ export default function Surprise() {
 
           <div className={`gift__reveal ${revealed ? "gift__reveal--on" : ""}`}>
             <div className="gift__reveal-inner">
-              <h3>{SURPRISE.title}</h3>
-              <p>{SURPRISE.text}</p>
-              <button type="button" className="btn" onClick={toggle}>
-                <Icon name="close" />
-                {SURPRISE.cta}
-              </button>
+              <p className="gift__tag">
+                <span aria-hidden>{surprise.emoji}</span> {surprise.tag} · {surprise.minutes} dk
+              </p>
+              <h3>{surprise.title}</h3>
+              <p>{surprise.text}</p>
+              <p className="gift__action">
+                <b>Yapılacak:</b> {surprise.action}
+              </p>
+
+              <div className="gift__row">
+                <button
+                  type="button"
+                  className={`btn btn--sm ${done ? "btn--done" : "btn--accent"}`}
+                  onClick={toggleDone}
+                  aria-pressed={done}
+                >
+                  <Icon name="check" />
+                  {done ? "Yaptım" : "Yaptım olarak işaretle"}
+                </button>
+                <button type="button" className="btn btn--sm" onClick={another}>
+                  <Icon name="refresh" />
+                  Başka sürpriz
+                </button>
+                <button type="button" className="btn btn--sm" onClick={toggle}>
+                  <Icon name="close" />
+                  Kapat
+                </button>
+              </div>
             </div>
           </div>
 
           {!revealed ? (
             <div className="gift__overlay">
               <p className="gift__hint">
-                {SURPRISE.hint} <span>♡</span>
+                {SURPRISE_HINT} <span>♡</span>
               </p>
-              <p className="gift__sub">{SURPRISE.sub}</p>
+              <p className="gift__sub">{SURPRISE_SUB}</p>
             </div>
           ) : null}
         </div>
@@ -99,36 +158,41 @@ export default function Surprise() {
                 <Icon name="sparkles" />
               </span>
               <div>
-                <h3 className="card__title">Yapabileceklerimiz</h3>
-                <p className="card__sub">birine dokun, birlikte planlayalım</p>
+                <h3 className="card__title">Sürpriz defteri</h3>
+                <p className="card__sub">sıradakine geçmek için dokun</p>
               </div>
             </header>
 
             <div className="stack gap-10">
-              {SURPRISE_IDEAS.map((idea) => (
-                <button
-                  key={idea.title}
-                  type="button"
-                  className={`idea ${picked === idea.title ? "idea--on" : ""}`}
-                  onClick={() => setPicked(picked === idea.title ? null : idea.title)}
-                  aria-pressed={picked === idea.title}
-                >
-                  <span className="idea__emoji" aria-hidden>
-                    {idea.emoji}
-                  </span>
-                  <span>
-                    <span className="idea__title">{idea.title}</span>
-                    <span className="idea__text">{idea.text}</span>
-                  </span>
-                </button>
-              ))}
+              {SURPRISES.map((s) => {
+                const isOn = surprise.id === s.id;
+                const isDone = Boolean(doneMap[s.id]);
+                return (
+                  <button
+                    key={s.id}
+                    type="button"
+                    className={`sitem ${isOn ? "sitem--on" : ""} ${isDone ? "sitem--done" : ""}`}
+                    onClick={() => {
+                      setOffset(SURPRISES.findIndex((x) => x.id === s.id) - (dayIndex % SURPRISES.length) + SURPRISES.length * 4);
+                      setOpen(true);
+                      setRevealed(true);
+                      burstHearts(window.innerWidth / 2, window.innerHeight * 0.4, 6);
+                    }}
+                    aria-pressed={isOn}
+                  >
+                    <span className="sitem__emoji" aria-hidden>
+                      {isDone ? "✓" : s.emoji}
+                    </span>
+                    <span>
+                      <span className="sitem__title">{s.title}</span>
+                      <span className="sitem__meta">
+                        {s.tag} · {s.minutes} dk
+                      </span>
+                    </span>
+                  </button>
+                );
+              })}
             </div>
-
-            {picked ? (
-              <p className="note__text" style={{ marginTop: 14 }}>
-                Seçtiğin: <strong style={{ color: "var(--accent)" }}>{picked}</strong> — not aldım. ♡
-              </p>
-            ) : null}
           </article>
         </aside>
       </div>
