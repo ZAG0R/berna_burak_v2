@@ -525,7 +525,7 @@
 
 .surprise {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(300px, 420px);
+  grid-template-columns: minmax(0, 1.05fr) minmax(320px, 1fr);
   gap: 22px;
   align-items: start;
 }
@@ -538,6 +538,7 @@
     linear-gradient(160deg, rgba(20, 26, 46, 0.85), rgba(10, 13, 25, 0.9));
   border: 1px solid var(--line);
   min-height: 420px;
+  height: 100%;
 }
 
 .gift__canvas {
@@ -728,6 +729,42 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
+  min-width: 0;
+}
+
+/* Sürpriz defteri: kartlar yan yana, sayfayı uzatmadan. */
+.surprise__board {
+  padding: 18px;
+}
+
+.sgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+  max-height: 420px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+/* Sayaç: geniş ekranda tek satır, dar ekranda üç kutu. */
+.countdown--row {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.countdown__label {
+  grid-column: 1 / -1;
+  text-align: center;
+  margin-top: 4px;
+}
+
+.sitem__body {
+  min-width: 0;
+  flex: 1;
+}
+
+.sitem__title {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .idea {
@@ -1035,9 +1072,17 @@
   }
 
   .letter,
-  .planner,
+  .planner {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Sürpriz sayfası: kutu ve defter alt alta, ama kutu küçülmesin. */
   .surprise {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .gift {
+    min-height: 380px;
   }
 
   .planner__side {

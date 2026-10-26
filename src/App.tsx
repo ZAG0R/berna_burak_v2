@@ -90,27 +90,27 @@ export default function App() {
     document.documentElement.dataset.accent = accent;
   }, [accent]);
 
-  /* Masaüstünde icerik her zaman tek ekrana sigsin: tüm kabuk pencere
-     yüksekligine göre ölceklenir (--hz). Ölcek degistigi icin yerlesim hic
-     bozulmaz, yalnizca büyüyüp kücülür; kaydirma gerekmez. */
+  /* Ana sayfa tek ekrana sığmalı (alt kartlar görünsün) → yükseklik ölçeği
+     yalnızca burada uygulanır. Diğer sayfalar gerçek boyutunda kalır ve
+     kaydırılır; orada küçültme yapılırsa içerik minicik kalıyordu. */
   useLayoutEffect(() => {
     const root = document.documentElement;
+    const onlyHome = nav === "home";
 
     const fit = () => {
       const vw = window.innerWidth;
       const vh = window.innerHeight;
 
-      /* Mobil tek sutun duzeni dogal olarak kayar; masaustunde ise her sey
-         tek ekrana sigmali. Bu yuzden olcekleme yalnizca masaustunde ve
-         yalnizca kucultme yonunde calisir. */
-      if (vw < 901) {
+      /* Mobil tek sütun düzeni doğal olarak kayar. Masaüstünde de yalnızca
+         ana sayfa küçültülür. */
+      if (!onlyHome || vw < 901) {
         root.style.setProperty("--hz", "1");
         return;
       }
 
       let hz = Math.min(1.35, Math.max(0.7, vh / 720));
       root.style.setProperty("--hz", hz.toFixed(4));
-      /* Kökün scrollHeight'i .app'teki overflow:hidden yüzünden kırpılıyor.
+      /* Kökün scrollHeight'i .app'teki overflow yüzünden kırpılıyor.
          Gerçek içerik yüksekliği kabuğun kutusundan ölçülür. */
       const shell = document.querySelector<HTMLElement>(".app__shell");
       for (let i = 0; i < 10; i += 1) {
@@ -123,13 +123,20 @@ export default function App() {
 
     fit();
     const id = window.setTimeout(fit, 80);
+    const id2 = window.setTimeout(fit, 400);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit).catch(() => undefined);
     window.addEventListener("resize", fit);
     return () => {
       window.clearTimeout(id);
+      window.clearTimeout(id2);
       window.removeEventListener("resize", fit);
     };
   }, [introDone, nav]);
+
+  /* Sayfa değişince en başa dön. */
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }, [nav]);
 
   useEffect(() => {
     if (reducedMotion) document.documentElement.dataset.motion = "reduced";

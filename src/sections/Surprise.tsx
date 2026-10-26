@@ -134,7 +134,7 @@ export default function Surprise() {
         </div>
 
         <aside className="surprise__side" ref={sideRef}>
-          <article className="card countdown">
+          <article className="card countdown countdown--row">
             <div className="cdunit">
               <b>{days}</b>
               <span>gün</span>
@@ -147,23 +147,21 @@ export default function Surprise() {
               <b>{String(target.getDate()).padStart(2, "0")}</b>
               <span>gün</span>
             </div>
-            <p className="card__sub" style={{ gridColumn: "1 / -1", textAlign: "center", marginTop: 4 }}>
-              {COUNTDOWN_LABEL}
-            </p>
+            <p className="card__sub countdown__label">{COUNTDOWN_LABEL}</p>
           </article>
 
-          <article className="card" style={{ padding: 18 }}>
+          <article className="card surprise__board">
             <header className="card__head">
               <span className="card__icon card__icon--rose" aria-hidden>
                 <Icon name="sparkles" />
               </span>
               <div>
                 <h3 className="card__title">Sürpriz defteri</h3>
-                <p className="card__sub">sıradakine geçmek için dokun</p>
+                <p className="card__sub">bir karta dokun, yap, işaretle</p>
               </div>
             </header>
 
-            <div className="stack gap-10">
+            <div className="sgrid">
               {SURPRISES.map((s) => {
                 const isOn = surprise.id === s.id;
                 const isDone = Boolean(doneMap[s.id]);
@@ -183,7 +181,7 @@ export default function Surprise() {
                     <span className="sitem__emoji" aria-hidden>
                       {isDone ? "✓" : s.emoji}
                     </span>
-                    <span>
+                    <span className="sitem__body">
                       <span className="sitem__title">{s.title}</span>
                       <span className="sitem__meta">
                         {s.tag} · {s.minutes} dk
