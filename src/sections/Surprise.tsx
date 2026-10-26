@@ -1,65 +1,84 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Icon } from "../components/Icons";
 import GiftBox from "../three/GiftBox";
 import { COUNTDOWN_LABEL, SURPRISES, SURPRISE_HINT, SURPRISE_SUB } from "../data/content";
-import { burstHearts, daysUntil, useReveal, useStoredState } from "../hooks/useAppState";
+import { burstHearts, useReveal, useStoredState } from "../hooks/useAppState";
 
 /* ============================================================
    Sürprizler
 
-   - Bugünün sürprizi güne göre sabittir: aynı gün hep aynı sürpriz,
-     ertesi gün bir sonraki. Yani gerçekten "bugüne özel".
-   - Her sürprizin somut bir yapılacak işi ve süresi vardır; süs
-     cümlesinden ibaret değildir.
-   - "Başka sürpriz" ile listede ilerlenir, "yaptım" işaretlenir ve
-     ilerleme kaydedilir. Tek bir sürprize bağlı kalmaz.
+   - Günde bir sürpriz açılır; aynı gün hep aynı sürpriz gelir.
+   - Defterdeki diğer kartlar KAPALIDIR. Başlıkları görünmez, sadece
+     kaçıncı gün olduğu yazar. Böylece ileriden bakıp sürprizi bozmak
+     mümkün olmaz.
+   - Bir sürpriz yalnızca açıldığı gün "açıldı" olarak işaretlenir ve
+     sonra başlığı görünür.
+   - Geri sayım bir sonraki buluşma saatine (09:00 / 21:00) kadar;
+     yani her zaman 12 saatten kısa.
    ============================================================ */
+
+/* Günde iki buluşma anı: hangisi önceyse ona sayılır. */
+const MEETING_HOURS = [9, 21];
+
+function nextMeeting(now: Date) {
+  const next = MEETING_HOURS.map((h) => {
+    const d = new Date(now);
+    d.setHours(h, 0, 0, 0);
+    if (d.getTime() <= now.getTime()) d.setDate(d.getDate() + 1);
+    return d;
+  }).sort((a, b) => a.getTime() - b.getTime());
+  return next[0];
+}
+
+const pad = (n: number) => String(n).padStart(2, "0");
 
 export default function Surprise() {
   const [open, setOpen] = useState(false);
   const [revealed, setRevealed] = useState(false);
-  const [offset, setOffset] = useStoredState<number>("surprise:offset", 0);
+  const [opened, setOpened] = useStoredState<Record<string, boolean>>("surprise:opened", {});
   const [doneMap, setDoneMap] = useStoredState<Record<string, boolean>>("surprise:done", {});
   const sideRef = useReveal<HTMLDivElement>(110);
 
   /* Gün numarası: sürpriz gün içinde değişmez, ertesi gün değişir. */
   const dayIndex = Math.floor(Date.now() / 86_400_000);
-  const surprise = SURPRISES[(dayIndex + offset) % SURPRISES.length];
+  const todayIdx = ((dayIndex % SURPRISES.length) + SURPRISES.length) % SURPRISES.length;
+  const surprise = SURPRISES[todayIdx];
   const done = Boolean(doneMap[surprise.id]);
   const doneCount = SURPRISES.filter((s) => doneMap[s.id]).length;
 
-  // bir sonraki ayın 1'i — örnek bir geri sayım hedefi
-  const target = useMemo(() => {
-    const d = new Date();
-    return new Date(d.getFullYear(), d.getMonth() + 1, 1);
-  }, []);
-  const [days, setDays] = useState(() => daysUntil(target));
+  /* Bugünden başlayan sıra: bugününki ilk kart. */
+  const ordered = SURPRISES.map((_, i) => SURPRISES[(todayIdx + i) % SURPRISES.length]);
 
+  /* ---------- geri sayım ---------- */
+  const [now, setNow] = useState(() => new Date());
   useEffect(() => {
-    const id = window.setInterval(() => setDays(daysUntil(target)), 60_000);
+    const id = window.setInterval(() => setNow(new Date()), 1000);
     return () => window.clearInterval(id);
-  }, [target]);
+  }, []);
+
+  const target = nextMeeting(now);
+  const diff = Math.max(0, target.getTime() - now.getTime());
+  const hours = Math.floor(diff / 3_600_000);
+  const minutes = Math.floor((diff % 3_600_000) / 60_000);
+  const seconds = Math.floor((diff % 60_000) / 1000);
 
   const reveal = () => {
     window.setTimeout(() => setRevealed(true), 620);
     window.setTimeout(() => burstHearts(window.innerWidth / 2, window.innerHeight * 0.45, 12), 520);
   };
 
+  /* Kutuyu aç: bugünün sürprizi açılmış olarak işaretlenir. */
   const toggle = () => {
     setOpen((v) => {
       const next = !v;
-      if (next) reveal();
-      else setRevealed(false);
+      if (next) {
+        setOpened((m) => (m[surprise.id] ? m : { ...m, [surprise.id]: true }));
+        reveal();
+      } else {
+        setRevealed(false);
+      }
       return next;
     });
-  };
-
-  /* Listedeki sıradaki sürprize geç ve kutuyu yeniden aç. */
-  const another = () => {
-    setOffset((o) => o + 1);
-    setRevealed(false);
-    setOpen(true);
-    reveal();
   };
 
   const toggleDone = () =>
@@ -81,7 +100,7 @@ export default function Surprise() {
             Bugünün <em>sürprizi</em>
           </h2>
           <p className="section__lead">
-            Her gün bir tane. Kutuyu aç, içindeki işi yap, işaretle. Yarına başka bir sürpriz var.
+            Her gün bir tane açılır. Kutuyu aç, içindeki işi yap, işaretle. Yarına başka bir sürpriz var.
           </p>
         </div>
       </header>
@@ -111,10 +130,6 @@ export default function Surprise() {
                   <Icon name="check" />
                   {done ? "Yaptım" : "Yaptım olarak işaretle"}
                 </button>
-                <button type="button" className="btn btn--sm" onClick={another}>
-                  <Icon name="refresh" />
-                  Başka sürpriz
-                </button>
                 <button type="button" className="btn btn--sm" onClick={toggle}>
                   <Icon name="close" />
                   Kapat
@@ -136,18 +151,20 @@ export default function Surprise() {
         <aside className="surprise__side" ref={sideRef}>
           <article className="card countdown countdown--row">
             <div className="cdunit">
-              <b>{days}</b>
-              <span>gün</span>
+              <b>{pad(hours)}</b>
+              <span>saat</span>
             </div>
             <div className="cdunit">
-              <b>{String(target.getMonth() + 1).padStart(2, "0")}</b>
-              <span>ay</span>
+              <b>{pad(minutes)}</b>
+              <span>dakika</span>
             </div>
             <div className="cdunit">
-              <b>{String(target.getDate()).padStart(2, "0")}</b>
-              <span>gün</span>
+              <b>{pad(seconds)}</b>
+              <span>saniye</span>
             </div>
-            <p className="card__sub countdown__label">{COUNTDOWN_LABEL}</p>
+            <p className="card__sub countdown__label">
+              {COUNTDOWN_LABEL} · {pad(target.getHours())}:00
+            </p>
           </article>
 
           <article className="card surprise__board">
@@ -157,34 +174,53 @@ export default function Surprise() {
               </span>
               <div>
                 <h3 className="card__title">Sürpriz defteri</h3>
-                <p className="card__sub">bir karta dokun, yap, işaretle</p>
+                <p className="card__sub">açılan günler görünür, gerisi mühürlü</p>
               </div>
             </header>
 
             <div className="sgrid">
-              {SURPRISES.map((s) => {
-                const isOn = surprise.id === s.id;
+              {ordered.map((s, i) => {
+                const isToday = i === 0;
+                const isOpened = Boolean(opened[s.id]);
                 const isDone = Boolean(doneMap[s.id]);
+                const sealed = !isOpened && !isToday;
+
                 return (
                   <button
                     key={s.id}
                     type="button"
-                    className={`sitem ${isOn ? "sitem--on" : ""} ${isDone ? "sitem--done" : ""}`}
+                    className={`sitem ${isToday && !isOpened ? "sitem--on" : ""} ${isDone ? "sitem--done" : ""} ${
+                      sealed ? "sitem--sealed" : ""
+                    }`}
                     onClick={() => {
-                      setOffset(SURPRISES.findIndex((x) => x.id === s.id) - (dayIndex % SURPRISES.length) + SURPRISES.length * 4);
-                      setOpen(true);
-                      setRevealed(true);
-                      burstHearts(window.innerWidth / 2, window.innerHeight * 0.4, 6);
+                      if (sealed) return;
+                      if (isToday) {
+                        setOpen(true);
+                        setRevealed(true);
+                        setOpened((m) => (m[s.id] ? m : { ...m, [s.id]: true }));
+                        burstHearts(window.innerWidth / 2, window.innerHeight * 0.4, 6);
+                      }
                     }}
-                    aria-pressed={isOn}
+                    disabled={sealed}
+                    aria-label={
+                      sealed
+                        ? `${i + 1}. günün sürprizi — henüz açılmadı`
+                        : `${s.title}${isDone ? " (yapıldı)" : ""}`
+                    }
                   >
                     <span className="sitem__emoji" aria-hidden>
-                      {isDone ? "✓" : s.emoji}
+                      {sealed ? "🔒" : isDone ? "✓" : s.emoji}
                     </span>
                     <span className="sitem__body">
-                      <span className="sitem__title">{s.title}</span>
+                      <span className="sitem__title">
+                        {sealed ? "Gizli sürpriz" : s.title}
+                      </span>
                       <span className="sitem__meta">
-                        {s.tag} · {s.minutes} dk
+                        {isToday && !isOpened
+                          ? "bugün · açmak için dokun"
+                          : sealed
+                            ? `${i + 1}. gün — mühürlü`
+                            : `${s.tag} · ${s.minutes} dk`}
                       </span>
                     </span>
                   </button>

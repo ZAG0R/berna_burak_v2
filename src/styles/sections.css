@@ -701,6 +701,30 @@
   text-decoration-color: rgba(255, 179, 92, 0.6);
 }
 
+/* Mühürlü kart: başlığı gizli, sadece kaçıncı gün olduğu yazar. */
+.sitem--sealed {
+  cursor: default;
+  background: rgba(10, 14, 26, 0.55);
+  border-style: dashed;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.sitem--sealed:hover {
+  transform: none;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.sitem--sealed .sitem__emoji {
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 14px;
+}
+
+.sitem--sealed .sitem__title {
+  color: var(--ink-faint);
+  font-style: italic;
+  font-weight: 500;
+}
+
 .sitem__emoji {
   flex: none;
   width: 36px;
