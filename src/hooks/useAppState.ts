@@ -78,6 +78,47 @@ export function useClock() {
 }
 
 /* ============================================================
+   Yerel gün
+
+   Sürpriz ve plan "gün"ü gece yarısı dönmeli. Date.now()/86_400_000
+   UTC'ye göre saydığı için Türkiye'de gün 03:00'te değişiyordu.
+   Bu yardımcı, saat dilimi kaymasını ekleyerek yerel gece yarısını
+   sınır kabul eden bir gün numarası üretir.
+   ============================================================ */
+
+export function dayNumber(d: Date = new Date()) {
+  return Math.floor((d.getTime() - d.getTimezoneOffset() * 60_000) / 86_400_000)
+}
+
+/** Yerel gün anahtarı: "2026-05-17" */
+export function dayKey(d: Date = new Date()) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+/** Gece yarısını (ya da sekmeye geri dönüşü) yakalayan canlı gün anahtarı. */
+export function useLocalDay() {
+  const [key, setKey] = useState(() => dayKey())
+
+  useEffect(() => {
+    const tick = () =>
+      setKey((prev) => {
+        const next = dayKey()
+        return prev === next ? prev : next
+      })
+    const id = window.setInterval(tick, 30_000)
+    window.addEventListener('focus', tick)
+    document.addEventListener('visibilitychange', tick)
+    return () => {
+      window.clearInterval(id)
+      window.removeEventListener('focus', tick)
+      document.removeEventListener('visibilitychange', tick)
+    }
+  }, [])
+
+  return key
+}
+
+/* ============================================================
    Bildirim
    ============================================================ */
 

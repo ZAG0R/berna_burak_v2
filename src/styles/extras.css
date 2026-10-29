@@ -1,0 +1,1360 @@
+.together {
+  position:relative;
+  height:95px;
+  min-height:95px;
+  flex:0 0 auto;
+  padding:0;
+  box-sizing:border-box;
+  border-radius:22px;
+  background:
+    radial-gradient(120% 200% at 0% 0%, #7a4a3399 0%, #472a2066 22%, #2a1a16a8 48%, #140c0ada 100%),
+    linear-gradient(100deg,#24161266,#100a08cc);
+  border:1px solid rgba(226,168,124,.42);
+  backdrop-filter:blur(22px) saturate(1.15);
+  -webkit-backdrop-filter:blur(22px) saturate(1.15);
+  box-shadow:0 14px 34px -14px #000000b3,inset 0 1px #ffe6d02e,inset 0 0 40px #ff9a5a12;
+  overflow:hidden}
+.together:after {
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  pointer-events:none;
+  background:linear-gradient(180deg,#ffffff0f,#ffffff00 32%,#00000014);
+  box-shadow:inset 0 0 0 1px #ffffff08}
+.together__body {
+  position:absolute;
+  inset:0;
+  z-index:1}
+
+/* --- sol blok --- */
+.together__label {
+  position:absolute;
+  left:20px;
+  top:18px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:#f58ea9;
+  white-space:nowrap}
+.together__label svg {
+  width:13px;
+  height:13px;
+  flex:none;
+  color:#f58ea9}
+
+.together__days {
+  position:absolute;
+  left:18px;
+  top:32px;
+  line-height:1;
+  white-space:nowrap}
+.together__days b {
+  font-family:var(--font-display);
+  font-size:50px;
+  font-weight:500;
+  letter-spacing:-.016em;
+  line-height:.94;
+  color:#fdf3ee;
+  text-shadow:0 2px 6px rgba(0,0,0,0.25)}
+/* Rakamin sag ust kosesine binen ince kontur kalp. */
+.together__days-heart {
+  position:absolute;
+  top:-1px;
+  left:62px;
+  width:24px;
+  height:24px;
+  color:#f7a3b8;
+  opacity:.95;
+  transform:rotate(-5deg);
+  stroke-width:1.6}
+.together__days span {
+  position:absolute;
+  top:29px;
+  left:62px;
+  font-size:18px;
+  font-weight:400;
+  color:#e6d5cfc9}
+
+/* --- dikey ayrac --- */
+.together__body:before {
+  content:"";
+  position:absolute;
+  left:158px;
+  top:15px;
+  width:1px;
+  height:65px;
+  background:linear-gradient(180deg,#c99a6a00,#c99a6a66 12%,#c99a6a66 88%,#c99a6a00)}
+
+/* --- sag blok --- */
+.together__right {
+  position:absolute;
+  left:175px;
+  right:68px;
+  top:36px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  min-width:0}
+.together__anniv {
+  display:flex;
+  align-items:center;
+  gap:9px;
+  font-size:17px;
+  font-weight:700;
+  letter-spacing:.002em;
+  line-height:1.1;
+  color:#f0b96a;
+  white-space:nowrap}
+.together__anniv svg {
+  flex:none}
+.together__anniv > svg:first-child {
+  width:28px;
+  height:19px;
+  color:#e0a55e;
+  stroke-width:1.6}
+.together__sub {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:13.5px;
+  font-weight:400;
+  color:#cfc0bbc4;
+  white-space:nowrap}
+.together__sub svg {
+  width:14px;
+  height:14px;
+  flex:none;
+  opacity:.7;
+  stroke-width:1.6}
+
+/* Altin pariltilar. */
+.together__spark {
+  position:absolute;
+  top:22px;
+  right:70px;
+  width:14px;
+  height:14px;
+  color:#ffdfae;
+  opacity:.9}
+.together__hint {
+  position:absolute;
+  top:15px;
+  right:13px;
+  display:grid;
+  place-items:center;
+  width:36px;
+  height:36px;
+  border-radius:11px;
+  background:#1b100d99;
+  border:1px solid rgba(226,180,140,.42);
+  color:#f0ddd2c9;
+  box-shadow:inset 0 1px #ffffff14}
+.together__hint svg {
+  width:17px;
+  height:17px;
+  stroke-width:1.6}
+
+/* Sag alttaki iki pembe oval. */
+.together__leaf {
+  position:absolute;
+  width:14px;
+  height:9px;
+  border-radius:60% 40% 60% 40%;
+  background:linear-gradient(120deg,#ff9dc3,#f0709a);
+  opacity:.82;
+  pointer-events:none}
+.together__leaf--1 {
+  right:26px;
+  bottom:38px;
+  transform:rotate(-38deg)}
+.together__leaf--2 {
+  right:11px;
+  bottom:23px;
+  width:12px;
+  height:8px;
+  transform:rotate(-16deg);
+  opacity:.62}
+
+.together--anniv {
+  background:linear-gradient(112deg,#2a1512ee,#3a1d13e6 55%,#241310ee);
+  border-color:rgba(255,206,138,.46);
+  box-shadow:0 12px 34px -12px #000000a6,inset 0 1px #ffdcae2e,0 0 0 1px #ffc37a24}
+.together--anniv .together__label {
+  color:#ffcf8a}
+.together--anniv .together__label svg {
+  animation:annivBeat 1.15s ease-in-out infinite}
+.together--anniv .together__days b {
+  color:#ffe4bd;
+  text-shadow:0 0 18px #ffb9685c}
+.together--anniv .together__anniv {
+  color:#ffd79a}
+.together--anniv:after {
+  color:#f7b06a26}
+@keyframes annivBeat {
+  0%,100% { transform:scale(1) }
+  18%     { transform:scale(1.28) }
+  36%     { transform:scale(1.04) }
+  54%     { transform:scale(1.16) } }
+
+/* Kucuk konfeti: kartin ustunden yumusakca suzulur. */
+.together__confetti {
+  position:absolute;
+  inset:0;
+  overflow:hidden;
+  pointer-events:none;
+  z-index:0}
+.together__confetti i {
+  position:absolute;
+  top:-6px;
+  left:calc(6% + var(--i) * 9.2%);
+  width:4px;
+  height:7px;
+  border-radius:1.5px;
+  background:#ffc98a;
+  opacity:0;
+  animation:annivFall 3.4s linear infinite;
+  animation-delay:calc(var(--i) * .31s)}
+.together__confetti i:nth-child(2n) { background:#ff9ec4 }
+.together__confetti i:nth-child(3n) { background:#ffe9c9; width:5px; height:5px; border-radius:50% }
+@keyframes annivFall {
+  0%   { opacity:0; transform:translateY(0) rotate(0deg) }
+  12%  { opacity:.85 }
+  80%  { opacity:.55 }
+  100% { opacity:0; transform:translateY(104px) rotate(220deg) } }
+
+/* Hareket azaltma tercihi: animasyonlar durur, renk kalir. */
+@media (prefers-reduced-motion: reduce) {
+  .together--anniv .together__label svg,
+  .together__confetti i {
+    animation:none}
+  .together__confetti { display:none}
+}
+
+.field--date {
+  width:auto;
+  min-width:148px;
+  padding:8px 11px;
+  font-size:13px;
+  color-scheme:dark}
+.field--date::-webkit-calendar-picker-indicator {
+  cursor:pointer;
+  opacity:.65}
+.field--date::-webkit-calendar-picker-indicator:hover {
+  opacity:1}
+.section--scrim:before {
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  background:radial-gradient(120% 90% at 50% 0%,#060912db,#06091294 44%,#06091242)}
+.section--scrim .section__title,.section--scrim .section__lead,.section--scrim .section__eyebrow {
+  text-shadow:0 1px 3px rgba(6,9,18,.9),0 6px 26px rgba(6,9,18,.75)}
+.kept {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+  gap:16px}
+.kept__zarf {
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  gap:9px;
+  padding:24px 22px 26px;
+  min-height:176px;
+  text-align:left;
+  border-radius:var(--r-md);
+  border:1px solid rgba(255,255,255,.18);
+  background:linear-gradient(155deg,#303952f0,#0d1322eb 62%);
+  box-shadow:var(--shadow-sm);
+  overflow:hidden;
+  transition:transform .4s var(--ease-out),border-color .4s var(--ease-out),box-shadow .4s var(--ease-out)}
+.kept__zarf:before {
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(180deg,rgba(255,255,255,.05) 0,rgba(255,255,255,.05) 46%,transparent 46%);
+  clip-path:polygon(0 0,100% 0,50% 62%);
+  pointer-events:none;
+  opacity:.65}
+.kept__zarf:hover {
+  transform:translateY(-5px);
+  border-color:var(--line-strong);
+  box-shadow:0 18px 52px #0000008f,0 0 42px -18px var(--glow)}
+.kept__zarf:focus-visible {
+  outline:2px solid var(--accent);
+  outline-offset:3px}
+.kept__zarf--opened {
+  background:linear-gradient(155deg,#f4728f21,#0d1322d6 62%);
+  border-color:#f4728f52}
+.kept__seal {
+  position:relative;
+  z-index:1;
+  font-size:24px;
+  line-height:1}
+.kept__when {
+  position:relative;
+  z-index:1;
+  font-family:var(--font-display);
+  font-size:17px;
+  line-height:1.3;
+  color:var(--ink)}
+.kept__hint {
+  position:relative;
+  z-index:1;
+  font-size:12px;
+  color:var(--ink-faint);
+  line-height:1.45}
+.kept__zarf--opened .kept__hint {
+  font-family:var(--font-hand);
+  font-size:19px;
+  color:var(--accent-2)}
+.kept__wax {
+  position:absolute;
+  right:18px;
+  bottom:18px;
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  background:radial-gradient(circle at 34% 30%,#ff8d8d,#a81f3d 68%,#6d0f25);
+  box-shadow:0 4px 14px #a81f3d80,inset 0 -2px 5px #00000059;
+  opacity:.9}
+.kept__wax:after {
+  content:"♡";
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  font-size:15px;
+  color:#ffebebd9}
+.reader {
+  position:fixed;
+  inset:0;
+  z-index:90;
+  display:grid;
+  place-items:center;
+  padding:22px}
+.reader__scrim {
+  position:absolute;
+  inset:0;
+  border:0;
+  padding:0;
+  cursor:pointer;
+  background:#050810b8;
+  backdrop-filter:blur(7px);
+  -webkit-backdrop-filter:blur(7px);
+  animation:reader-fade .3s var(--ease-out) both}
+@keyframes reader-fade {
+  0% {
+  opacity:0}
+}
+.reader__paper {
+  position:relative;
+  width:min(680px,100%);
+  max-height:calc(100vh - 44px);
+  overflow-y:auto;
+  padding:clamp(24px,4vw,44px);
+  border-radius:var(--r-lg);
+  background:linear-gradient(160deg,#faf6eefa,#eee7dbf2);
+  color:#241c14;
+  box-shadow:var(--shadow-lg);
+  animation:reader-in .46s var(--ease-out) both}
+@keyframes reader-in {
+  0% {
+  opacity:0;
+  transform:translateY(22px) scale(.985)}
+}
+.reader__tape {
+  position:absolute;
+  top:-12px;
+  left:50%;
+  transform:translate(-50%) rotate(-1.4deg);
+  width:130px;
+  height:26px;
+  background:#ffecbe8c;
+  border:1px solid rgba(180,160,120,.3);
+  box-shadow:0 4px 12px #00000026}
+.reader__head {
+  margin-bottom:18px}
+.reader__when {
+  font-size:11px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:#a2582f;
+  margin-bottom:6px}
+.reader__title {
+  font-family:var(--font-display);
+  font-size:clamp(22px,2.6vw,30px);
+  line-height:1.2;
+  color:#2a1f16}
+.reader__body {
+  font-family:var(--font-display);
+  font-size:clamp(15.5px,1.5vw,17.5px);
+  line-height:1.85;
+  color:#33281e;
+  min-height:140px;
+  cursor:pointer}
+.reader__body p+p {
+  margin-top:14px}
+.reader__caret {
+  display:inline-block;
+  width:2px;
+  height:1em;
+  vertical-align:-.16em;
+  background:#b5643f;
+  margin-left:2px;
+  animation:caret 1s steps(2) infinite}
+.reader__sign {
+  margin-top:22px;
+  font-family:var(--font-hand);
+  font-size:27px;
+  line-height:1.25;
+  color:#8a4530;
+  text-align:right}
+.reader__sign span {
+  display:block}
+.reader__row {
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:20px}
+.reader__paper .btn {
+  color:#33281e;
+  border-color:#3c2c1e40;
+  background:#ffffff8c}
+.reader__paper .btn--accent {
+  color:#fff;
+  border-color:transparent;
+  background:linear-gradient(135deg,#b5643f,#8a4530)}
+@media (max-width: 560px) {
+  .reader {
+  padding:12px}
+.reader__paper {
+  max-height:calc(100vh - 24px);
+  padding:24px 20px}
+}
+.quiz {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(260px,320px);
+  gap:22px;
+  align-items:start}
+.quiz__main {
+  min-width:0}
+.quiz__card {
+  padding:clamp(22px,3vw,34px);
+  border-radius:var(--r-lg);
+  background:#0d1322bd;
+  border:1px solid rgba(255,255,255,.14);
+  backdrop-filter:blur(20px) saturate(1.12);
+  -webkit-backdrop-filter:blur(20px) saturate(1.12);
+  box-shadow:0 8px 32px #0000007a}
+.quiz__progress {
+  display:flex;
+  gap:6px;
+  margin-bottom:22px}
+.quiz__dot {
+  flex:1;
+  height:4px;
+  border-radius:999px;
+  background:#ffffff1f;
+  transition:background .35s var(--ease-out)}
+.quiz__dot.is-done {
+  background:var(--accent-2)}
+.quiz__dot.is-now {
+  background:var(--accent)}
+.quiz__eyebrow {
+  font-size:11px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--accent);
+  margin-bottom:8px}
+.quiz__q {
+  font-family:var(--font-display);
+  font-size:clamp(19px,2.2vw,25px);
+  line-height:1.3;
+  margin-bottom:20px}
+.quiz__options {
+  display:flex;
+  flex-direction:column;
+  gap:9px}
+.quiz__opt {
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:13px 15px;
+  text-align:left;
+  border-radius:var(--r-sm);
+  border:1px solid var(--line);
+  background:var(--panel-soft);
+  color:var(--ink-soft);
+  font-size:14px;
+  line-height:1.4;
+  transition:.26s var(--ease-out)}
+.quiz__opt:hover {
+  border-color:var(--line-strong);
+  transform:translate(3px)}
+.quiz__opt--on {
+  border-color:var(--accent);
+  background:#f2b47824;
+  color:var(--ink)}
+.quiz__letter {
+  display:grid;
+  place-items:center;
+  width:24px;
+  height:24px;
+  flex:none;
+  border-radius:8px;
+  background:#ffffff14;
+  font-size:11.5px;
+  font-weight:600;
+  color:var(--ink-muted)}
+.quiz__opt--on .quiz__letter {
+  background:var(--accent);
+  color:var(--accent-ink)}
+.quiz__nav {
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  margin-top:22px}
+.quiz__nav .btn:disabled {
+  opacity:.4;
+  cursor:not-allowed}
+.quiz__score {
+  display:flex;
+  align-items:baseline;
+  gap:6px;
+  margin-bottom:6px}
+.quiz__score b {
+  font-family:var(--font-display);
+  font-size:clamp(48px,7vw,72px);
+  line-height:1;
+  color:var(--accent)}
+.quiz__score span {
+  font-size:18px;
+  color:var(--ink-faint)}
+.quiz__verdict {
+  font-family:var(--font-display);
+  font-style:italic;
+  font-size:17px;
+  line-height:1.6;
+  color:var(--ink-soft);
+  margin-bottom:24px}
+.quiz__review {
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-bottom:22px}
+.quiz__rev {
+  padding:13px 15px;
+  border-radius:var(--r-sm);
+  border:1px solid var(--line);
+  border-left:3px solid var(--line-strong);
+  background:var(--panel-soft)}
+.quiz__rev.is-right {
+  border-left-color:var(--ok)}
+.quiz__rev.is-wrong {
+  border-left-color:var(--accent-2)}
+.quiz__rev-q {
+  display:flex;
+  gap:9px;
+  font-size:13.5px;
+  color:var(--ink);
+  line-height:1.45}
+.quiz__rev-n {
+  flex:none;
+  font-family:var(--font-display);
+  color:var(--accent)}
+.quiz__rev-a {
+  font-size:12px;
+  color:var(--ink-muted);
+  margin-top:5px;
+  line-height:1.5}
+.quiz__rev-note {
+  font-family:var(--font-display);
+  font-style:italic;
+  font-size:13px;
+  color:var(--ink-soft);
+  margin-top:6px;
+  line-height:1.55}
+.quiz__side {
+  display:flex;
+  flex-direction:column;
+  gap:14px}
+.quiz__side-score {
+  display:flex;
+  align-items:baseline;
+  gap:6px;
+  justify-content:center}
+.quiz__side-score b {
+  font-family:var(--font-sans);
+  font-size:34px;
+  font-weight:600;
+  font-variant-numeric:tabular-nums;
+  line-height:1;
+  color:var(--accent-2)}
+.quiz__side-score span {
+  font-size:12px;
+  color:var(--ink-faint);
+  text-transform:uppercase;
+  letter-spacing:.1em}
+.quiz__side .card__head {
+  align-items:flex-start}
+.quiz__side .scorecard .quiz__side-score {
+  margin-bottom:2px}
+@media (max-width: 980px) {
+  .quiz {
+  grid-template-columns:minmax(0,1fr)}
+.kept {
+  grid-template-columns:repeat(auto-fill,minmax(210px,1fr));
+  gap:12px}
+}
+.sidebar {
+  gap:8px;
+  padding:16px 13px 14px;
+  background:linear-gradient(180deg,#261815bd,#170e0cb8);
+  border-right:1px solid rgba(255,226,220,.12);
+  backdrop-filter:blur(26px) saturate(1.05);
+  -webkit-backdrop-filter:blur(26px) saturate(1.05)}
+.sidebar__brand {
+  gap:2px;
+  padding-bottom:4px}
+.sidebar__sun {
+  width:38px;
+  height:38px;
+  margin-bottom:-4px}
+.sidebar__sun svg {
+  width:27px;
+  height:27px;
+  color:#ffca7a}
+.sidebar__title {
+  font-size:30px;
+  line-height:1.02;
+  color:#fdeff0;
+  letter-spacing:.01em}
+.sidebar__title em {
+  color:#fdeff0}
+.sidebar__greet {
+  max-width:208px}
+.sidebar__heart {
+  display:inline-block;
+  margin-left:3px;
+  font-size:20px;
+  vertical-align:.1em;
+  color:#f79aab}
+.sidebar__date {
+  margin-top:9px;
+  font-size:12.5px;
+  font-weight:600;
+  letter-spacing:.02em;
+  color:#f7ece9}
+.sidebar__weekday {
+  font-size:10.5px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:#f7ece975}
+.sidebar__nav {
+  gap:3px;
+  margin-top:8px}
+.navitem {
+  gap:12px;
+  padding:9px 13px;
+  border-radius:999px;
+  font-size:13.5px;
+  font-weight:500;
+  color:#f7ece9a8}
+.navitem svg {
+  width:17px;
+  height:17px;
+  color:#f7ece994}
+.navitem:hover {
+  background:#ffece612;
+  color:#fff6f3}
+.navitem:hover svg {
+  color:#ffd3e0}
+.navitem--active {
+  color:#fff4f2;
+  background:linear-gradient(90deg,#962d37eb,#7e262fdb);
+  box-shadow:0 8px 20px -8px #962d37b3,inset 0 1px #ffffff1a}
+.navitem--active svg {
+  color:#ffe4e6}
+.navitem__hint {
+  margin-left:auto;
+  display:inline-grid;
+  place-items:center;
+  opacity:.28;
+  transform:none;
+  color:inherit}
+.navitem__hint svg {
+  width:13px;
+  height:13px;
+  color:inherit}
+.navitem:hover .navitem__hint,.navitem--active .navitem__hint {
+  opacity:.75;
+  transform:none}
+.sidebar__tagline {
+  flex:0 0 auto;
+  padding:4px 0 8px}
+.sidebar__tagline img {
+  width:100%;
+  max-width:130px;
+  height:auto;
+  object-fit:contain;
+  filter:drop-shadow(0 3px 12px rgba(0,0,0,.45)) brightness(1.05)}
+.sidebar__people {
+  gap:8px;
+  padding:10px 8px;
+  background:#ffffff0d;
+  border:1px solid rgba(255,255,255,.1)}
+.person__ring {
+  width:42px;
+  height:42px}
+.person__name {
+  font-size:10px;
+  letter-spacing:.1em}
+.home__grid {
+  height:100%;
+  min-height:0;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 356px;
+  grid-template-rows:minmax(0,1fr) auto;
+  gap:12px;
+  align-content:stretch}
+.home__aside {
+  gap:9px;
+  grid-row:1 / 3;
+  /* Kisa ekranlarda icerik izgara satirindan uzun olup oynaticinin ustune
+     biniyordu (1280x650'de 2px). Sutun satira hapsedilir, plan karti
+     kendi icinde kayar. */
+  max-height:100%;
+  overflow:hidden}
+.home__bottom {
+  grid-column:1;
+  grid-row:2}
+.home__aside-header {
+  /* Kutu, gorselin en-boy oranina (yazi gorselleri ~2:1) sabitlenir:
+     genislik sutundan gelir, yukseklik orandan. Boylece logo her ekranda
+     sutun genisligi kadar buyuk cizilir ve tahmine kalmaz. */
+  display:block;
+  width:100%;
+  height:auto;
+  min-height:0;
+  max-height:none;
+  flex:0 0 auto;
+  padding:0 0 6px;
+  margin-bottom:2px;
+  overflow:visible;
+  text-align:center}
+.home__aside-logo {
+  /* Yazi sutun genisligini doldurur ama yukseklikle sinirlanir: kartlara
+     yer kalsin diye max-height kullanilir, oran object-fit ile korunur. */
+  display:block;
+  flex:none;
+  width:100%;
+  min-width:100%;
+  max-width:100%;
+  height:auto;
+  max-height:clamp(54px, 7vh, 76px);
+  margin-inline:0;
+  object-fit:contain;
+  object-position:center center}
+.home__aside-logo {
+  filter:drop-shadow(0 2px 14px rgba(0,0,0,.6))}
+/* Masaustunde yazi, kartlar ve araliklar bir tik sikilastirilir: buyuyen
+   logo yuzunden alt kartlar tasiyordu. */
+@media (min-width: 901px) {
+  .home__aside {
+  gap:4px;
+  min-height:0;
+  overflow:hidden}
+/* Yazi sutun genisligini doldurur; yukseklik burada da sabit kaliyor,
+   aksi halde masaustunde kutuya sigdirilip kuculuyordu. */
+.home__aside-header {
+  display:block;
+  height:auto;
+  max-height:none;
+  flex:0 0 auto;
+  min-height:0;
+  padding:0 0 10px;
+  margin-bottom:2px;
+  overflow:visible;
+  text-align:center}
+.home__aside-logo {
+  /* Eski 84px siniri logoyu 328px'lik sutunda 114px'e dusuruyordu (kutunun
+     %35'i) ve altinda 170px bos alan kaliyordu. Sinir yukseltildi; yazi
+     sutunu doldurur, oran object-fit ile korunur. */
+  flex:none;
+  width:100%;
+  min-width:100%;
+  max-width:100%;
+  height:auto;
+  /* Yazi sutunu dolduracak kadar buyur; alt sinir kartlara yer birakir. */
+  max-height:clamp(165px, 24vh, 260px);
+  margin-inline:0;
+  object-fit:contain;
+  object-position:center center}
+.weather {
+  padding:5px 16px;
+  min-height:0;
+  flex:0 0 auto}
+.quote {
+  /* Imza el yazisi fontuyla alt kenara yapisiyordu; alt pay acildi. */
+  padding:6px 16px 12px;
+  min-height:0;
+  flex:0 0 auto}
+/* Aside, baslik disindaki tum kartlari flex:0 0 auto ile sabitliyor; plan
+   karti yer daralinca kisalabilmeli, yoksa alt serit ekran disina tasiyor.
+   Bu yuzden daha yuksek ozgullukle esnetilir. */
+.home__aside .plan {
+  padding:5px 15px 9px;
+  flex:0 1 auto;
+  min-height:0;
+  max-height:34vh}
+.planitem {
+  padding:1px 5px;
+  font-size:11.5px}
+/* 14px dokunma hedefi icin kucuktu; 17px'e cikarildi. */
+.planitem__box {
+  width:17px;
+  height:17px}
+.plan__foot {
+  padding-top:2px}
+}
+.home__aside-header--empty {
+  height:0;
+  margin-bottom:0}
+.home__cards {
+  gap:10px;
+  max-height:none;
+  height:118px}
+/* Dar ekranlarda alt kart 168-190px'e dusuyor; gorsel ve tur rozeti
+   metni ezip aciklamayi kirpiyordu. Gorsel daraltilir, rozet gizlenir. */
+@media (max-width: 1400px) {
+  .home__cards .bottomcard {
+    padding-right:34px}
+  /* Gorsel kademeli daralir: 208px'lik kartta 46px serit gibi kaliyordu. */
+  .home__cards .bottomcard__thumb {
+    width:clamp(46px, 31%, 74px)}
+  .home__cards .bottomcard__like {
+    display:none}
+  .home__cards .bottomcard__title {
+    font-size:15.5px}
+  .home__cards .bottomcard__text {
+    font-size:12px}
+}
+.home__music {
+  grid-column:1 / 3;
+  grid-row:3;
+  width:100%;
+  min-width:0}
+.musicbar {
+  /* Referans: TEK satir. Solda kapak + parca adi + kalp, ortada zaman
+     cizgisi, sagda kontroller, en sagda ses. Iki slider farkli satirlara
+     dagitilmiyor; aksi halde ust uste binmis gibi okunuyordu. */
+  display:flex;
+  align-items:center;
+  gap:18px;
+  min-height:54px;
+  padding:5px 24px 5px 12px;
+  border-radius:var(--r-md);
+  overflow:hidden}
+/* Sol blok sabit; ortadaki zaman cizgisi kalan yeri doldurur ve
+   kontrolleri merkeze yakin tutar. */
+.musicbar__left {
+  order:1}
+.musicbar__timeline {
+  order:2}
+.musicbar__controls {
+  order:3}
+.musicbar__volume {
+  order:4}
+.musicbar__left {
+  display:flex;
+  align-items:center;
+  gap:12px;
+  /* Sabit genislik kontrol grubunu merkezden kaydiriyordu. Sol blok
+     icerigine gore daralir, bos alan ortadaki zaman cizgisine kalir. */
+  flex:0 1 auto;
+  min-width:0}
+.musicbar__thumb {
+  position:relative;
+  flex:none;
+  width:56px;
+  height:44px;
+  border-radius:15px;
+  overflow:hidden;
+  border:2px solid rgba(255,246,240,.92);
+  box-shadow:0 6px 18px -8px #000000b3}
+.musicbar__thumb img {
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block}
+.musicbar__veil {
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  background:#0c0a1457;
+  color:#fff}
+.musicbar__veil svg {
+  width:16px;
+  height:16px}
+.musicbar--playing .musicbar__veil {
+  opacity:0;
+  transition:opacity .4s ease}
+.musicbar__meta {
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  flex:0 0 auto;
+  min-width:0}
+.musicbar__title, .musicbar__artist {
+  max-width:190px}
+.musicbar__title {
+  font-size:17.5px;
+  font-weight:600;
+  color:var(--ink);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis}
+.musicbar__artist {
+  font-size:14px;
+  color:var(--ink-faint);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis}
+.musicbar__like {
+  /* margin-left:auto kalbi parca bilgisinden koparip sutunun ucuna
+     savuruyordu; metne bitisik durur. */
+  flex:none;
+  margin-left:2px;
+  color:#f79aab;
+  display:inline-grid;
+  place-items:center}
+.musicbar__like svg {
+  width:22px;
+  height:22px}
+/* Zaman cizgisi: sure, cubuk, toplam sure — tek satirda. Referansta
+   cubuk kontrol grubunun soluna kadar uzuyor. */
+.musicbar__timeline {
+  display:flex;
+  align-items:center;
+  gap:9px;
+  flex:1 1 auto;
+  min-width:120px;
+  max-width:520px}
+.musicbar__time {
+  font-size:12px;
+  color:#f7ece999;
+  font-variant-numeric:tabular-nums;
+  flex:none}
+.musicbar__track {
+  position:relative;
+  flex:1;
+  height:5px;
+  border-radius:999px;
+  background:#ffffff26;
+  overflow:visible;
+  cursor:pointer;
+  touch-action:none}
+/* Tiklama alanini ince cubugun uzerinde genislet. */
+.musicbar__track::before {
+  content:"";
+  position:absolute;
+  inset:-8px 0;
+  border-radius:999px}
+.musicbar__track i {
+  position:absolute;
+  inset:0 auto 0 0;
+  display:block;
+  border-radius:999px;
+  background:linear-gradient(90deg,#ff9ec4,#ff7fae)}
+.musicbar__track b {
+  position:absolute;
+  top:50%;
+  width:13px;
+  height:13px;
+  margin-left:-6.5px;
+  border-radius:50%;
+  background:#fff4f8;
+  box-shadow:0 0 10px #ff8cb4d9;
+  transform:translateY(-50%)}
+.musicbar__controls {
+  display:flex;
+  align-items:center;
+  gap:18px;
+  flex:0 0 auto;
+  margin-left:auto}
+.mbtn {
+  display:inline-grid;
+  place-items:center;
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  color:#fdf7f4eb;
+  background:none;
+  transition:color .22s var(--ease-soft),transform .22s var(--ease-spring),background-color .22s var(--ease-soft)}
+.mbtn svg {
+  width:20px;
+  height:20px}
+.mbtn:hover {
+  color:#ffeef0;
+  background:#fff0ea1a;
+  transform:scale(1.06)}
+.mbtn--main {
+  width:60px;
+  height:60px;
+  margin:0;
+  color:#ffa9b8;
+  background:#f79aab0f;
+  border:1.5px solid rgba(255,168,184,.75);
+  box-shadow:0 0 26px -4px #f79aab8c}
+.mbtn--main svg {
+  width:24px;
+  height:24px}
+.mbtn--main:hover {
+  color:#ffbcc6;
+  transform:scale(1.04);
+  background:#f79aab21;
+  border-color:#f79aabbf}
+.musicbar__volume {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex:0 0 auto;
+  width:170px;
+  margin-left:6px;
+  color:#f7ece9ad}
+.musicbar__volume svg {
+  width:17px;
+  height:17px;
+  flex:none}
+.musicbar__volume input[type=range] {
+  flex:1 1 auto;
+  min-width:0;
+  height:3px;
+  accent-color:#ff9ec4}
+@media (max-width: 1180px) {
+  .musicbar {
+  grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) minmax(90px,.4fr);
+  gap:12px}
+}
+/* Esik 1180: bu genislikte de icerik tek sutuna iner ve oynatici
+   sikismasin diye kompakt duzen gerekir. 980 cok dardi. */
+@media (max-width: 1180px) {
+  /* overflow:hidden icerigi kesiyordu (plan karti yarim kaliyordu).
+     Mobilde sayfa kendi akisinda kayar. */
+  .home {
+  height:auto;
+  overflow:visible}
+  .home__grid {
+  /* Mobilde sabit yukseklik yok: icerik kendi boyu kadar yer alir ve sayfa
+     kayar. minmax(0,1fr) satiri plan kartini kesiyordu. */
+  height:auto;
+  min-height:0;
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  grid-template-rows:auto auto auto;
+  gap:12px;
+  align-content:start}
+.home__music {
+  grid-column:1;
+  grid-row:3}
+.home__aside {
+  grid-column:1;
+  grid-row:1;
+  min-height:0;
+  overflow:visible}
+.home__bottom {
+  grid-column:1;
+  grid-row:2}
+/* block sart: flex iken logo icerik boyutuna dusup kucuk kaliyordu. */
+.home__aside-header {
+  display:block}
+/* Mobilde yazi sutun genisligine oranla buyur ve ortalanir. Yukseklik
+   kendi en-boy oranindan gelir; max-height ve object-fit sigdirmasi yok. */
+.home__aside .home__aside-header {
+  display:block;
+  padding:0 0 10px}
+.home__aside .home__aside-logo {
+  display:block;
+  width:80% !important;
+  min-width:0 !important;
+  max-width:80% !important;
+  height:auto !important;
+  max-height:none !important;
+  margin:0 auto !important;
+  object-fit:fill;
+  object-position:center center}
+/* Dar ekranda hava durumu bilgileri ust uste binmesin: alt satira iner. */
+.weather {
+  gap:9px;
+  padding:9px 12px}
+.weather__extra {
+  font-size:11px;
+  gap:4px}
+/* Mobilde plan listesi kendi icinde kaymaz; tum maddeler gorunur. */
+.home__aside .plan {
+  max-height:none;
+  flex:0 0 auto}
+.plan__list {
+  overflow:visible}
+/* Oynatici mobilde tek satira iner: gorsel, ad, kontroller. Zaman cizgisi,
+   ses ve begeni gizlenir; serit boylece kisa kalir ve tasmaz. */
+.musicbar {
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:7px 12px;
+  min-height:0;
+  height:auto;
+  overflow:hidden}
+.musicbar__left {
+  width:auto;
+  flex:1 1 auto;
+  gap:12px}
+.musicbar__thumb {
+  width:46px;
+  height:38px;
+  border-radius:11px}
+.musicbar__meta {
+  width:auto;
+  flex:1 1 auto}
+.musicbar__title {
+  font-size:14px}
+.musicbar__artist {
+  font-size:11.5px}
+.musicbar__like,
+.musicbar__timeline,
+.musicbar__volume {
+  display:none !important}
+.musicbar__controls {
+  gap:12px;
+  margin-left:0;
+  flex:0 0 auto}
+.mbtn--main {
+  width:44px;
+  height:44px}
+.mbtn svg {
+  width:17px;
+  height:17px}
+/* Alt serit mobilde kisaltilir: plan karti ile oynatici arasinda bos
+   yigin olusmuyor. */
+.home__cards {
+  height:96px}
+.home__bottom {
+  gap:6px}
+.sidebar__weather {
+  display:none}
+}
+@media (max-width: 760px) {
+  .musicbar {
+  gap:10px;
+  padding:7px 10px}
+}
+@media (min-width: 901px) and (max-height: 860px) {
+  .sidebar {
+  gap:4px;
+  padding:10px 11px}
+.sidebar__brand {
+  padding-bottom:0}
+.sidebar__sun {
+  width:30px;
+  height:30px;
+  margin-bottom:-2px}
+.sidebar__sun svg {
+  width:23px;
+  height:23px}
+.sidebar__title {
+  font-size:22px}
+.sidebar__heart {
+  font-size:17px}
+.sidebar__date {
+  margin-top:5px;
+  font-size:11.5px}
+.sidebar__weekday {
+  font-size:10px}
+.sidebar__tools {
+  gap:6px;
+  padding:6px 0 2px}
+.sidebtn {
+  width:28px;
+  height:28px}
+.sidebtn svg {
+  width:15px;
+  height:15px}
+.sidebar__nav {
+  gap:1px;
+  margin-top:4px}
+.navitem {
+  padding:6px 12px;
+  font-size:12.5px}
+.navitem svg {
+  width:15px;
+  height:15px}
+.sidebar__tagline {
+  padding:2px 0 6px}
+.sidebar__tagline img {
+  width:100%;
+  max-width:120px}
+.sidebar__greet {
+  max-width:186px}
+.sidebar__people {
+  gap:6px;
+  padding:8px}
+.person__ring {
+  width:34px;
+  height:34px}
+.person__name {
+  font-size:9px;
+  letter-spacing:.08em}
+}
+@media (min-width: 901px) and (max-height: 720px) {
+  .sidebar__sun {
+  display:none}
+.sidebar__title {
+  font-size:19px}
+.sidebar__tagline img {
+  width:98%;
+  max-width:104px}
+.sidebar__greet {
+  max-width:164px}
+.sidebtn {
+  width:26px;
+  height:26px}
+.sidebtn svg {
+  width:14px;
+  height:14px}
+.person__ring {
+  width:30px;
+  height:30px}
+.person__name {
+  font-size:8.5px}
+}
+
+/* ============================================================
+   Dar ekran duzeltmeleri — dosyanin sonunda, onceki kurallari ezer
+   ============================================================ */
+/* Kenar cubugu yalnizca 900px altinda perdeye donusur; bu aralikta kapaliyken
+   ekranda hicbir serit birakmaz. 901px ustunde izgarada durdugu icin
+   kaydirilmaz. */
+@media (max-width: 900px) {
+  .sidebar:not(.sidebar--open) {
+    box-shadow: none;
+    transform: translateX(-105%);
+    visibility: hidden;
+    transition: transform 0.45s var(--ease-out), visibility 0s linear 0.45s;
+  }
+
+  .sidebar--open {
+    visibility: visible;
+    transition: transform 0.45s var(--ease-out), visibility 0s;
+  }
+}
+
+@media (max-width: 1180px) {
+  /* Sutun ustunde ve altinda bosluk kalmasin. */
+  .home .home__aside {
+    padding-top: 10px;
+    padding-bottom: 0;
+    gap: 8px;
+    align-self: start;
+    justify-content: flex-start;
+  }
+
+  /* Baslik yazisi okunur boyutta: sutun genisligine oranli ve ortali.
+     object-fit / max-height ile sigdirma yok, yazi ezilmiyor. */
+  .home .home__aside-header {
+    display: block;
+    width: 100%;
+    margin-bottom: 0;
+    padding: 0 0 8px;
+  }
+
+  .home .home__aside-logo {
+    display: block;
+    width: 82% !important;
+    min-width: 0 !important;
+    max-width: 82% !important;
+    height: auto !important;
+    max-height: none !important;
+    margin: 0 auto !important;
+    object-fit: fill;
+    object-position: center center;
+  }
+
+  /* Oynatici tek satira iner: gorsel, parca adi, onceki/oynat/sonraki.
+     Zaman cizgisi, ses ve gereksiz dugmeler gizlenir. */
+  .home .musicbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 12px;
+    min-height: 0;
+  }
+
+  .home .musicbar__left {
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+    gap: 10px;
+  }
+
+  .home .musicbar__thumb {
+    width: 42px;
+    height: 34px;
+    border-radius: 10px;
+  }
+
+  .home .musicbar__meta {
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+  }
+
+  .home .musicbar__title {
+    font-size: 13.5px;
+  }
+
+  .home .musicbar__artist {
+    font-size: 11px;
+  }
+
+  .home .musicbar__like,
+  .home .musicbar__timeline,
+  .home .musicbar__volume {
+    display: none !important;
+  }
+
+  .home .musicbar__controls {
+    flex: 0 0 auto;
+    gap: 8px;
+    margin-left: 0;
+  }
+
+  /* Tek satirda yer yok: yalnizca onceki / oynat / sonraki kalir. */
+  .home .musicbar__controls .mbtn:first-child,
+  .home .musicbar__controls .mbtn:last-child {
+    display: none;
+  }
+
+  .home .mbtn {
+    width: 28px;
+    height: 28px;
+  }
+
+  .home .mbtn--main {
+    width: 40px;
+    height: 40px;
+    margin: 0;
+  }
+
+  .home .mbtn svg {
+    width: 16px;
+    height: 16px;
+  }
+}

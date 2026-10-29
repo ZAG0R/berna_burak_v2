@@ -3,21 +3,20 @@ import calisma from "../assets/calisma.webp";
 import film from "../assets/film.webp";
 import gunBatimi from "../assets/gun-batimi.webp";
 import gunBatimi2 from "../assets/gun-batimi2.webp";
-import gunaydinYazi from "../assets/gunaydin_yazi.webp";
 import gunesli from "../assets/gunesli.webp";
 import gunesli2 from "../assets/gunesli2.webp";
-import hedef from "../assets/hedef.webp";
-import iyigecelerYazi from "../assets/iyigeceler_yazi.webp";
-import kolaygelsinYazi from "../assets/kolaygelsin_yazi.webp";
 import oyun from "../assets/oyun.webp";
 import oyun2 from "../assets/oyun2.webp";
 import sevgilimYazi from "../assets/normal.webp";
-import sogukhavaYazi from "../assets/sogukhava_yazi.webp";
+import sogukhavaYazi from "../assets/sogukhava_yazi_kirp.png";
 import uyku from "../assets/uyku.webp";
 import yagmurlu from "../assets/yagmurlu.webp";
 import yagmurlu2 from "../assets/yagmurlu2.webp";
-import yagmurluYazi from "../assets/yagmurlu_yazi.webp";
+import yagmurluYazi from "../assets/yagmurlu_yazi.png";
 import yemek from "../assets/yemek.webp";
+import sabirYazi from "../assets/sabir.png";
+import gunaydinYeni from "../assets/gunaydin_yeni.png";
+import iyigeceYeni from "../assets/iyigece_yeni.png";
 
 /* Mobil (dikey) karşılıklar — aynı isimler, 941x1672 */
 import arkaplanM from "../assets/mobile/arkaplan.webp";
@@ -61,10 +60,10 @@ export type Scene = {
 };
 
 const GREET = {
-  morning: { src: gunaydinYazi, label: "Günaydın Berna" },
-  work: { src: kolaygelsinYazi, label: "Kolay gelsin Berna" },
+  morning: { src: gunaydinYeni, label: "Günaydın Berna" },
+  work: { src: sabirYazi, label: "Allah sabır versin Berna" },
   evening: { src: sevgilimYazi, label: "Berna'ya akşam selamı" },
-  night: { src: iyigecelerYazi, label: "İyi geceler Berna" },
+  night: { src: iyigeceYeni, label: "İyi geceler Berna" },
   rain: { src: yagmurluYazi, label: "Yağmurlu hava" },
   snow: { src: sogukhavaYazi, label: "Kar yağışlı, sıkı giyin" },
   cold: { src: sogukhavaYazi, label: "Soğuk hava" },
@@ -82,6 +81,11 @@ export const SLOT_TEXT: Record<Slot, SlotText> = {
 
 export function textForHour(hour: number) {
   return SLOT_TEXT[slotForHour(hour)];
+}
+
+/* Kenar çubuğundaki el yazısı selamlama görseli — saat dilimine bağlı. */
+export function greetImageForHour(hour: number) {
+  return GREET[slotForHour(hour)];
 }
 
 /* Sekme başlığı — saate göre değişir. */
@@ -105,8 +109,8 @@ const DAY_PLAN: Slice[] = [
   { from: 7, to: 8, image: gunesli2, mobile: gunesli2M },
   { from: 8, to: 12, image: calisma, mobile: calismaM },
   { from: 12, to: 14, image: yemek, mobile: yemekM },
-  /* Bu saat için ayrı dikey görsel yok; masaüstü görseli kullanılır. */
-  { from: 14, to: 17, image: hedef, mobile: hedef },
+  /* Öğleden sonra çalışma devam eder */
+  { from: 14, to: 17, image: calisma, mobile: calismaM },
   { from: 17, to: 18, image: oyun2, mobile: oyun2M },
   { from: 18, to: 19, image: gunBatimi, mobile: gunBatimiM },
   { from: 19, to: 20, image: gunBatimi2, mobile: gunBatimi2M },
@@ -157,7 +161,9 @@ export function conditionFor(code: number, temp: number): Condition | null {
 export function buildScene(hour: number, code: number, temp: number): Scene {
   const slot = slotForHour(hour);
   const condition = conditionFor(code, temp);
-  const greet = condition ? [GREET[condition], GREET[slot]] : [GREET[slot]];
+  /* Sağ üst başlıkta yalnızca hava durumu yazısı durur; selamlar sol
+     kenar çubuğuna taşındı. Hava yoksa başlık boş kalır. */
+  const greet = condition ? [GREET[condition]] : [];
   const bg = condition ? conditionSlice(condition, hour) : sliceForHour(hour);
 
   return {

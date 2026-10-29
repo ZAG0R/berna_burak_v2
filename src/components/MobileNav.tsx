@@ -4,8 +4,8 @@ import { Icon } from "./Icons";
 const ITEMS: { key: NavKey; label: string; icon: string }[] = [
   { key: "home", label: "Ana Sayfa", icon: "home" },
   { key: "letter", label: "Mesajım", icon: "chat" },
-  { key: "plan", label: "Plan", icon: "calendar" },
   { key: "surprise", label: "Sürpriz", icon: "gift" },
+  { key: "quiz", label: "Oyun", icon: "sparkles" },
   { key: "memories", label: "Anılar", icon: "heart" },
 ];
 

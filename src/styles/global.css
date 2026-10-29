@@ -13,30 +13,30 @@
 :root {
   color-scheme: dark;
 
-  /* Yüzeyler */
-  --bg-0: #0b1020;
-  --bg-1: #111830;
-  --bg-2: #182142;
-  --panel: rgba(13, 19, 34, 0.60);
-  --panel-strong: rgba(10, 15, 28, 0.80);
-  --panel-soft: rgba(255, 236, 214, 0.05);
+  /* Yüzeyler — sıcak bordo-kahve gece */
+  --bg-0: #150f0e;
+  --bg-1: #1e1614;
+  --bg-2: #2b1e1b;
+  --panel: rgba(32, 23, 22, 0.60);
+  --panel-strong: rgba(22, 15, 14, 0.82);
+  --panel-soft: rgba(255, 224, 220, 0.055);
 
   /* Çizgiler */
-  --line: rgba(255, 255, 255, 0.11);
-  --line-strong: rgba(255, 255, 255, 0.22);
+  --line: rgba(255, 226, 220, 0.12);
+  --line-strong: rgba(255, 226, 220, 0.24);
 
   /* Metin */
-  --ink: #fdf6ec;
-  --ink-soft: #ece0d1;
-  --ink-muted: #c6b8a8;
-  --ink-faint: #9a8c7c;
+  --ink: #fdf7f4;
+  --ink-soft: #f2e4de;
+  --ink-muted: #cdb8b0;
+  --ink-faint: #a58d85;
 
   /* Vurgular */
-  --accent: #f2b478;
-  --accent-2: #ef8fa6;
-  --accent-ink: #1b1206;
-  --glow: rgba(242, 180, 120, 0.2);
-  --glow-2: rgba(239, 143, 166, 0.16);
+  --accent: #f79aab;
+  --accent-2: #f5b461;
+  --accent-ink: #2b0d15;
+  --glow: rgba(247, 154, 171, 0.22);
+  --glow-2: rgba(245, 180, 97, 0.18);
 
   /* Durum */
   --ok: #6ee7a8;
@@ -45,15 +45,15 @@
   /* Ölçü */
   --r-xs: 10px;
   --r-sm: 14px;
-  --r-md: 22px;
-  --r-lg: 32px;
+  --r-md: 20px;
+  --r-lg: 28px;
   --r-xl: 42px;
   --r-pill: 999px;
 
-  --sidebar-w: 190px;
-  --shadow-sm: 0 8px 24px rgba(0, 0, 0, 0.42);
-  --shadow-md: 0 16px 52px rgba(0, 0, 0, 0.54);
-  --shadow-lg: 0 32px 96px rgba(0, 0, 0, 0.64);
+  --sidebar-w: 218px;
+  --shadow-sm: 0 8px 24px rgba(0, 0, 0, 0.44);
+  --shadow-md: 0 16px 52px rgba(0, 0, 0, 0.56);
+  --shadow-lg: 0 32px 96px rgba(0, 0, 0, 0.66);
   --shadow-glow: 0 0 56px var(--glow);
 
   /* Tipografi */
@@ -283,8 +283,8 @@ ol {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(160% 126% at 50% 44%, rgba(10, 14, 26, 0) 70%, rgba(10, 14, 26, 0.07) 92%, rgba(10, 14, 26, 0.16) 100%),
-    linear-gradient(180deg, rgba(10, 14, 26, 0.05) 0%, rgba(10, 14, 26, 0) 26%, rgba(10, 14, 26, 0) 78%, rgba(10, 14, 26, 0.1) 100%);
+    radial-gradient(160% 126% at 50% 44%, rgba(24, 12, 10, 0) 70%, rgba(24, 12, 10, 0.09) 92%, rgba(24, 12, 10, 0.20) 100%),
+    linear-gradient(180deg, rgba(24, 12, 10, 0.07) 0%, rgba(24, 12, 10, 0) 26%, rgba(24, 12, 10, 0) 78%, rgba(24, 12, 10, 0.12) 100%);
 }
 
 .app__bg-grain {
@@ -400,11 +400,11 @@ ol {
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #ffb3c7;
+  color: #ffc3cd;
 }
 
 .buddy__bubble[data-who="him"] .buddy__who {
-  color: #ffcf8f;
+  color: #ffd9a8;
 }
 
 @media (max-width: 900px) {
@@ -420,24 +420,62 @@ ol {
   position: relative;
   z-index: 2;
   display: grid;
-  grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+  /* Kenar cubugu zoom&apos;dan muaf tutulur (asagida zoom:1/--hz). Bu yuzden
+     kolon genisligi de ayni oranda bolunur; aksi halde cubuk tasar. */
+  grid-template-columns: calc(var(--sidebar-w) / var(--hz, 1)) minmax(0, 1fr);
   /* Ölcek JS ile hesaplanir (App.tsx). zoom genisligi de büyüttügü icin
      genislik ve yükseklik --hz'e bölünür. */
   zoom: var(--hz, 1);
   width: 100%;
-  min-height: calc(100dvh / var(--hz, 1));
+  /* 1px pay: zoom yuvarlamasi tam bolunmeyen oranlarda alt piksel
+     tasmasi birakip sayfaya kaydirma cubugu ekliyordu. */
+  min-height: calc(100dvh / var(--hz, 1) - 1px);
   margin: 0 auto;
+}
+
+/* Ana sayfa tek ekrana sigar: kabuk tam görünür alana sabitlenir, zoom
+   yuvarlamasindan kalan alt piksel kirpilir. Yer yetmezse yalnizca icerik
+   kayar ve cubugu gorunmez; sayfa butunu kaymaz. Diger sayfalar serbest. */
+@media (min-width: 901px) {
+  .app__shell:has(.home) {
+    height: calc(100dvh / var(--hz, 1) - 1px);
+    max-height: calc(100dvh / var(--hz, 1) - 1px);
+    overflow: hidden;
+  }
+
+  .app__shell:has(.home) .app__content {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Yukseklik zinciri kapsayiciya baglanir: yuzde yerine esneme
+     kullanildigi icin ne sayfa kayar ne de alt icerik kirpilir. */
+  .app__shell:has(.home) .page {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  .app__shell:has(.home) .home {
+    flex: 1 1 auto;
+    height: auto;
+    min-height: 0;
+  }
 }
 
 .app__main {
   min-width: 0;
   display: flex;
   flex-direction: column;
+  min-height: 0;
 }
 
 .app__content {
   flex: 1;
   min-width: 0;
+  min-height: 0;
   /* Üst boşluk: sayfa başlığı üst kenara yapışmasın. */
   padding: 18px 18px 28px;
 }
@@ -468,16 +506,63 @@ ol {
   position: sticky;
   top: 0;
   align-self: start;
-  height: calc(100dvh / var(--hz, 1));
+  /* Kabuk --hz ile olceklendigi icin kenar cubugu tersine olceklenir:
+     Anasayfada da diger sayfalardakiyle birebir ayni boyutta kalir.
+     Toplam olcek 1 oldugundan yukseklik dogrudan 100dvh'dir. */
+  zoom: calc(1 / var(--hz, 1));
+  height: 100dvh;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 16px 14px 14px;
-  background: linear-gradient(180deg, rgba(11, 16, 32, 0.64), rgba(9, 13, 26, 0.52));
-  border-right: 1px solid rgba(255, 255, 255, 0.12);
+  gap: 4px;
+  padding: 12px 14px 10px;
+  background: linear-gradient(180deg, rgba(33, 21, 19, 0.70), rgba(22, 14, 13, 0.58));
+  border-right: 1px solid rgba(255, 226, 220, 0.13);
   backdrop-filter: blur(24px) saturate(1.1);
   -webkit-backdrop-filter: blur(24px) saturate(1.1);
   z-index: 30;
+  /* Kenar çubuğu kendisi kaymaz: alttaki imza ve dostlar her zaman gorunur.
+     Yer yetmezse yalnizca menü listesi kayar. */
+  overflow: hidden;
+}
+
+/* Kenar cubugunun en altinda duran kisayol seridi: ses, surpriz, ayarlar.
+   margin-top:auto ile menü ne kadar kisalirsa kisalsin dibe yapisir. */
+.sidebar__tools {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: auto;
+  padding: 8px 0 2px;
+  flex-shrink: 0;
+}
+
+.sidebtn {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  color: rgba(247, 236, 233, 0.66);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 226, 220, 0.14);
+  transition: 0.25s var(--ease-out);
+}
+
+.sidebtn svg {
+  width: 17px;
+  height: 17px;
+}
+
+.sidebtn:hover {
+  color: #fff6f3;
+  background: rgba(255, 236, 230, 0.12);
+  transform: translateY(-1px);
+}
+
+.sidebtn--on {
+  color: #fff4f2;
+  background: linear-gradient(90deg, rgba(150, 45, 55, 0.92), rgba(126, 38, 47, 0.86));
+  border-color: transparent;
 }
 
 /* Mobilde acilan perde. Masaustunde stilsiz kalip grid'in ilk sutununu
@@ -486,26 +571,46 @@ ol {
   display: none;
 }
 
+/* Hava durumu yazisi kenar cubugunun en ustunde, tam genisliginde durur:
+   hicbir parcasi arkada kalmaz, saga tasmaz. */
+.sidebar__weather {
+  display: flex;
+  justify-content: center;
+  flex: 0 0 auto;
+  margin-inline: -4px;
+  padding-bottom: 2px;
+}
+
+.sidebar__weather img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 3px 12px rgba(0, 0, 0, 0.5)) brightness(1.05);
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
 .sidebar__brand {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 5px;
+  gap: 3px;
   text-align: center;
-  padding-bottom: 6px;
+  padding-bottom: 2px;
 }
 
 .sidebar__sun {
   position: relative;
-  width: 44px;
-  height: 44px;
+  width: 36px;
+  height: 36px;
   display: grid;
   place-items: center;
 }
 
 .sidebar__sun svg {
-  width: 33px;
-  height: 33px;
+  width: 28px;
+  height: 28px;
   color: var(--accent);
   filter: drop-shadow(0 0 14px var(--glow));
   animation: sun-breathe 5.5s var(--ease-soft) infinite;
@@ -542,13 +647,31 @@ ol {
   }
 }
 
+/* Selamlama artik yazi degil el yazisi gorseli: genislige bagli olceklenir,
+   yukseklik orandan gelir, tasma yapmaz. Kenar boslugunu asarak biraz
+   daha buyuk durur. */
+.sidebar__greet {
+  display: block;
+  width: calc(100% + 22px);
+  max-width: 208px;
+  margin-inline: -11px;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 3px 12px rgba(0, 0, 0, 0.45)) brightness(1.05);
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
 .sidebar__title {
   font-family: var(--font-hand);
-  font-size: 29px;
-  line-height: 1.12;
+  font-size: 26px;
+  line-height: 1.1;
   font-weight: 400;
   letter-spacing: 0.02em;
   color: var(--ink);
+  display: flex;
+  justify-content: center;
+  width: 100%;
 }
 
 .sidebar__title em {
@@ -558,17 +681,30 @@ ol {
 
 .sidebar__heart {
   font-family: var(--font-hand);
-  font-size: 24px;
+  font-size: 20px;
   line-height: 1;
   color: var(--ink);
   opacity: 0.9;
   font-weight: 400;
 }
 
+/* Yer daraldiginda esneyip kisalan tek parca menü listesidir; alt bloklar
+   (imza, dostlar) sabit kalir. Kaydirma çubuğu görünmez. */
 .sidebar__nav {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 1px;
+  flex: 0 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.sidebar__nav::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 .navitem {
@@ -577,10 +713,10 @@ ol {
   align-items: center;
   gap: 12px;
   width: 100%;
-  padding: 13px 15px;
+  padding: 7px 15px;
   border-radius: var(--r-sm);
   color: var(--ink-muted);
-  font-size: 14.5px;
+  font-size: 14px;
   font-weight: 500;
   text-align: left;
   transition: color 0.25s var(--ease-soft), background 0.25s var(--ease-soft), transform 0.25s var(--ease-soft);
@@ -603,9 +739,9 @@ ol {
 }
 
 .navitem--active {
-  color: var(--ink);
-  background: linear-gradient(90deg, rgba(255, 179, 92, 0.16), rgba(255, 179, 92, 0.04));
-  box-shadow: inset 0 0 0 1px rgba(255, 179, 92, 0.22);
+  color: #ffeef1;
+  background: linear-gradient(90deg, rgba(178, 62, 74, 0.55), rgba(178, 62, 74, 0.18));
+  box-shadow: inset 0 0 0 1px rgba(247, 154, 171, 0.30), 0 6px 18px -8px rgba(178, 62, 74, 0.55);
 }
 
 .navitem--active svg {
@@ -644,24 +780,29 @@ ol {
 }
 
 .sidebar__spacer {
-  margin-top: auto;
+  flex: 1 1 0;
+  min-height: 0;
 }
 
 .sidebar__tagline {
   display: flex;
-  justify-content: center;
-  flex: 0 1 auto;
-  min-height: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  /* Kenar cubugunun ic boslugunu asar: yazi olabildigince genis dursun. */
+  margin-inline: -11px;
   padding: 2px 0 8px;
 }
 
+/* Ayirici cizgi ve kalp gorselin kendi icinde; yazi genislige bagli
+   olceklenir, yukseklik orandan gelir. Kucuk tutuldu ki menuye yer kalsin. */
 .sidebar__tagline img {
-  /* Kabuk --hz ile ölçeklendiği için yerleşim px'i sabit tutulur. */
-  height: 136px;
-  width: auto;
-  max-width: 100%;
+  width: 100%;
+  max-width: 130px;
+  height: auto;
   object-fit: contain;
-  filter: drop-shadow(0 3px 10px rgba(0, 0, 0, 0.35));
+  filter: drop-shadow(0 3px 12px rgba(0, 0, 0, 0.45)) brightness(1.05);
   user-select: none;
   -webkit-user-drag: none;
 }
@@ -673,25 +814,26 @@ ol {
 .sidebar__people {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  padding: 14px 10px;
+  gap: 10px;
+  padding: 10px 10px;
   border-radius: var(--r-md);
-  background: rgba(13, 19, 34, 0.68);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(33, 22, 21, 0.68);
+  border: 1px solid rgba(255, 226, 220, 0.14);
   backdrop-filter: blur(18px);
+  flex-shrink: 0;
 }
 
 .person {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
 }
 
 .person__ring {
   position: relative;
-  width: 48px;
-  height: 48px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   padding: 2px;
   background: conic-gradient(from 140deg, var(--accent), var(--accent-2), var(--accent));
@@ -714,8 +856,15 @@ ol {
   top: -11px;
   left: 50%;
   transform: translateX(-50%) rotate(-8deg);
-  font-size: 15px;
+  display: grid;
+  place-items: center;
+  color: #ffd479;
   filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.6));
+}
+
+.person__crown svg {
+  width: 15px;
+  height: 15px;
 }
 
 .person__name {
@@ -737,8 +886,8 @@ ol {
   margin-top: 12px;
   padding: 14px 15px;
   border-radius: var(--r-md);
-  background: rgba(13, 19, 34, 0.68);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(33, 22, 21, 0.68);
+  border: 1px solid rgba(255, 226, 220, 0.14);
   backdrop-filter: blur(18px);
 }
 
@@ -768,6 +917,8 @@ ol {
    Üst bar
    ============================================================ */
 
+/* Ust bar yalnizca mobilde: tek isi menü düğmesi. Ses, sürpriz ve
+   ayarlar kenar çubuğundaki kısayol şeridine taşındı. */
 .topbar {
   display: none;
 }
@@ -1235,6 +1386,8 @@ ol {
     inset: 0 auto 0 0;
     width: min(300px, 84vw);
     height: 100dvh;
+    /* Perde olarak acildiginda tamami kaydirilabilir. */
+    overflow-y: auto;
     transform: translateX(-104%);
     transition: transform 0.45s var(--ease-out);
     box-shadow: var(--shadow-lg);
@@ -1263,6 +1416,8 @@ ol {
   }
 
   .topbar {
+    display: flex;
+    align-items: center;
     padding: 12px 16px 10px;
   }
 

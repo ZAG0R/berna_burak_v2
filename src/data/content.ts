@@ -35,6 +35,20 @@ export const DEFAULT_CITY = "Adana";
 export const DEFAULT_WEATHER = { temp: 22, desc: "Parçalı bulutlu", icon: "partly" as const };
 
 /* ============================================================
+   Birlikte geçen zaman
+
+   Başlangıç tarihi burada varsayılan olarak durur; Ayarlar sayfasından
+   değiştirilebilir ve seçim localStorage'da saklanır. Biçim: YYYY-MM-DD.
+   ============================================================ */
+
+export const TOGETHER_SINCE_DEFAULT = "2025-10-31";
+
+export const TOGETHER = {
+  label: "Birlikteyiz",
+  hint: "İlk günden bu yana",
+};
+
+/* ============================================================
    Ana sayfa
    ============================================================ */
 
@@ -55,11 +69,11 @@ export const QUOTE = {
 };
 
 export const PLAN_ITEMS: PlanItem[] = [
-  { id: "p1", time: "07:30", label: "Burak'ı sev (zorla değil, istersen)", note: "Sabah koşusu gibi düşün, 10 dakika" },
+  { id: "p1", time: "07:30", label: "Burak'ı sev", note: "Sabah koşusu gibi düşün, 10 dakika" },
   { id: "p2", time: "09:45", label: "Bol su iç", note: "Bunu da sevmek zorunda değilsin ama iç" },
-  { id: "p3", time: "13:15", label: "Burak'ı bir daha sev", note: "Öğle arası, ısınma turu" },
+  { id: "p3", time: "13:15", label: "Öğle arası: Burak'ı sev", note: "Isınma turu, kısa tut" },
   { id: "p4", time: "17:30", label: "Bol su iç (2. raunt)", note: "Susuzluğu bu kadar erteleme" },
-  { id: "p5", time: "21:45", label: "Burak'ı günün sonunda sev", note: "Uyumadan önce, en kolayı bu" },
+  { id: "p5", time: "21:45", label: "Günü Burak'la kapat", note: "Uyumadan önce, en kolayı bu" },
 ];
 
 export type PlanItem = { id: string; time: string; label: string; note?: string };
@@ -83,24 +97,32 @@ export const BOTTOM_CARDS = [
     kind: "coffee" as const,
     image: kahve,
     tag: "Günün kahvesi",
-    title: "senin için hazır.",
-    text: "Kalkmasana minik güneşim...",
+    title: "Senin için hazır.",
+    text: "Kalkmasana güneşim…",
   },
   {
     id: "surpriz",
     kind: "gift" as const,
     image: manzara,
     tag: "Bugün",
-    title: "sana güzel bir sürpriz var...",
-    text: "Kutuyu açmak için Sürprizler'e bak.",
+    title: "Sana sürprizim var.",
+    text: "Sürprizler'e bir bak.",
   },
   {
     id: "ani",
     kind: "memory" as const,
     image: manzarayaKarsi,
     tag: "Mini anılar",
-    title: "Seninle her an daha güzel...",
+    title: "Seninle her an güzel.",
     text: "Biriktirdiğimiz her kare.",
+  },
+  {
+    id: "pati",
+    kind: "cat" as const,
+    image: manzarayaTek,
+    tag: "Minik patiler",
+    title: "Sana benzeyen kedi.",
+    text: "Patili bir gün dileğiyle.",
   },
 ] as const;
 
@@ -118,6 +140,211 @@ export const LETTER_PARAGRAPHS = [
 ];
 
 export const LETTER_SIGNOFF = "Seni çok seven,\nBurak ♡";
+
+/* ============================================================
+   "Aç bunu ne zaman..." mektupları
+
+   Her zarf bir ana ait: kendini kötü hissettiğinde, özlediğinde,
+   kızdığında, başardığında... Kilitli durur, tıklanınca açılır.
+   Kural: hepsi onu rahatlatmak için yazıldı, ders vermek için değil.
+   ============================================================ */
+
+export type KeptLetter = {
+  id: string;
+  /** Zarfın üstündeki koşul — "Kendini kötü hissettiğinde aç" */
+  when: string;
+  emoji: string;
+  /** Kısa tonda ipucu. */
+  hint: string;
+  title: string;
+  paragraphs: string[];
+};
+
+export const KEPT_LETTERS: KeptLetter[] = [
+  {
+    id: "kotu",
+    when: "Kendini kötü hissettiğinde aç",
+    emoji: "🌧️",
+    hint: "Hazır değilsen bırak, sonra açarsın",
+    title: "Bugün değilse de yarın",
+    paragraphs: [
+      "Bilmeni istediğim şey şu: böyle hissettiğin için hiçbir şeyi kaçırmıyorsun. Sadece bir gün zor geçiyor, o kadar.",
+      "Bir şeyi başaramadığın için, birini kırdığın için ya da sadece yorgun olduğun için kötü hissediyorsan: seni bu hâlinle de seviyorum. Üstelik dağınık hâlin bende ayrı bir yer kaplıyor, biliyorsun.",
+      "Bugün yapman gereken tek şey var: kendine, hiç tanımadığın birine davranacağın kadar iyi davran. Su iç, bir şey ye, üstünde sıcak bir şey olsun. Gerisi yarın önemli olur.",
+      "Ben buradayım. İstersen yaz, istersen sadece sessizce otur, ikisi de olur.",
+    ],
+  },
+  {
+    id: "ozledim",
+    when: "Beni özlediğinde aç",
+    emoji: "🌙",
+    hint: "Yanında olmasam da burada",
+    title: "Uzaklık bir tek metre sayıyor",
+    paragraphs: [
+      "Seni özlediğin anda benim de aklımda olduğunu bilmeni istiyorum. Bu, seni merak ettiğim anlamına geliyor; sık sık.",
+      "Sesini duymadığım bir gün geçtiğinde, günün en boş yerinde bir şey eksik kalıyor. Kolaymış gibi davranmıyorum, gerçekten eksik kalıyor.",
+      "Bu yazıyı okurken bir saniyeliğine gözlerini kapa ve bir şey söyleyeyim: iyi ki varsın. İyi ki bu kadar uzağında olmadığım bir dünyada karşılaşmışız.",
+      "Şimdi bana yaz. Tek bir kelime. \"Özledim\" bile olur; ben ondan çok şey anlarım.",
+    ],
+  },
+  {
+    id: "kizgin",
+    when: "Bana kızdığında aç",
+    emoji: "🌶️",
+    hint: "Haklıysan da haksızsan da oku",
+    title: "Kızgın olmak pekâlâ, ama bana",
+    paragraphs: [
+      "Önce şunu söyleyeyim: neye kızdıysan dinlemek istiyorum. Savunmaya geçmeden, kesmeden, \"ama\" demeden.",
+      "Bende gerçekten kötü olan bir şey varsa söyle — düzeltmeye çalışacağım. Her konuda başarılı olacağımı söyleyemem, ama denemeyi hiç bırakmayacağım.",
+      "Bir de şunu hatırla: benimle kavga edebilmen, benimle bir gelecek görmen demek. Ben de bunu böyle okuyorum ve ciddiye alıyorum.",
+      "Kızgınken bir şey yazma istersen. Önce bu sayfayı oku, sonra istersen yaz. Ben sabırla beklerim, bir yere gitmiyorum.",
+    ],
+  },
+  {
+    id: "basarili",
+    when: "Bir şeyi başardığında aç",
+    emoji: "🎉",
+    hint: "Kutlamak için bahane arıyordum",
+    title: "Bunu ben de kutlayacağım",
+    paragraphs: [
+      "Şu an sana sarılmak isterdim ama elimden gelen bu: varlığınla gurur duyduğumu yazmak.",
+      "Bunu sen yaptın. Ne şans, ne tesadüf. Kimse sana vermedi, sen aldın.",
+      "Ama bir şeyi de söylemem lazım: ben senin başarıların için değil, sen olduğun için buradayım. Yine de bugün, sadece bugün, biraz da bu yaptığın şeyi kutlayalım.",
+      "Bana anlat. Uzun anlat, en ince ayrıntısına kadar. Dinlemek için boş bir yer ayırdım.",
+    ],
+  },
+  {
+    id: "uyuyamiyorum",
+    when: "Uyuyamadığında aç",
+    emoji: "🌌",
+    hint: "Gece yarısı için yazıldı",
+    title: "Şu an uyumak zorunda değilsin",
+    paragraphs: [
+      "Gece yarısı hiçbir şeyi çözmek için iyi bir zaman değil. Şu an aklındaki her şey, sabah olduğundan daha büyük ve daha karanlık görünüyor. Bu senin hatan değil, saatle ilgili bir şey.",
+      "Nefes al. Dört say, tut, dört say, ver. Bir kere değil, dört kere. Biliyorum bunlar klişe, ama işe yarıyor.",
+      "Bir şeyi kendine tekrar edebilirsin: bugün elimden geleni yaptım. Yarın yapılacaklar yarına ait.",
+      "Uyuyamıyorsan uyanık kal, ama telefonu bir köşeye bırak. Ben burada olduğumu bilmen için buradayım; mesaj atarsan görmeyebilirim ama sabah ilk işim cevap vermek olacak.",
+    ],
+  },
+  {
+    id: "uzgun",
+    when: "Ağlamak istediğinde aç",
+    emoji: "🕯️",
+    hint: "Sessizce okunacak",
+    title: "Ağlamak da bir iştir",
+    paragraphs: [
+      "Birinin yanında ağlayabilmek, o kişiye güvenmek demekmiş. Ben o kişi olmak istiyorum, yanında olmayı değil; o kişi olmayı.",
+      "Şimdi bir şey yapman gerekmiyor. Toplanman gerekmiyor. Güçlü görünmen gerekmiyor.",
+      "Sadece nefes al ve bu birkaç satırı oku. Ben, senin terk edilmeyecek biri olduğunu bilmeni istiyorum. Yorgunken de, susarken de, hiçbir şey anlatmazken de.",
+      "Hazır olduğunda yaz. Yazmak istemiyorsan yazma. Ben o zamanı fark ederim.",
+    ],
+  },
+];
+
+/* Her gün bir "seni sevme sebebi" — havuzdan sırayla. */
+export const DAILY_REASONS = [
+  "Gülüşünün bir odayı ısıtması.",
+  "En basit şeyi bile bana özel yapman.",
+  "Yanında kendim olabilmem.",
+  "Bir şeyi anlatırken gözlerinin büyümesi.",
+  "Kızdığında bile benden vazgeçmemen.",
+  "Bana iyi geldiğini bilmeden iyi gelmen.",
+  "Sabahları sesinin o ilk hâli.",
+  "Yorgunken bile nazik kalabilmen.",
+  "Bir şeye gerçekten inandığında kimsenin seni durduramaması.",
+  "Bana \"iyi ki\" dedirten o küçük şeyler.",
+  "Saçını kulağının arkasına atma şeklin.",
+  "Bir şeyi beğendiğinde gözlerinin parlaması.",
+  "Yalnız olmadığımı hissettirmen.",
+  "Sana ait olan her şeyin bende ev gibi durması.",
+  "Hâlâ ilk günkü gibi heyecanlanman.",
+  "En saçma esprilerime bile gülmen.",
+  "Bir konuda haklı olduğunu bilince vazgeçmemen.",
+  "Benden önce kendine kızıp sonra bana sarılman.",
+  "Beni dinlerken gerçekten dinlemen.",
+  "Uzakta olsan da aklımda kalmayı başarman.",
+  "Sessizliğinin bile rahatlatıcı olması.",
+  "Benim için endişelenmen, bunu belli etmen.",
+  "Bir şeyi yapmaya karar verince güzel yapman.",
+  "Sana sarıldığımda dünyanın susması.",
+  "Küçük şeylere sevinmeyi bırakmaman.",
+  "Bana kendimi daha iyi biri gibi hissettirmen.",
+  "Bir günü berbat geçse de yarına kızabilmen.",
+];
+
+/* ============================================================
+   "Sen olsan hangisini seçerdin?" — mini quiz
+   ============================================================ */
+
+export type QuizQuestion = {
+  id: string;
+  q: string;
+  options: string[];
+  /** Doğru cevabın index'i (Burak'ın cevabı). */
+  answer: number;
+  /** Cevaplandıktan sonra gösterilen kısa not. */
+  note: string;
+};
+
+export const QUIZ: QuizQuestion[] = [
+  {
+    id: "q1",
+    q: "Benim için en zor şey hangisi?",
+    options: ["Bir şeyi yarım bırakmak", "Yardım istemek", "Sabah erken kalkmak", "Cevap vermeyi beklemek"],
+    answer: 1,
+    note: "Hâlâ öğreniyorum. Ama sana sormak kolay gelmeye başladı, bu iyiye işaret.",
+  },
+  {
+    id: "q2",
+    q: "Sana ilk dikkat ettiğim şey neydi?",
+    options: ["Gülüşün", "Sesin", "Konuşma şeklin", "Bana bakışın"],
+    answer: 0,
+    note: "Fotoğrafta bile aynı. Hâlâ her gün yeniden dikkatimi çekiyor.",
+  },
+  {
+    id: "q3",
+    q: "Hangi anı en çok saklıyorum?",
+    options: ["İlk buluşma", "İlk kavga", "İlk uzun yol", "İlk 'seni seviyorum'"],
+    answer: 2,
+    note: "O yolda şarkı seçmekten hiç bitmeyen bir güzergâh vardı. Keşke bitmeseydi.",
+  },
+  {
+    id: "q4",
+    q: "Bir gün sonumuza dair hayalimde ilk ne var?",
+    options: ["Büyük bir ev", "Bir kedi", "Sabah kahvaltısı", "Uzak bir yol"],
+    answer: 2,
+    note: "Küçük şeyler. Sana en çok yakışan mutluluk sessiz olanı.",
+  },
+  {
+    id: "q5",
+    q: "Bana kızdığında ben ne yaparım?",
+    options: ["Susar beklerim", "Hemen konuşmak isterim", "Şaka yaparım", "Uzaklaşırım"],
+    answer: 1,
+    note: "Belki de yapmamam gerek. Sen söyle, ona göre.",
+  },
+  {
+    id: "q6",
+    q: "Söylemesi en zor ama en doğru cümlem hangisi?",
+    options: ["Seni seviyorum", "Sana ihtiyacım var", "Sensiz yapamam", "Haklısın"],
+    answer: 1,
+    note: "Bunu söylemek kolay değil ama doğru. Söyledim sayılır mı?",
+  },
+  {
+    id: "q7",
+    q: "Seninle en çok neye gülerim?",
+    options: ["Espri yaptığında", "Kızdığında", "Uykulu hâline", "Kendinle dalga geçtiğinde"],
+    answer: 2,
+    note: "O hâlin için her şeyi verirsin zannediyorsun ama haberin yok.",
+  },
+  {
+    id: "q8",
+    q: "En sevdiğim ortak planımız hangisi?",
+    options: ["Bir şey izlemek", "Yürüyüşe çıkmak", "Bir yer keşfetmek", "Hiçbir şey yapmamak"],
+    answer: 3,
+    note: "Hiçbir şey yapmamak, seninle. Kulağa en güzel gelen plan.",
+  },
+];
+
 
 export const REASONS = [
   "Gülüşün bir odayı ısıtıyor.",

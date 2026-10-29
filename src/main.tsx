@@ -4,6 +4,7 @@ import App from './App'
 import './styles/global.css'
 import './styles/components.css'
 import './styles/sections.css'
+import './styles/extras.css'
 
 const host = document.getElementById('root')
 if (!host) throw new Error('#root bulunamadı')

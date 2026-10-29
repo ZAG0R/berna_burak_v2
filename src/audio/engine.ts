@@ -418,10 +418,32 @@ export class MusicPlayer {
   private audioElement: HTMLAudioElement | null = null
   private useRealAudio = false
   private statePlaying = false
+  private raf: number | null = null
 
-  onProgress: ((ratio: number) => void) | null = null
+  onTime: ((elapsed: number, duration: number) => void) | null = null
   onEnded: (() => void) | null = null
   onError: ((message: string) => void) | null = null
+
+  /* İlerleme, ses elemanının gerçek currentTime'ından her karede okunur. */
+  private startTicker() {
+    this.stopTicker()
+    const el = this.audioElement
+    if (!el) return
+    const tick = () => {
+      if (this.audioElement !== el) return
+      const d = el.duration
+      if (Number.isFinite(d) && d > 0) this.onTime?.(el.currentTime, d)
+      this.raf = window.requestAnimationFrame(tick)
+    }
+    this.raf = window.requestAnimationFrame(tick)
+  }
+
+  private stopTicker() {
+    if (this.raf !== null) {
+      window.cancelAnimationFrame(this.raf)
+      this.raf = null
+    }
+  }
 
   get playing() {
     return this.statePlaying
@@ -578,15 +600,17 @@ export class MusicPlayer {
         }
       })
 
-      // Progress tracking
-      el.addEventListener('timeupdate', () => {
-        if (this.audioElement === el && el.duration) {
-          const ratio = el.currentTime / el.duration
-          this.onProgress?.(ratio)
+      // Süre bilgisi belli olur olmaz toplam süreyi bildir.
+      el.addEventListener('loadedmetadata', () => {
+        if (this.audioElement === el && Number.isFinite(el.duration)) {
+          this.onTime?.(el.currentTime, el.duration)
         }
       })
 
-      el.addEventListener('ended', () => this.onEnded?.())
+      el.addEventListener('ended', () => {
+        this.stopTicker()
+        this.onEnded?.()
+      })
       el.addEventListener('play', () => {
         if (this.audioElement === el) this.statePlaying = true
       })
@@ -598,14 +622,28 @@ export class MusicPlayer {
     }
   }
 
+  /* Parcada ileri/geri sarma. Oran 0..1 arasindadir. */
+  seek(ratio: number) {
+    const el = this.audioElement
+    if (!this.useRealAudio || !el) return
+    const d = el.duration
+    if (!Number.isFinite(d) || d <= 0) return
+    const r = Math.max(0, Math.min(1, ratio))
+    el.currentTime = r * d
+    this.onTime?.(el.currentTime, d)
+  }
+
   play() {
     if (this.useRealAudio && this.audioElement) {
-      unlockAudio()
       this.statePlaying = true
       const el = this.audioElement
-      el.play().catch(() => {
+      /* play() ses baglamini beklemeden cagrilir; unlockAudio sadece
+         ambiyans/sentez yollarini ilgilendirir. */
+      this.startTicker()
+      el.play().then(() => unlockAudio()).catch(() => {
         /* Autoplay engeli: kullanıcı henüz dokunmamış olabilir. */
         if (this.audioElement !== el) return
+        this.stopTicker()
         this.statePlaying = false
         this.onError?.('Tarayıcı sesi engelledi, tekrar dokun')
       })
@@ -644,7 +682,8 @@ export class MusicPlayer {
           this.step = 0
         }
       }
-      this.onProgress?.(this.step / this.totalSteps)
+      const beatSec = beat / 2
+      this.onTime?.(this.step * beatSec, this.totalSteps * beatSec)
     }
     tick()
     this.timer = window.setInterval(tick, 90)
@@ -652,6 +691,7 @@ export class MusicPlayer {
 
   pause() {
     this.statePlaying = false
+    this.stopTicker()
     // Gerçek audio dosyası varsa onu duraklat
     if (this.useRealAudio && this.audioElement) {
       this.audioElement.pause()
@@ -673,6 +713,7 @@ export class MusicPlayer {
   }
 
   dispose() {
+    this.stopTicker()
     this.pause()
     if (this.audioElement) {
       this.audioElement.pause()

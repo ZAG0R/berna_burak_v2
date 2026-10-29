@@ -1,32 +1,55 @@
 import type { NavKey } from '../App'
 import { Icon } from './Icons'
 import { IMAGES, DEFAULT_PEOPLE } from '../data/content'
-import iyiki from '../assets/iyiki.webp'
-import { textForHour } from '../data/scenes'
+import iyiki from '../assets/iyiki-crop.png'
+import { greetImageForHour } from '../data/scenes'
+
+/* Menüde bir sayfa değil, ana sayfadaki bir kartı işaret eden iki kısayol
+   var: Müzik ve Hava Durumu. Tıklanınca ana sayfaya dönülür ve ilgili
+   karta kaydırılır. */
+export type NavItemKey = NavKey | 'music' | 'weather'
 
 type Props = {
   active: NavKey
-  onNavigate: (k: NavKey) => void
+  onNavigate: (k: NavItemKey) => void
   open: boolean
   onClose: () => void
-  mood: number
-  moodLabel: string
   hour: number
+  soundOn: boolean
+  onToggleSound: () => void
 }
 
-export const NAV_ITEMS: { key: NavKey; label: string; icon: string }[] = [
+/* Sıra referanstaki menüyle aynıdır. */
+export const NAV_ITEMS: { key: NavItemKey; label: string; icon: string }[] = [
   { key: 'home', label: 'Ana Sayfa', icon: 'home' },
   { key: 'letter', label: 'Mesajım', icon: 'chat' },
+  { key: 'kept', label: 'Sakladıklarım', icon: 'mail' },
+  { key: 'memories', label: 'Anılarımız', icon: 'camera' },
   { key: 'plan', label: 'Günün Planı', icon: 'calendar' },
   { key: 'surprise', label: 'Sürprizler', icon: 'gift' },
-  { key: 'memories', label: 'Anılarımız', icon: 'heart' },
-  { key: 'settings', label: 'Ayarlar', icon: 'settings' },
+  { key: 'quiz', label: 'Mini Oyun', icon: 'sparkles' },
 ]
 
-export default function Sidebar({ active, onNavigate, open, onClose, mood, moodLabel, hour }: Props) {
+/* Kenar çubuğunda gösterilen tarih: "26 Ekim 2026" + "Pazartesi" */
+function dateLine(now: Date) {
+  const day = new Intl.DateTimeFormat('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' }).format(now)
+  const weekday = new Intl.DateTimeFormat('tr-TR', { weekday: 'long' }).format(now)
+  return { day, weekday }
+}
+
+export default function Sidebar({
+  active,
+  onNavigate,
+  open,
+  onClose,
+  hour,
+  soundOn,
+  onToggleSound,
+}: Props) {
   const him = DEFAULT_PEOPLE[0]
   const her = DEFAULT_PEOPLE[1]
-  const text = textForHour(hour)
+  const greet = greetImageForHour(hour)
+  const { day, weekday } = dateLine(new Date())
 
   return (
     <>
@@ -41,13 +64,10 @@ export default function Sidebar({ active, onNavigate, open, onClose, mood, moodL
             <Icon name="sunrays" />
           </div>
           <h1 className="sidebar__title">
-            {text.line1}
-            <br />
-            <em>{text.line2}</em>
+            <img className="sidebar__greet" src={greet.src} alt={greet.label} draggable={false} />
           </h1>
-          <span className="sidebar__heart" aria-hidden>
-            ♡
-          </span>
+          <p className="sidebar__date">{day}</p>
+          <p className="sidebar__weekday">{weekday}</p>
         </div>
 
         <nav className="sidebar__nav">
@@ -64,11 +84,10 @@ export default function Sidebar({ active, onNavigate, open, onClose, mood, moodL
                   onClose()
                 }}
               >
-                <span className="navitem__marker" aria-hidden />
                 <Icon name={item.icon} />
                 <span>{item.label}</span>
                 <span className="navitem__hint" aria-hidden>
-                  ♡
+                  <Icon name="chevronRight" />
                 </span>
               </button>
             )
@@ -84,7 +103,10 @@ export default function Sidebar({ active, onNavigate, open, onClose, mood, moodL
         <div className="sidebar__people">
           <div className="person person--crown">
             <div className="person__ring">
-              <span className="person__crown" aria-hidden>👑</span>
+              {/* Emoji fontu bu derlemede yok; kutu ciziyordu. */}
+              <span className="person__crown" aria-hidden>
+                <Icon name="crown" />
+              </span>
               <img className="person__img" src={him.avatar} alt={him.name} loading="lazy" />
             </div>
             <span className="person__name">{him.name}</span>
@@ -98,11 +120,42 @@ export default function Sidebar({ active, onNavigate, open, onClose, mood, moodL
           </div>
         </div>
 
-        <div className="sidebar__mood">
-          <p>{moodLabel}</p>
-          <div className="moodbar" role="progressbar" aria-valuenow={mood} aria-valuemin={0} aria-valuemax={100}>
-            <span style={{ width: `${mood}%` }} />
-          </div>
+        {/* Ses, sürpriz ve ayarlar en altta: başlık ve menü sıkışmasın. */}
+        <div className="sidebar__tools">
+          <button
+            type="button"
+            className={`sidebtn ${soundOn ? 'sidebtn--on' : ''}`}
+            onClick={onToggleSound}
+            aria-pressed={soundOn}
+            aria-label={soundOn ? 'Sesi kapat' : 'Sesi aç'}
+            title={soundOn ? 'Sesi kapat' : 'Sesi aç'}
+          >
+            <Icon name={soundOn ? 'volume' : 'volumeOff'} />
+          </button>
+          <button
+            type="button"
+            className={`sidebtn ${active === 'surprise' ? 'sidebtn--on' : ''}`}
+            onClick={() => {
+              onNavigate('surprise')
+              onClose()
+            }}
+            aria-label="Sürprizler"
+            title="Sürprizler"
+          >
+            <Icon name="gift" />
+          </button>
+          <button
+            type="button"
+            className={`sidebtn ${active === 'settings' ? 'sidebtn--on' : ''}`}
+            onClick={() => {
+              onNavigate('settings')
+              onClose()
+            }}
+            aria-label="Ayarlar"
+            title="Ayarlar"
+          >
+            <Icon name="settings" />
+          </button>
         </div>
       </aside>
     </>

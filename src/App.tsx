@@ -1,5 +1,5 @@
 ﻿import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import Sidebar from "./components/Sidebar";
+import Sidebar, { type NavItemKey } from "./components/Sidebar";
 import Topbar from "./components/Topbar";
 import MobileNav from "./components/MobileNav";
 import Intro from "./components/Intro";
@@ -8,25 +8,35 @@ import WeatherFX from "./three/WeatherFX";
 import Buddy from "./three/Buddy";
 import Home from "./sections/Home";
 import Letter from "./sections/Letter";
+import KeptLetters from "./sections/KeptLetters";
 import Planner from "./sections/Planner";
 import Surprise from "./sections/Surprise";
 import Memories from "./sections/Memories";
+import Quiz from "./sections/Quiz";
 import Settings from "./sections/Settings";
 import { SceneBackground } from "./components/Scenery";
 import { MusicPlayer, setMasterVolume, toggleAmbience, stopAllAmbience } from "./audio/engine";
 import {
   ACCENTS,
-  MOOD_LABELS,
   PLAN_ITEMS,
   SONGS,
+  TOGETHER_SINCE_DEFAULT,
   type AmbienceId,
   type PlanItem,
 } from "./data/content";
 import { buildScene, titleForHour } from "./data/scenes";
-import { useStoredState, useToast, useMediaQuery } from "./hooks/useAppState";
+import { useStoredState, useToast, useMediaQuery, useLocalDay } from "./hooks/useAppState";
 import { useWeather } from "./hooks/useWeather";
 
-export type NavKey = "home" | "letter" | "plan" | "surprise" | "memories" | "settings";
+export type NavKey =
+  | "home"
+  | "letter"
+  | "kept"
+  | "plan"
+  | "surprise"
+  | "memories"
+  | "quiz"
+  | "settings";
 
 export default function App() {
   const [introDone, setIntroDone] = useState(false);
@@ -44,18 +54,30 @@ export default function App() {
 
   const [planItems, setPlanItems] = useStoredState<PlanItem[]>("plan:items:v2", PLAN_ITEMS);
   const [planDone, setPlanDone] = useStoredState<Record<string, boolean>>("plan:done:v2", {});
+  const [planDay, setPlanDay] = useStoredState<string>("plan:day", "");
+  const [togetherSince, setTogetherSince] = useStoredState<string>(
+    "together:since",
+    TOGETHER_SINCE_DEFAULT,
+  );
+  const today = useLocalDay();
+
+  /* Yeni gün başlayınca işaretler temizlenir; maddeler (kendi ekledikleri
+     dahil) durur. Böylece dün "yaptım" denen şeyler bugün yapılmış sayılmaz. */
+  useEffect(() => {
+    if (planDay === today) return;
+    setPlanDone({});
+    setPlanDay(today);
+  }, [today, planDay, setPlanDone, setPlanDay]);
 
   const [songIndex, setSongIndex] = useStoredState<number>("music:index", 0);
   const [playing, setPlaying] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [track, setTrack] = useState({ elapsed: 0, duration: 0 });
 
   const { msg, show } = useToast();
   const finePointer = useMediaQuery("(pointer: fine)");
   const playerRef = useRef<MusicPlayer | null>(null);
 
   const song = SONGS[songIndex % SONGS.length];
-  const mood = useMemo(() => 62 + (planItems.length % 7) * 5, [planItems.length]);
-  const moodLabel = useMemo(() => MOOD_LABELS[songIndex % MOOD_LABELS.length], [songIndex]);
 
   /* ---------- sahne: saat + hava durumu ---------- */
   const { weather, code, live } = useWeather();
@@ -108,15 +130,21 @@ export default function App() {
         return;
       }
 
-      let hz = Math.min(1.35, Math.max(0.7, vh / 720));
+      /* Referans 1647x918'de cizildi ve icerik oraya tam sigiyor; olcek
+         o orana baglanir. Onceden icerik sigmadikca zoom kisiliyordu ve
+         tum yazilar/kartlar kucuk kaliyordu. */
+      const REF_W = 1647;
+      const REF_H = 918;
+      let hz = Math.min(1.42, Math.max(0.92, Math.min(vw / REF_W, vh / REF_H)));
       root.style.setProperty("--hz", hz.toFixed(4));
-      /* Kökün scrollHeight'i .app'teki overflow yüzünden kırpılıyor.
-         Gerçek içerik yüksekliği kabuğun kutusundan ölçülür. */
+
+      /* Genis ekranda yukseklik, dar ekranda genislik belirleyici olur;
+         yalnizca gercekten tasma varsa ve cok az, ince ayar yapilir. */
       const shell = document.querySelector<HTMLElement>(".app__shell");
-      for (let i = 0; i < 10; i += 1) {
+      for (let i = 0; i < 6; i += 1) {
         const sh = shell ? shell.getBoundingClientRect().height : root.scrollHeight;
         if (sh <= vh + 1) break;
-        hz = Math.max(0.5, hz * (vh / sh));
+        hz = Math.max(0.55, hz * Math.min(0.995, vh / sh));
         root.style.setProperty("--hz", hz.toFixed(4));
       }
     };
@@ -154,7 +182,7 @@ export default function App() {
   useEffect(() => {
     const p = new MusicPlayer();
     playerRef.current = p;
-    p.onProgress = (r) => setProgress((prev) => (Math.abs(prev - r) > 0.008 ? r : prev));
+    p.onTime = (elapsed, duration) => setTrack({ elapsed, duration });
     p.onEnded = () => {
       setSongIndex((i) => (i + 1) % SONGS.length);
     };
@@ -180,7 +208,7 @@ export default function App() {
       chords: song.chords,
       audioFile: song.audioFile 
     });
-    setProgress(0);
+    setTrack({ elapsed: 0, duration: 0 });
     if (wasPlaying) p.play();
     setPlaying(wasPlaying);
   }, [song]);
@@ -195,6 +223,10 @@ export default function App() {
     setPlaying(nowPlaying);
     if (nowPlaying) show(`♪ ${song.title} çalıyor`);
   }, [show, song.title, soundOn, setSoundOn]);
+
+  const seekTrack = useCallback((ratio: number) => {
+    playerRef.current?.seek(ratio);
+  }, []);
 
   const nextSong = useCallback(() => {
     setSongIndex((i) => (i + 1) % SONGS.length);
@@ -253,15 +285,103 @@ export default function App() {
   );
 
   /* ---------- gezinme ---------- */
-  const go = useCallback((k: NavKey) => {
+  const go = useCallback((k: NavItemKey) => {
+    /* Müzik ve Hava Durumu ayrı sayfa değil: ana sayfadaki kartları
+       işaret eder. Önce ana sayfaya dönülür, kart geldikten sonra
+       kaydırılır. */
+    if (k === "music" || k === "weather") {
+      setNav("home");
+      window.setTimeout(() => {
+        const el = document.getElementById(k === "music" ? "home-music" : "home-weather");
+        el?.scrollIntoView({ behavior: "smooth", block: "center" });
+        el?.animate(
+          [
+            { boxShadow: "0 0 0 0 rgba(255,179,92,0)" },
+            { boxShadow: "0 0 0 3px rgba(255,179,92,0.55)" },
+            { boxShadow: "0 0 0 0 rgba(255,179,92,0)" },
+          ],
+          { duration: 1400, easing: "ease-out" },
+        );
+      }, 120);
+      return;
+    }
     setNav(k);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
+  /* ---------- klavye kısayolları ----------
+     Ayarlar sayfasında yazan kısayollar burada dinlenir. Yazı alanında
+     (plan maddesi eklerken) tuşlar normal davransın diye input/textarea
+     içindeyken devre dışı kalır. */
+  useEffect(() => {
+    if (!introDone) return;
+
+    const isTyping = (el: EventTarget | null) => {
+      const node = el as HTMLElement | null;
+      if (!node) return false;
+      const tag = node.tagName;
+      return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || node.isContentEditable;
+    };
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (isTyping(e.target)) return;
+
+      /* Boşluk: müziği çal / duraklat */
+      if (e.code === "Space") {
+        e.preventDefault();
+        togglePlay();
+        return;
+      }
+
+      switch (e.key) {
+        case "1":
+          go("home");
+          break;
+        case "2":
+          go("letter");
+          break;
+        case "3":
+          go("kept");
+          break;
+        case "4":
+          go("plan");
+          break;
+        case "5":
+          go("surprise");
+          break;
+        case "6":
+          go("memories");
+          break;
+        case "7":
+          go("quiz");
+          break;
+        case "8":
+          go("settings");
+          break;
+        case "?":
+          show("1–8 sayfalar · Boşluk müzik · Esc menüyü kapatır");
+          break;
+        case "Escape":
+          setSidebar(false);
+          break;
+        default:
+          return;
+      }
+    };
+
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [introDone, go, togglePlay, show]);
+
   const onOpenBottom = useCallback(
-    (kind: "coffee" | "gift" | "memory") => {
+    (kind: "coffee" | "gift" | "memory" | "cat") => {
       if (kind === "coffee") {
         show("Kahven hazır, afiyet olsun ☕");
+        return;
+      }
+      if (kind === "cat") {
+        show("Minik patiler yakında burada ♡");
         return;
       }
       go(kind === "gift" ? "surprise" : "memories");
@@ -284,6 +404,10 @@ export default function App() {
     switch (nav) {
       case "letter":
         return <Letter />;
+      case "kept":
+        return <KeptLetters />;
+      case "quiz":
+        return <Quiz />;
       case "plan":
         return (
           <Planner
@@ -309,8 +433,14 @@ export default function App() {
             onVolume={setVolume}
             reducedMotion={reducedMotion}
             onReducedMotion={setReducedMotion}
+            togetherSince={togetherSince}
+            onTogetherSince={setTogetherSince}
             onReset={resetAll}
             onTestSound={() => show("Ses çalışıyor ♪")}
+            ambience={ambience}
+            onAmbience={onAmbience}
+            buddiesOn={buddies}
+            onToggleBuddies={() => setBuddies((b) => !b)}
           />
         );
       default:
@@ -323,19 +453,18 @@ export default function App() {
             planDone={planDone}
             onTogglePlan={togglePlan}
             onOpen={onOpenBottom}
-            ambience={ambience}
-            onAmbience={onAmbience}
             volume={volume}
             onVolume={onVolume}
             song={song}
             playing={playing}
-            progress={progress}
+            elapsed={track.elapsed}
+            duration={track.duration}
             onPlayToggle={togglePlay}
             onNext={nextSong}
             onPrev={prevSong}
+            onSeek={seekTrack}
             onOpenLetter={() => go("letter")}
-            buddiesOn={buddies}
-            onToggleBuddies={() => setBuddies((b) => !b)}
+            togetherSince={togetherSince}
           />
         );
     }
@@ -361,21 +490,16 @@ export default function App() {
           onNavigate={go}
           open={sidebar}
           onClose={() => setSidebar(false)}
-          mood={mood}
-          moodLabel={moodLabel}
           hour={hour}
+          soundOn={soundOn}
+          onToggleSound={() => {
+            setSoundOn((s) => !s);
+            show(soundOn ? "Ses kapatıldı" : "Ses açıldı");
+          }}
         />
 
         <div className="app__main">
-          <Topbar
-            onBurger={() => setSidebar((s) => !s)}
-            soundOn={soundOn}
-            onToggleSound={() => {
-              setSoundOn((s) => !s);
-              show(soundOn ? "Ses kapatıldı" : "Ses açıldı");
-            }}
-            onSurprise={() => go("surprise")}
-          />
+          <Topbar onBurger={() => setSidebar((s) => !s)} />
 
           <main className="app__content">
             <div key={nav} className="page">

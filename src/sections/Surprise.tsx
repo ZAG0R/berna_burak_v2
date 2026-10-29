@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Icon } from "../components/Icons";
 import GiftBox from "../three/GiftBox";
 import { COUNTDOWN_LABEL, SURPRISES, SURPRISE_HINT, SURPRISE_SUB } from "../data/content";
-import { burstHearts, useReveal, useStoredState } from "../hooks/useAppState";
+import { burstHearts, dayNumber, useLocalDay, useReveal, useStoredState } from "../hooks/useAppState";
 
 /* ============================================================
    Sürprizler
@@ -39,8 +39,11 @@ export default function Surprise() {
   const [doneMap, setDoneMap] = useStoredState<Record<string, boolean>>("surprise:done", {});
   const sideRef = useReveal<HTMLDivElement>(110);
 
-  /* Gün numarası: sürpriz gün içinde değişmez, ertesi gün değişir. */
-  const dayIndex = Math.floor(Date.now() / 86_400_000);
+  /* Gün numarası: sürpriz gün içinde değişmez, gece yarısı değişir.
+     Yerel saate göre sayılır (Date.now()/86_400_000 UTC kullanır ve
+     Türkiye'de günü 03:00'te döndürüyordu). */
+  const today = useLocalDay();
+  const dayIndex = useMemo(() => dayNumber(), [today]);
   const todayIdx = ((dayIndex % SURPRISES.length) + SURPRISES.length) % SURPRISES.length;
   const surprise = SURPRISES[todayIdx];
   const done = Boolean(doneMap[surprise.id]);

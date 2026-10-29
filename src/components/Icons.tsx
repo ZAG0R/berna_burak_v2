@@ -68,9 +68,27 @@ export const Heart = (p: IconProps) => (
   </svg>
 )
 
+export const Paw = (p: IconProps) => (
+  <svg {...base(p)}>
+    <ellipse cx="6.4" cy="9.6" rx="1.9" ry="2.4" />
+    <ellipse cx="10.4" cy="7.2" rx="1.9" ry="2.5" />
+    <ellipse cx="14.6" cy="7.2" rx="1.9" ry="2.5" />
+    <ellipse cx="18.4" cy="9.9" rx="1.9" ry="2.4" />
+    <path d="M12.4 12.4c2.6 0 4.9 1.9 4.9 4.2 0 1.9-1.6 3.2-3.6 3.2-.7 0-1.1-.2-1.7-.2s-1 .2-1.7.2c-2 0-3.6-1.3-3.6-3.2 0-2.3 2.3-4.2 5-4.2Z" />
+  </svg>
+)
+
 export const HeartFilled = (p: IconProps) => (
   <svg {...base(p)} fill="currentColor" stroke="none">
     <path d="M12 20.8S3.3 15.5 3.3 9.5A4.9 4.9 0 0 1 12 6.7a4.9 4.9 0 0 1 8.7 2.8c0 6-8.7 11.3-8.7 11.3Z" />
+  </svg>
+)
+
+/* Ic ice iki kontur kalp: yil donumu satirinin solundaki ikon. */
+export const HeartsPair = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M7.1 16.6C4.2 14.6 2 12 2 9.4A3.4 3.4 0 0 1 8.4 7.9 3.4 3.4 0 0 1 14.8 9.4c0 2.6-2.2 5.2-5.1 7.2" />
+    <path d="M11.4 21c3.1-2 6.6-4.9 6.6-8a3.4 3.4 0 0 0-5.9-2.1" />
   </svg>
 )
 
@@ -262,6 +280,17 @@ export const Refresh = (p: IconProps) => (
   </svg>
 )
 
+/* Karistir — referanstaki oynatici ikonu. */
+export const Shuffle = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M16 3h5v5" />
+    <path d="M4 20 21 3" />
+    <path d="M21 16v5h-5" />
+    <path d="M15 15l6 6" />
+    <path d="M4 4l5 5" />
+  </svg>
+)
+
 export const Crown = (p: IconProps) => (
   <svg {...base(p)} fill="currentColor" stroke="none">
     <path d="M3.2 18.6 2.4 7.2l5.4 3.8L12 4.2l4.2 6.8 5.4-3.8-.8 11.4z" />
@@ -417,6 +446,8 @@ export const ICON_MAP = {
   gift: Gift,
   heart: Heart,
   heartfilled: HeartFilled,
+  heartspair: HeartsPair,
+  paw: Paw,
   settings: Settings,
   coffee: Coffee,
   star: Star,
@@ -450,6 +481,7 @@ export const ICON_MAP = {
   camera: Camera,
   send: Send,
   refresh: Refresh,
+  shuffle: Shuffle,
   crown: Crown,
   quote: Quote,
   compass: Compass,

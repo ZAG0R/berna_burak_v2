@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "./Icons";
 import {
   AMBIENCES,
@@ -14,22 +14,25 @@ import { WEATHER_ICONS } from "./WeatherIcons";
    Hava durumu kartı — veri App'te tek yerden çekilir
    ============================================================ */
 
-export function WeatherCard({ w, live }: { w: Weather; live: boolean }) {
+export function WeatherCard({ w, live, id }: { w: Weather; live: boolean; id?: string }) {
   const WeatherArt = WEATHER_ICONS[w.icon];
   return (
-    <article className="card card--hover">
+    <article className="card card--hover" id={id}>
       <div className="weather">
         <div className="weather__art weather__art--float" aria-hidden>
           <WeatherArt />
         </div>
         <div className="weather__body">
           <p className="weather__city">{DEFAULT_CITY}</p>
-          <p className="weather__temp tnum">{w.temp}°C</p>
+          <p className="weather__temp">
+            {w.temp}
+            <span className="weather__deg">°C</span>
+          </p>
           <p className="weather__desc">{w.desc}</p>
         </div>
         <div className="weather__extra">
           <span>
-            Rüzgâr <b>{w.wind}</b>
+            Rüzgâr <b>{w.wind} km/s</b>
           </span>
           <span>
             Nem <b>%{w.humidity}</b>
@@ -53,7 +56,7 @@ export function QuoteCard({ text, by }: { text: string; by: string }) {
     <article className="card card--hover">
       <div className="quote">
         <span className="quote__mark" aria-hidden>
-          <Icon name="heartfilled" />
+          <Icon name="quote" />
         </span>
         <div>
           <p className="quote__text">“{text}”</p>
@@ -88,10 +91,8 @@ export function PlanCard({
           <span className="card__icon" aria-hidden>
             <Icon name="calendar" />
           </span>
-          <div>
-            <h3 className="card__title">Bugünün Planı</h3>
-            <p className="card__sub">küçük adımlar, güzel bir gün</p>
-          </div>
+          <h3 className="card__title">Bugünün Planı</h3>
+          <span className="card__count">{total} görev</span>
         </header>
 
         <ul className="plan__list">
@@ -108,8 +109,8 @@ export function PlanCard({
                   <span className="planitem__box" aria-hidden>
                     <Icon name="check" />
                   </span>
-                  <span className="planitem__label">{item.label}</span>
                   <span className="planitem__time muted">{item.time}</span>
+                  <span className="planitem__label">{item.label}</span>
                 </button>
               </li>
             );
@@ -117,7 +118,12 @@ export function PlanCard({
         </ul>
 
         <div className="plan__foot">
-          <span className="plan__pct tnum">%{pct}</span>
+          {/* Yuzde isaretinin egik cizgileri kucuk puntoda sifira karisiyor;
+              isaret ayrilip soluk gosterilir. */}
+          <span className="plan__pct tnum">
+            <span className="plan__pct-sign">%</span>
+            {pct}
+          </span>
           <span className="plan__note">
             {count} / {total} tamamlandı
           </span>
@@ -136,37 +142,54 @@ export function PlanCard({
 
 type BottomCard = {
   id: string;
-  kind: "coffee" | "gift" | "memory";
+  kind: "coffee" | "gift" | "memory" | "cat";
   image: string;
   tag: string;
   title: string;
   text: string;
 };
 
+const BOTTOM_ICON: Record<BottomCard["kind"], string> = {
+  coffee: "coffee",
+  gift: "gift",
+  memory: "camera",
+  cat: "paw",
+};
+
+/* Her kartta gorsel var; ikon yuvarlagi yalnizca tur belirtir. */
+const ICON_CARD: BottomCard["kind"] | null = null;
+
 export function BottomCards({
   cards,
   onOpen,
 }: {
   cards: readonly BottomCard[];
-  onOpen: (kind: "coffee" | "gift" | "memory") => void;
+  onOpen: (kind: BottomCard["kind"]) => void;
 }) {
   return (
     <>
       {cards.map((c, i) => (
         <article key={c.id} className="card card--hover">
           <button type="button" className="bottomcard" onClick={() => onOpen(c.kind)}>
-            <span className={`bottomcard__thumb ${i === 1 ? "polaroid-mini" : ""}`}>
-              <img src={c.image} alt="" loading="lazy" decoding="async" />
+            <span
+              className={`bottomcard__thumb ${i === 1 ? "polaroid-mini" : ""} ${
+                c.kind === ICON_CARD ? "bottomcard__thumb--icon" : ""
+              }`}
+            >
+              {c.kind === ICON_CARD ? (
+                <Icon name={BOTTOM_ICON[c.kind]} />
+              ) : (
+                <img src={c.image} alt="" loading="lazy" decoding="async" />
+              )}
             </span>
+            {/* Hedef: kalin baslik (etiket metni) + soluk aciklama. */}
             <span className="bottomcard__body">
-              <span className="bottomcard__tag">
-                <Icon
-                  name={c.kind === "coffee" ? "coffee" : c.kind === "gift" ? "gift" : "camera"}
-                />
-                {c.tag}
-              </span>
-              <span className="bottomcard__title bottomcard__title--hand">{c.title}</span>
+              <span className="bottomcard__title">{c.tag}</span>
               <span className="bottomcard__text">{c.text}</span>
+            </span>
+            {/* Referans: sag ustte ture gore ikon, sag altta yuvarlak ok. */}
+            <span className="bottomcard__like" aria-hidden>
+              <Icon name={BOTTOM_ICON[c.kind]} />
             </span>
             <span className="card__arrow" aria-hidden>
               <Icon name="chevronRight" />
@@ -179,66 +202,144 @@ export function BottomCards({
 }
 
 /* ============================================================
-   Müzik oynatıcı
+   Müzik çubuğu — ana sayfanın en altında tam genişlikte.
+   Sol: kapak + parça adı, orta: kontroller + ilerleme, sağ: ses.
    ============================================================ */
 
-export function PlayerCard({
+/** Parça süresi. Gerçek mp3 varsa onun süresi kullanılır; yoksa
+ *  sentez parçasının varsayılan uzunluğu gösterilir. */
+const FALLBACK_DURATION = 222; // 3:42
+
+function clock(total: number) {
+  const s = Math.max(0, Math.floor(total));
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+}
+
+export function MusicBar({
   song,
   playing,
-  progress,
+  elapsed,
+  duration,
+  volume,
+  onVolume,
   onToggle,
   onNext,
   onPrev,
+  onSeek,
+  id,
 }: {
   song: Song;
   playing: boolean;
-  progress: number;
+  elapsed: number;
+  duration: number;
+  volume: number;
+  onVolume: (v: number) => void;
   onToggle: () => void;
   onNext: () => void;
   onPrev: () => void;
+  onSeek: (ratio: number) => void;
+  id?: string;
 }) {
+  const total = duration > 0 ? duration : FALLBACK_DURATION;
+  const safeElapsed = Math.min(elapsed, total);
+  const progress = total > 0 ? safeElapsed / total : 0;
+  const trackRef = useRef<HTMLSpanElement | null>(null);
+
+  /* Cubuga tiklayarak veya surukleyerek parcalarda ileri/geri sarma. */
+  const seekFromEvent = (e: PointerEvent | React.PointerEvent) => {
+    const box = trackRef.current?.getBoundingClientRect();
+    if (!box || box.width <= 0) return;
+    onSeek(Math.max(0, Math.min(1, (e.clientX - box.left) / box.width)));
+  };
+
+  const onPointerDown = (e: React.PointerEvent<HTMLSpanElement>) => {
+    e.preventDefault();
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    seekFromEvent(e);
+  };
+
+  const onPointerMove = (e: React.PointerEvent<HTMLSpanElement>) => {
+    if (!(e.currentTarget as HTMLElement).hasPointerCapture(e.pointerId)) return;
+    seekFromEvent(e);
+  };
+
   return (
-    <article className={`card ${playing ? "player--playing" : ""}`}>
-      <div className="player">
-        <div className="player__top">
-          <span className="player__thumb player__thumb--spin">
-            <img src={song.cover} alt="" loading="lazy" decoding="async" />
+    <article className={`card musicbar ${playing ? "musicbar--playing" : ""}`} id={id}>
+      <div className="musicbar__left">
+        <span className="musicbar__thumb">
+          <img src={song.cover} alt="" loading="lazy" decoding="async" />
+          <span className="musicbar__veil" aria-hidden>
+            <Icon name="music" />
           </span>
-          <div className="player__meta">
-            <p className="player__title">{song.title}</p>
-            <p className="player__artist">
-              {song.artist} · {song.mood}
-            </p>
-          </div>
-          <span className="player__eq" aria-hidden>
-            <i />
-            <i />
-            <i />
-            <i />
-          </span>
-        </div>
-
-        <div className="player__bar" aria-hidden>
-          <i style={{ width: `${Math.round(progress * 100)}%` }} />
-        </div>
-
-        <div className="player__controls">
-          <button type="button" className="pbtn" onClick={onPrev} aria-label="Önceki parça">
-            <Icon name="skipBack" />
-          </button>
-          <button
-            type="button"
-            className="pbtn pbtn--main"
-            onClick={onToggle}
-            aria-label={playing ? "Duraklat" : "Çal"}
-          >
-            <Icon name={playing ? "pause" : "play"} />
-          </button>
-          <button type="button" className="pbtn" onClick={onNext} aria-label="Sonraki parça">
-            <Icon name="skipForward" />
-          </button>
-        </div>
+        </span>
+        <span className="musicbar__meta">
+          <span className="musicbar__title">{song.title}</span>
+          <span className="musicbar__artist">{song.artist}</span>
+        </span>
+        <span className="musicbar__like" aria-hidden>
+          <Icon name="heartfilled" />
+        </span>
       </div>
+
+      {/* Referanstaki sira: once sure, sonra cubuk, sonra toplam sure. */}
+      <div className="musicbar__timeline">
+        <span className="musicbar__time tnum">{clock(safeElapsed)}</span>
+        <span
+          className="musicbar__track"
+          ref={trackRef}
+          role="slider"
+          tabIndex={0}
+          aria-label="Parcada ilerleme"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={Math.round(progress * 100)}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onKeyDown={(e) => {
+            if (e.key === "ArrowRight") onSeek(Math.min(1, progress + 0.02));
+            if (e.key === "ArrowLeft") onSeek(Math.max(0, progress - 0.02));
+          }}
+        >
+          <i style={{ width: `${Math.round(progress * 100)}%` }} />
+          <b style={{ left: `${Math.round(progress * 100)}%` }} />
+        </span>
+        <span className="musicbar__time tnum">{clock(total - safeElapsed)}</span>
+      </div>
+
+      <div className="musicbar__controls">
+        <button type="button" className="mbtn" aria-label="Karıştır" title="Karıştır">
+          <Icon name="shuffle" />
+        </button>
+        <button type="button" className="mbtn" onClick={onPrev} aria-label="Önceki parça">
+          <Icon name="skipBack" />
+        </button>
+        <button
+          type="button"
+          className="mbtn mbtn--main"
+          onClick={onToggle}
+          aria-label={playing ? "Duraklat" : "Çal"}
+        >
+          <Icon name={playing ? "pause" : "play"} />
+        </button>
+        <button type="button" className="mbtn" onClick={onNext} aria-label="Sonraki parça">
+          <Icon name="skipForward" />
+        </button>
+        <button type="button" className="mbtn" aria-label="Tekrar" title="Tekrar">
+          <Icon name="refresh" />
+        </button>
+      </div>
+
+      <label className="musicbar__volume">
+        <Icon name="volume" />
+        <span className="sr-only">Ses seviyesi</span>
+        <input
+          type="range"
+          min={0}
+          max={100}
+          value={Math.round(volume * 100)}
+          onChange={(e) => onVolume(Number(e.target.value) / 100)}
+        />
+      </label>
     </article>
   );
 }
@@ -285,6 +386,123 @@ export function AmbienceBar({
         />
       </label>
     </div>
+  );
+}
+
+/* ============================================================
+   Birlikte geçen zaman
+
+   Başlangıç tarihinden bu yana geçen süre; gün, saat ve dakika.
+   Sayaç canlı: her 30 saniyede tazelenir, sekmeye dönünce de güncellenir.
+   Gece yarısı geçince gün kendiliğinden artar.
+   ============================================================ */
+
+function parseDay(value: string) {
+  const [y, m, d] = value.split("-").map(Number);
+  return new Date(y, (m || 1) - 1, d || 1, 0, 0, 0, 0);
+}
+
+function diffParts(since: Date, now: Date) {
+  if (now.getTime() <= since.getTime()) return { days: 0, hours: 0, minutes: 0 };
+  let ms = now.getTime() - since.getTime();
+  const days = Math.floor(ms / 86_400_000);
+  ms -= days * 86_400_000;
+  const hours = Math.floor(ms / 3_600_000);
+  ms -= hours * 3_600_000;
+  const minutes = Math.floor(ms / 60_000);
+  return { days, hours, minutes };
+}
+
+export function TogetherCard({
+  since,
+  label,
+  hint,
+}: {
+  since: string;
+  label: string;
+  hint: string;
+}) {
+  const [now, setNow] = useState(() => new Date());
+
+  useEffect(() => {
+    const tick = () => setNow(new Date());
+    const id = window.setInterval(tick, 30_000);
+    window.addEventListener("focus", tick);
+    document.addEventListener("visibilitychange", tick);
+    return () => {
+      window.clearInterval(id);
+      window.removeEventListener("focus", tick);
+      document.removeEventListener("visibilitychange", tick);
+    };
+  }, []);
+
+  const start = useMemo(() => parseDay(since), [since]);
+  const { days, hours, minutes } = useMemo(() => diffParts(start, now), [start, now]);
+
+  /* Yıldönümü: her yıl aynı gün. */
+  const nextAnniversary = useMemo(() => {
+    const d = new Date(now.getFullYear(), start.getMonth(), start.getDate());
+    const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    if (d.getTime() < midnight.getTime()) d.setFullYear(d.getFullYear() + 1);
+    return d;
+  }, [now, start]);
+
+  const daysToAnniversary = useMemo(() => {
+    const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    return Math.max(
+      0,
+      Math.round((nextAnniversary.getTime() - midnight.getTime()) / 86_400_000),
+    );
+  }, [now, nextAnniversary]);
+
+  const isAnniversary = daysToAnniversary === 0;
+
+  return (
+    <article className={`card together${isAnniversary ? " together--anniv" : ""}`}>
+      {isAnniversary && (
+        <span className="together__confetti" aria-hidden>
+          {Array.from({ length: 10 }, (_, i) => (
+            <i key={i} style={{ "--i": i } as React.CSSProperties} />
+          ))}
+        </span>
+      )}
+      <div className="together__body">
+        <p className="together__label">
+          <Icon name="heartfilled" />
+          {label}
+        </p>
+        <Icon name="sparkles" className="together__spark" />
+
+        {/* Sol: buyuk gun sayisi. Sag: yil donumu ve gecen sure. */}
+        <p className="together__days tnum">
+          <b>{days.toLocaleString("tr-TR")}</b>
+          <Icon name="heart" className="together__days-heart" />
+          <span>gün</span>
+        </p>
+
+        <div className="together__right">
+          <p className="together__anniv">
+            <Icon name="heartspair" />
+            <span>
+              {daysToAnniversary === 0
+                ? "Bugün yıl dönümümüz ♡"
+                : `Yıl dönümüne ${daysToAnniversary} gün`}
+            </span>
+          </p>
+          <p className="together__sub tnum">
+            <Icon name="clock" />
+            <span>
+              {hours} saat {minutes} dakika
+            </span>
+          </p>
+        </div>
+      </div>
+      <span className="together__hint" title={hint} aria-hidden>
+        <Icon name="calendar" />
+      </span>
+      <span className="together__leaf together__leaf--1" aria-hidden />
+      <span className="together__leaf together__leaf--2" aria-hidden />
+    </article>
   );
 }
 

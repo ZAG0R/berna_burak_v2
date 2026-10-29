@@ -1,5 +1,6 @@
 import { Icon } from "../components/Icons";
-import { ACCENTS } from "../data/content";
+import { AmbienceBar } from "../components/Cards";
+import { ACCENTS, type AmbienceId } from "../data/content";
 
 type Props = {
   accent: string;
@@ -10,9 +11,23 @@ type Props = {
   onVolume: (v: number) => void;
   reducedMotion: boolean;
   onReducedMotion: (v: boolean) => void;
+  togetherSince: string;
+  onTogetherSince: (v: string) => void;
   onReset: () => void;
   onTestSound: () => void;
+  ambience: Record<string, boolean>;
+  onAmbience: (id: AmbienceId) => void;
+  buddiesOn: boolean;
+  onToggleBuddies: () => void;
 };
+
+/* <input type="date"> için yerel gün: UTC'ye çevirme, gün kaymasın. */
+function todayIso() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
+    d.getDate(),
+  ).padStart(2, "0")}`;
+}
 
 export default function Settings({
   accent,
@@ -23,8 +38,14 @@ export default function Settings({
   onVolume,
   reducedMotion,
   onReducedMotion,
+  togetherSince,
+  onTogetherSince,
   onReset,
   onTestSound,
+  ambience,
+  onAmbience,
+  buddiesOn,
+  onToggleBuddies,
 }: Props) {
   return (
     <section className="section" aria-label="Ayarlar">
@@ -111,6 +132,64 @@ export default function Settings({
           </button>
         </article>
 
+        {/* Ortam sesleri ana sayfadan buraya taşındı: ana ekran referanstaki
+            gibi sade kalsın, sesler yine de tek tıkla erişilebilsin. */}
+        <article className="card setcard">
+          <h3 className="setcard__title">Ortam sesleri</h3>
+          <p className="setcard__desc">
+            Birden fazlası aynı anda açılabilir. Hepsi tarayıcıda sentezlenir, ses dosyası yok.
+          </p>
+          <div className="setcard__ambience">
+            <AmbienceBar active={ambience} onToggle={onAmbience} volume={volume} onVolume={onVolume} />
+          </div>
+        </article>
+
+        <article className="card setcard">
+          <h3 className="setcard__title">Küçük dostlar</h3>
+          <p className="setcard__desc">
+            Ana sayfada gezinirken ekranda beliren minik yaratıklar. Kapalıyken hiç görünmezler.
+          </p>
+
+          <div className="setrow">
+            <div>
+              <p className="setrow__label">Dostları göster</p>
+              <p className="setrow__hint">{buddiesOn ? "Açık" : "Kapalı"}</p>
+            </div>
+            <button
+              type="button"
+              className={`switch ${buddiesOn ? "switch--on" : ""}`}
+              role="switch"
+              aria-checked={buddiesOn}
+              aria-label="Küçük dostları göster"
+              onClick={onToggleBuddies}
+            >
+              <i />
+            </button>
+          </div>
+        </article>
+
+        <article className="card setcard">
+          <h3 className="setcard__title">Birlikte geçen zaman</h3>
+          <p className="setcard__desc">
+            Ana sayfadaki sayaç bu tarihten başlar. Yıl dönümü de bu güne göre hesaplanır.
+          </p>
+
+          <div className="setrow">
+            <div>
+              <p className="setrow__label">Başlangıç tarihi</p>
+              <p className="setrow__hint">İlk gününüz</p>
+            </div>
+            <input
+              type="date"
+              className="field field--date"
+              value={togetherSince}
+              max={todayIso()}
+              onChange={(e) => onTogetherSince(e.target.value)}
+              aria-label="Birlikte olduğunuz başlangıç tarihi"
+            />
+          </div>
+        </article>
+
         <article className="card setcard">
           <h3 className="setcard__title">Hareket</h3>
           <p className="setcard__desc">Animasyonları azaltmak isteyenler için.</p>
@@ -148,8 +227,8 @@ export default function Settings({
           <h3 className="setcard__title">Kısayollar</h3>
           <p className="setcard__desc">Klavyeden hızlı gezinme.</p>
           <div className="setrow">
-            <p className="setrow__label">Menü öğeleri</p>
-            <span className="badge">Tab</span>
+            <p className="setrow__label">Sayfalar</p>
+            <span className="badge">1 – 8</span>
           </div>
           <div className="setrow">
             <p className="setrow__label">Ana sayfaya dön</p>
@@ -158,6 +237,10 @@ export default function Settings({
           <div className="setrow">
             <p className="setrow__label">Müziği çal / duraklat</p>
             <span className="badge">Boşluk</span>
+          </div>
+          <div className="setrow">
+            <p className="setrow__label">Menüyü kapat</p>
+            <span className="badge">Esc</span>
           </div>
         </article>
 

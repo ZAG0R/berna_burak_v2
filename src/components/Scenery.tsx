@@ -1,23 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import type { Scene } from "../data/scenes";
 
 /* ============================================================
    Yumuşak geçiş yardımcıları
    ============================================================ */
-
-function useReducedMotion() {
-  const [reduced, setReduced] = useState(false);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const update = () => setReduced(mq.matches);
-    update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
-  }, []);
-
-  return reduced;
-}
 
 /**
  * İki katmanlı çapraz geçiş. Yeni görsel arkadaki katmana yazılır,
@@ -107,62 +93,26 @@ export function SceneBackground({ scene }: { scene: Scene }) {
 }
 
 /* ============================================================
-   Sağ üst başlık — hava durumu yazısı önce, sonra selam
+   Sağ üst başlık — yalnızca hava durumu yazısı, sabit durur
    ============================================================ */
 
 export function SceneGreeting({ scene }: { scene: Scene }) {
-  const reduced = useReducedMotion();
-  const list = scene.greet;
-  const [index, setIndex] = useState(0);
-  const active = list[Math.min(index, list.length - 1)];
+  // Selamlar sol kenar çubuğunda; burada yalnızca hava durumu yazısı kalır.
+  // Durum tutulmaz, doğrudan sahneden çizilir: hava verisi ne zaman gelirse
+  // gelsin yazı hemen yerleşir ve kaybolmaz.
+  const item = scene.greet[0] ?? null;
 
-  const [shown, setShown] = useState(active);
-  const [visible, setVisible] = useState(true);
-  const timer = useRef<number | undefined>(undefined);
-
-  // Sahne değişince yeniden başla: önce hava durumu, sonra selam.
-  useEffect(() => {
-    setIndex(0);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [list.map((g) => g.src).join("|"), reduced]);
-
-  // Hava durumu ile selam arasında sırayla gidip gelir; hiçbiri kaybolmaz.
-  useEffect(() => {
-    if (list.length < 2) return;
-    // Hava durumu kısa, selam daha uzun görünür.
-    const hold = index === 0 ? (reduced ? 4_000 : 6_000) : reduced ? 7_000 : 12_000;
-    const id = window.setTimeout(() => setIndex((i) => (i + 1) % list.length), hold);
-    return () => window.clearTimeout(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [index, list.map((g) => g.src).join("|"), reduced]);
-
-  useEffect(() => {
-    if (active.src === shown.src) return;
-
-    if (reduced) {
-      setShown(active);
-      return;
-    }
-
-    // Önce yazı yumuşakça kaybolur, sonra yenisi belirir.
-    setVisible(false);
-    window.clearTimeout(timer.current);
-    timer.current = window.setTimeout(() => {
-      setShown(active);
-      setVisible(true);
-    }, 620);
-
-    return () => window.clearTimeout(timer.current);
-  }, [active, shown.src, reduced]);
-
-  const alt = useMemo(() => shown.label, [shown.label]);
+  if (!item) {
+    return <div className="home__aside-header home__aside-header--empty" aria-hidden />;
+  }
 
   return (
     <div className="home__aside-header">
       <img
-        src={shown.src}
-        alt={alt}
-        className={`home__aside-logo ${visible ? "is-in" : "is-out"}`}
+        key={item.src}
+        src={item.src}
+        alt={item.label}
+        className="home__aside-logo is-in"
         draggable={false}
       />
     </div>

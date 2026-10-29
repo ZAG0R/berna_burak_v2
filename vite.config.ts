@@ -23,9 +23,23 @@ export default defineConfig({
     host: true,
     /* public/images ve kökteki images/ yalnızca kaynak görselleri barındırır;
        uygulama src/assets'ten import ediyor. Vite bu klasörleri izlerken
-       kilitli bir dosyada EBUSY ile çöküyordu (ör. indirilen GIF). */
+       kilitli bir dosyada EBUSY ile çöküyordu (ör. indirilen GIF).
+       Kökteki pano/ekran görüntüleri de aynı sorunu yaratıyor: biri kilitliyken
+       (Photoshop, önizleme, indirme) tüm dev sunucusu düşüyordu. Uygulama
+       kökteki görselleri kullanmadığı için hepsi izleme dışında. */
     watch: {
-      ignored: ['**/images/**', '**/dist/**', '**/uygulama.html', '**/*.gif'],
+      ignored: [
+        '**/images/**',
+        '**/dist/**',
+        '**/uygulama.html',
+        '**/*.gif',
+        '*.png',
+        '*.jpg',
+        '*.jpeg',
+        '*.webp',
+        '*.psd',
+        '*.mp4',
+      ],
     },
   },
 })
