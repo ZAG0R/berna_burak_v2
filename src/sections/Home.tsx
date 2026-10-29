@@ -57,6 +57,7 @@ export default function Home({
   onNext,
   onPrev,
   onSeek,
+  onOpenLetter,
   togetherSince,
 }: Props) {
   return (
@@ -69,7 +70,12 @@ export default function Home({
             çubuğunda durur; mobilde çekmece kapalı olduğu için burada. */}
         <div className="home__aside">
           <SceneGreeting scene={scene} />
-          <TogetherCard since={togetherSince} label={TOGETHER.label} hint={TOGETHER.hint} />
+          <TogetherCard
+            since={togetherSince}
+            label={TOGETHER.label}
+            hint={TOGETHER.hint}
+            onHint={onOpenLetter}
+          />
           <WeatherCard w={weather} live={weatherLive} id="home-weather" />
           <QuoteCard text={QUOTE.text} by={QUOTE.by} />
           <PlanCard items={planItems} done={planDone} onToggle={onTogglePlan} />

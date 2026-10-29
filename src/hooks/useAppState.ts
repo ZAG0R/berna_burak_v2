@@ -231,3 +231,26 @@ export function daysUntil(target: Date) {
   const today = new Date(b.getFullYear(), b.getMonth(), b.getDate()).getTime()
   return Math.max(0, Math.round((a - today) / 86_400_000))
 }
+
+/* ============================================================
+   Yıl dönümü geri sayımı
+
+   Başlangıç günü ile bugünün ay/günü esas alınır; bu yılki tarih
+   geçtiyse gelecek yılki tarih döner. Kalan gün yerel gece yarısına
+   göre sayılır, böylece saat dilimi kayması ve negatif değer olmaz.
+   Bileşenler kendi hesabını yapmasın diye tek kaynak burasıdır.
+   ============================================================ */
+
+/** Sıradaki yıl dönümü (bugünse bugün). */
+export function nextAnniversary(start: Date, now: Date = new Date()) {
+  const d = new Date(now.getFullYear(), start.getMonth(), start.getDate())
+  const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  if (d.getTime() < midnight.getTime()) d.setFullYear(d.getFullYear() + 1)
+  return d
+}
+
+/** Yıl dönümüne kalan tam gün; bugünse 0. Asla negatife düşmez. */
+export function daysUntilAnniversary(start: Date, now: Date = new Date()) {
+  const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  return Math.max(0, Math.round((nextAnniversary(start, now).getTime() - midnight.getTime()) / 86_400_000))
+}

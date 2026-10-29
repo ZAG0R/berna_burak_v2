@@ -8,6 +8,7 @@ import {
   type Song,
 } from "../data/content";
 import type { Weather } from "../hooks/useWeather";
+import { daysUntilAnniversary } from "../hooks/useAppState";
 import { WEATHER_ICONS } from "./WeatherIcons";
 
 /* ============================================================
@@ -395,6 +396,9 @@ export function AmbienceBar({
    Başlangıç tarihinden bu yana geçen süre; gün, saat ve dakika.
    Sayaç canlı: her 30 saniyede tazelenir, sekmeye dönünce de güncellenir.
    Gece yarısı geçince gün kendiliğinden artar.
+
+   Yıl dönümü geri sayımı useAppState içindeki tek kaynaktan gelir;
+   burada ikinci bir hesap tutulmaz.
    ============================================================ */
 
 function parseDay(value: string) {
@@ -417,10 +421,12 @@ export function TogetherCard({
   since,
   label,
   hint,
+  onHint,
 }: {
   since: string;
   label: string;
   hint: string;
+  onHint?: () => void;
 }) {
   const [now, setNow] = useState(() => new Date());
 
@@ -438,22 +444,7 @@ export function TogetherCard({
 
   const start = useMemo(() => parseDay(since), [since]);
   const { days, hours, minutes } = useMemo(() => diffParts(start, now), [start, now]);
-
-  /* Yıldönümü: her yıl aynı gün. */
-  const nextAnniversary = useMemo(() => {
-    const d = new Date(now.getFullYear(), start.getMonth(), start.getDate());
-    const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    if (d.getTime() < midnight.getTime()) d.setFullYear(d.getFullYear() + 1);
-    return d;
-  }, [now, start]);
-
-  const daysToAnniversary = useMemo(() => {
-    const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    return Math.max(
-      0,
-      Math.round((nextAnniversary.getTime() - midnight.getTime()) / 86_400_000),
-    );
-  }, [now, nextAnniversary]);
+  const daysToAnniversary = useMemo(() => daysUntilAnniversary(start, now), [start, now]);
 
   const isAnniversary = daysToAnniversary === 0;
 
@@ -473,20 +464,32 @@ export function TogetherCard({
         </p>
         <Icon name="sparkles" className="together__spark" />
 
-        {/* Sol: buyuk gun sayisi. Sag: yil donumu ve gecen sure. */}
+        {/* Sol: buyuk gun sayisi. Sag: yil donumu ve gecen sure.
+            Sus kalbi ayri bir kapta durur; rakamin uzerine binmez. */}
         <p className="together__days tnum">
           <b>{days.toLocaleString("tr-TR")}</b>
-          <svg className="together__days-heart" viewBox="0 0 44 28" aria-hidden>
-            <path d="M -2 17.5 C 5 19.2 12 18.6 17.5 16.2 C 22 14.2 25.5 11.6 27.6 9.2 C 25.6 7.4 25.9 4.8 28.8 3.9 C 30.6 3.3 32 4.4 32.7 5.7 C 33.4 4.4 34.8 3.3 36.6 3.9 C 39.5 4.8 39.8 7.4 37.8 9.2 C 35.6 11.3 33.4 14.4 31.6 17.6 C 31.1 18.5 30.6 18.8 30 18.6" />
-          </svg>
-          <span>gün</span>
+          <span
+            className="together__days-unit"
+            style={{ display: "inline-flex", alignItems: "center", gap: 6, marginLeft: 8 }}
+          >
+            <span className="together__days-heartwrap" aria-hidden>
+              <svg
+                className="together__days-heart"
+                viewBox="0 0 44 28"
+                style={{ position: "static", width: 28, height: 18, flex: "none" }}
+              >
+                <path d="M -2 17.5 C 5 19.2 12 18.6 17.5 16.2 C 22 14.2 25.5 11.6 27.6 9.2 C 25.6 7.4 25.9 4.8 28.8 3.9 C 30.6 3.3 32 4.4 32.7 5.7 C 33.4 4.4 34.8 3.3 36.6 3.9 C 39.5 4.8 39.8 7.4 37.8 9.2 C 35.6 11.3 33.4 14.4 31.6 17.6 C 31.1 18.5 30.6 18.8 30 18.6" />
+              </svg>
+            </span>
+            <span className="together__days-word">gün</span>
+          </span>
         </p>
 
         <div className="together__right">
           <p className="together__anniv">
             <Icon name="heartspair" />
             <span>
-              {daysToAnniversary === 0
+              {isAnniversary
                 ? "Bugün yıl dönümümüz ♡"
                 : `Yıl dönümüne ${daysToAnniversary} gün`}
             </span>
@@ -499,9 +502,15 @@ export function TogetherCard({
           </p>
         </div>
       </div>
-      <span className="together__hint" title={hint} aria-hidden>
+      <button
+        type="button"
+        className="together__hint"
+        onClick={onHint}
+        title={hint}
+        aria-label={hint}
+      >
         <Icon name="heartfilled" />
-      </span>
+      </button>
       <span className="together__leaf together__leaf--1" aria-hidden />
       <span className="together__leaf together__leaf--2" aria-hidden />
     </article>
