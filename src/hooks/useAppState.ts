@@ -167,16 +167,27 @@ export function useReducedMotion() {
 
 /* ============================================================
    Günün saatine göre selamlama
+
+   Ton bilerek samimi tutuldu: resmi "İyi günler" / "İyi öğleden
+   sonralar" yerine gündelik karşılıklar kullanılıyor. Havuzdan seçim
+   saat numarasına bağlı, yani aynı saat içinde metin zıplamıyor,
+   saat başında kendiliğinden tazeleniyor.
    ============================================================ */
+
+type GreetSlot = 'night' | 'morning' | 'noon' | 'evening'
+
+const CASUAL_GREETINGS: Record<GreetSlot, string[]> = {
+  night: ['Hâlâ ayakta mısın', 'Gece kuşu', 'Uyumadın mı'],
+  morning: ['Günaydın', 'Günaydın, selam', 'Selam, günaydın'],
+  noon: ['Selam', 'Naber', 'Hey'],
+  evening: ['İyi akşamlar', 'Akşam oldu, selam', 'Selam'],
+}
 
 export function greetingFor(date: Date) {
   const h = date.getHours()
-  if (h < 6) return 'İyi geceler'
-  if (h < 11) return 'Günaydın'
-  if (h < 14) return 'İyi günler'
-  if (h < 18) return 'İyi öğleden sonralar'
-  if (h < 22) return 'İyi akşamlar'
-  return 'İyi geceler'
+  const slot: GreetSlot = h < 6 ? 'night' : h < 11 ? 'morning' : h < 18 ? 'noon' : h < 22 ? 'evening' : 'night'
+  const pool = CASUAL_GREETINGS[slot]
+  return pool[h % pool.length]
 }
 
 /* ============================================================
