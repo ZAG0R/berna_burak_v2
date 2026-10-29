@@ -476,7 +476,9 @@ export function TogetherCard({
         {/* Sol: buyuk gun sayisi. Sag: yil donumu ve gecen sure. */}
         <p className="together__days tnum">
           <b>{days.toLocaleString("tr-TR")}</b>
-          <Icon name="heart" className="together__days-heart" />
+          <svg className="together__days-heart" viewBox="0 0 44 28" aria-hidden>
+            <path d="M -2 17.5 C 5 19.2 12 18.6 17.5 16.2 C 22 14.2 25.5 11.6 27.6 9.2 C 25.6 7.4 25.9 4.8 28.8 3.9 C 30.6 3.3 32 4.4 32.7 5.7 C 33.4 4.4 34.8 3.3 36.6 3.9 C 39.5 4.8 39.8 7.4 37.8 9.2 C 35.6 11.3 33.4 14.4 31.6 17.6 C 31.1 18.5 30.6 18.8 30 18.6" />
+          </svg>
           <span>gün</span>
         </p>
 
@@ -498,7 +500,7 @@ export function TogetherCard({
         </div>
       </div>
       <span className="together__hint" title={hint} aria-hidden>
-        <Icon name="calendar" />
+        <Icon name="heartfilled" />
       </span>
       <span className="together__leaf together__leaf--1" aria-hidden />
       <span className="together__leaf together__leaf--2" aria-hidden />
