@@ -821,6 +821,18 @@ ol {
   border: 1px solid rgba(255, 226, 220, 0.14);
   backdrop-filter: blur(18px);
   flex-shrink: 0;
+  /* Kalp bagi katmani mutlak konumlanir; kutu referans olur. */
+  position: relative;
+  isolation: isolate;
+}
+
+/* Kalp bagi: yerlesime girmez, kutunun tamamini kaplar ve
+   tiklama/fare olaylarini altindaki avatarlara gecirir. */
+.heartlink {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
 }
 
 .person {

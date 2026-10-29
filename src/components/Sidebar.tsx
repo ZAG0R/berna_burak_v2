@@ -3,6 +3,7 @@ import { Icon } from './Icons'
 import { IMAGES, DEFAULT_PEOPLE } from '../data/content'
 import iyiki from '../assets/iyiki-crop.png'
 import { greetImageForHour } from '../data/scenes'
+import HeartLink from '../three/HeartLink'
 
 /* Menüde bir sayfa değil, ana sayfadaki bir kartı işaret eden iki kısayol
    var: Müzik ve Hava Durumu. Tıklanınca ana sayfaya dönülür ve ilgili
@@ -101,6 +102,9 @@ export default function Sidebar({
         </div>
 
         <div className="sidebar__people">
+          {/* Iki avatar arasindaki kalp ve damarlar; yerlestirmeyi
+              degistirmez, kutunun uzerine mutlak katman olarak biner. */}
+          <HeartLink />
           <div className="person person--crown">
             <div className="person__ring">
               {/* Emoji fontu bu derlemede yok; kutu ciziyordu. */}
