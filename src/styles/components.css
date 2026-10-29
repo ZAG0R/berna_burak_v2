@@ -185,23 +185,33 @@
 
 .weather__extra {
   margin-left: auto;
+  position: relative;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  gap: 5px;
-  font-size: 11.5px;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 7px;
+  padding-left: 15px;
+  font-size: 12px;
   color: var(--ink-faint);
+  white-space: nowrap;
 }
-
-/* "canli" tek basina havada duruyordu; kucuk bir etiket oldu. */
-.weather__extra .muted {
-  font-size: 10px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  padding: 1px 6px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 236, 230, 0.10);
+/* Bloklarin basindaki dikey ayrac: yil donumu kartindaki gibi
+   ustten ve alttan soluklasan ince altin cizgi. */
+.weather__extra::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 2px;
+  bottom: 2px;
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    #d8a87800,
+    #d8a8788c 18%,
+    #d8a8788c 82%,
+    #d8a87800
+  );
 }
 
 .weather__extra b {

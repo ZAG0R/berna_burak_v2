@@ -10,12 +10,13 @@ import {
 import type { Weather } from "../hooks/useWeather";
 import { daysUntilAnniversary } from "../hooks/useAppState";
 import { WEATHER_ICONS } from "./WeatherIcons";
+import anniversaryImage from "../assets/birlikte-anniv.png";
 
 /* ============================================================
    Hava durumu kartı — veri App'te tek yerden çekilir
    ============================================================ */
 
-export function WeatherCard({ w, live, id }: { w: Weather; live: boolean; id?: string }) {
+export function WeatherCard({ w, id }: { w: Weather; live?: boolean; id?: string }) {
   const WeatherArt = WEATHER_ICONS[w.icon];
   return (
     <article className="card card--hover" id={id}>
@@ -31,14 +32,17 @@ export function WeatherCard({ w, live, id }: { w: Weather; live: boolean; id?: s
           </p>
           <p className="weather__desc">{w.desc}</p>
         </div>
+        {/* Sag blok: solundaki dikey ayracla ayrilir, satirlar sola yasli. */}
         <div className="weather__extra">
           <span>
-            Rüzgâr <b>{w.wind} km/s</b>
+            Rüzgar <b>{w.wind}</b>
           </span>
           <span>
             Nem <b>%{w.humidity}</b>
           </span>
-          <span className="muted">{live ? "canlı" : "tahmin"}</span>
+          <span>
+            Hissedilen <b>{w.feels}°C</b>
+          </span>
         </div>
         <span className="card__arrow" aria-hidden>
           <Icon name="chevronRight" />
@@ -448,51 +452,48 @@ export function TogetherCard({
 
   const isAnniversary = daysToAnniversary === 0;
 
-  return (
-    <article className={`card together${isAnniversary ? " together--anniv" : ""}`}>
-      {isAnniversary && (
-        <span className="together__confetti" aria-hidden>
-          {Array.from({ length: 10 }, (_, i) => (
-            <i key={i} style={{ "--i": i } as React.CSSProperties} />
-          ))}
-        </span>
-      )}
-      <div className="together__body">
-        <p className="together__label">
-          <Icon name="heartfilled" />
-          {label}
-        </p>
-        <Icon name="sparkles" className="together__spark" />
+  /* Yil donumu gunu: kartin tamami hazir gorselle degisir. */
+  if (isAnniversary) {
+    return (
+      <article className="card together together--anniv-card">
+        <button
+          type="button"
+          className="together__image-btn"
+          onClick={onHint}
+          title={hint}
+          aria-label={`${label} — ${hint}`}
+        >
+          <img src={anniversaryImage} alt={label} className="together__image" />
+        </button>
+      </article>
+    );
+  }
 
-        {/* Sol: buyuk gun sayisi. Sag: yil donumu ve gecen sure.
-            Sus kalbi ayri bir kapta durur; rakamin uzerine binmez. */}
-        <p className="together__days tnum">
-          <b>{days.toLocaleString("tr-TR")}</b>
-          <span
-            className="together__days-unit"
-            style={{ display: "inline-flex", alignItems: "center", gap: 6, marginLeft: 8 }}
-          >
+  return (
+    <article className="card together">
+      <div className="together__body">
+        {/* Sol blok: etiket ve buyuk gun sayisi. */}
+        <div className="together__left">
+          <p className="together__label">
+            <Icon name="heartfilled" />
+            {label}
+          </p>
+          <p className="together__days tnum">
+            <b>{days.toLocaleString("tr-TR")}</b>
             <span className="together__days-heartwrap" aria-hidden>
-              <svg
-                className="together__days-heart"
-                viewBox="0 0 44 28"
-                style={{ position: "static", width: 28, height: 18, flex: "none" }}
-              >
-                <path d="M -2 17.5 C 5 19.2 12 18.6 17.5 16.2 C 22 14.2 25.5 11.6 27.6 9.2 C 25.6 7.4 25.9 4.8 28.8 3.9 C 30.6 3.3 32 4.4 32.7 5.7 C 33.4 4.4 34.8 3.3 36.6 3.9 C 39.5 4.8 39.8 7.4 37.8 9.2 C 35.6 11.3 33.4 14.4 31.6 17.6 C 31.1 18.5 30.6 18.8 30 18.6" />
+              <svg className="together__days-heart" viewBox="0 0 24 24">
+                <path d="M12 21.2 10.4 19.8C5.1 15.2 1.8 12.2 1.8 8.5 1.8 5.5 4.1 3.2 7.1 3.2c1.7 0 3.4.8 4.9 2.4 1.5-1.6 3.2-2.4 4.9-2.4 3 0 5.3 2.3 5.3 5.3 0 3.7-3.3 6.7-8.6 11.3z" />
               </svg>
             </span>
             <span className="together__days-word">gün</span>
-          </span>
-        </p>
+          </p>
+        </div>
 
+        {/* Sag blok: yil donumu ve birlikte gecen sure. */}
         <div className="together__right">
           <p className="together__anniv">
             <Icon name="heartspair" />
-            <span>
-              {isAnniversary
-                ? "Bugün yıl dönümümüz ♡"
-                : `Yıl dönümüne ${daysToAnniversary} gün`}
-            </span>
+            <span>Yıl dönümüne {daysToAnniversary} gün</span>
           </p>
           <p className="together__sub tnum">
             <Icon name="clock" />
@@ -509,7 +510,10 @@ export function TogetherCard({
         title={hint}
         aria-label={hint}
       >
-        <Icon name="heartfilled" />
+        <span className="together__cal" aria-hidden>
+          <Icon name="heartfilled" />
+        </span>
+        <i className="together__cal-spark" aria-hidden />
       </button>
       <span className="together__leaf together__leaf--1" aria-hidden />
       <span className="together__leaf together__leaf--2" aria-hidden />

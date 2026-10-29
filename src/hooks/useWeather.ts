@@ -12,6 +12,8 @@ export type Weather = {
   icon: WeatherIconName;
   wind: number;
   humidity: number;
+  /** Hissedilen sicaklik (°C). */
+  feels: number;
 };
 
 /* Open-Meteo kodları → ikon adları. Gece için güneşli ikonlar aya döner. */
@@ -48,15 +50,17 @@ const FALLBACK: Weather = {
   icon: "cloudSun",
   wind: 8,
   humidity: 48,
+  feels: DEFAULT_WEATHER.temp,
 };
 
 const ENDPOINT =
   "https://api.open-meteo.com/v1/forecast?latitude=37.0&longitude=35.32" +
-  "&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=auto";
+  "&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m&timezone=auto";
 
 type Payload = {
   current?: {
     temperature_2m?: number;
+    apparent_temperature?: number;
     relative_humidity_2m?: number;
     weather_code?: number;
     wind_speed_10m?: number;
@@ -85,6 +89,7 @@ export function useWeather() {
           return {
             ...FALLBACK,
             temp: Number.isFinite(forcedTemp) ? forcedTemp : FALLBACK.temp,
+            feels: Number.isFinite(forcedTemp) ? forcedTemp : FALLBACK.feels,
             desc: meta.desc,
             icon: isNight && meta.night ? meta.night : meta.icon,
           };
@@ -119,6 +124,7 @@ export function useWeather() {
             icon,
             wind: Math.round(c.wind_speed_10m ?? 8),
             humidity: Math.round(c.relative_humidity_2m ?? 48),
+            feels: Math.round(c.apparent_temperature ?? c.temperature_2m),
           });
           setLive(true);
         })

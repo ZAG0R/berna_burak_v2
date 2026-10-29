@@ -1,18 +1,18 @@
 .together {
   position:relative;
-  height:95px;
-  min-height:95px;
+  height:84px;
+  min-height:84px;
   flex:0 0 auto;
   padding:0;
   box-sizing:border-box;
-  border-radius:22px;
+  border-radius:24px;
   background:
-    radial-gradient(120% 200% at 0% 0%, #7a4a3399 0%, #472a2066 22%, #2a1a16a8 48%, #140c0ada 100%),
-    linear-gradient(100deg,#24161266,#100a08cc);
-  border:1px solid rgba(226,168,124,.42);
-  backdrop-filter:blur(22px) saturate(1.15);
-  -webkit-backdrop-filter:blur(22px) saturate(1.15);
-  box-shadow:0 14px 34px -14px #000000b3,inset 0 1px #ffe6d02e,inset 0 0 40px #ff9a5a12;
+    radial-gradient(140% 240% at 0% 0%, #6b4a3f8f 0%, #4a302a80 26%, #2b1c19a6 56%, #14100ec9 100%),
+    linear-gradient(100deg,#3a2620a1,#100c0bdb);
+  border:1px solid rgba(226,170,128,.5);
+  backdrop-filter:blur(24px) saturate(1.1);
+  -webkit-backdrop-filter:blur(24px) saturate(1.1);
+  box-shadow:0 14px 34px -14px #000000c9,inset 0 1px #ffe6d040,inset 0 0 44px #ff9a5a14;
   overflow:hidden}
 .together:after {
   content:"";
@@ -20,165 +20,249 @@
   inset:0;
   border-radius:inherit;
   pointer-events:none;
-  background:linear-gradient(180deg,#ffffff0f,#ffffff00 32%,#00000014);
-  box-shadow:inset 0 0 0 1px #ffffff08}
+  background:linear-gradient(180deg,#ffffff10,#ffffff00 34%,#0000001a);
+  box-shadow:inset 0 0 0 1px #ffffff0a}
 .together__body {
-  position:absolute;
-  inset:0;
-  z-index:1}
+  position:relative;
+  z-index:1;
+  display:flex;
+  align-items:stretch;
+  height:100%;
+  box-sizing:border-box;
+  padding:0 40px 0 12px}
 
 /* --- sol blok --- */
-.together__label {
+.together__left {
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:3px;
+  flex:0 0 auto;
+  padding:0 16px 0 0;
+  position:relative}
+/* Ayrac: ustten ve alttan soluklasan ince cizgi. */
+.together__left:after {
+  content:"";
   position:absolute;
-  left:20px;
-  top:18px;
+  right:0;
+  top:11px;
+  bottom:11px;
+  width:1px;
+  background:linear-gradient(180deg,#d8a87800,#d8a8788c 18%,#d8a8788c 82%,#d8a87800)}
+.together__label {
   display:flex;
   align-items:center;
-  gap:10px;
-  font-size:12px;
+  gap:7px;
+  font-family:var(--font-body);
+  font-size:10px;
   font-weight:700;
-  letter-spacing:.16em;
+  letter-spacing:.145em;
   text-transform:uppercase;
-  color:#f58ea9;
+  color:#f78fa9;
   white-space:nowrap}
+/* Etiketin solundaki dolu kalp. */
 .together__label svg {
   width:13px;
-  height:13px;
+  height:12px;
   flex:none;
-  color:#f58ea9}
+  color:#fb92b1;
+  filter:drop-shadow(0 0 8px #ff7ba659)}
 
 .together__days {
-  position:absolute;
-  left:18px;
-  top:32px;
+  display:grid;
+  grid-template-columns:auto auto;
+  align-items:end;
+  justify-items:center;
+  column-gap:4px;
+  transform:translateY(-5px);
   line-height:1;
   white-space:nowrap}
 .together__days b {
+  grid-column:1;
+  grid-row:1 / 3;
   font-family:var(--font-display);
-  font-size:50px;
-  font-weight:500;
-  letter-spacing:-.016em;
-  line-height:.94;
-  color:#fdf3ee;
-  text-shadow:0 2px 6px rgba(0,0,0,0.25)}
-/* Rakamin sag ust kosesine binen ince kontur kalp. */
-.together__days-heart {
-  position:absolute;
-  top:-1px;
-  left:62px;
-  width:24px;
-  height:24px;
-  color:#f7a3b8;
-  opacity:.95;
-  transform:rotate(-5deg);
-  stroke-width:1.6}
-.together__days span {
-  position:absolute;
-  top:29px;
-  left:62px;
-  font-size:18px;
+  font-size:42px;
+  font-style:italic;
   font-weight:400;
-  color:#e6d5cfc9}
-
-/* --- dikey ayrac --- */
-.together__body:before {
-  content:"";
-  position:absolute;
-  left:158px;
-  top:15px;
-  width:1px;
-  height:65px;
-  background:linear-gradient(180deg,#c99a6a00,#c99a6a66 12%,#c99a6a66 88%,#c99a6a00)}
+  letter-spacing:-.012em;
+  line-height:1;
+  color:#fdf5f1;
+  /* Ince pembe kontur + cok hafif hale. */
+  -webkit-text-stroke:0.7px #ff8fbb;
+  paint-order:stroke fill;
+  text-shadow:
+    0 0 5px #ff9cc280,
+    0 2px 4px rgba(0,0,0,0.3);
+  filter:drop-shadow(0 0 5px #ff6ba666)}
+/* Rakamin sag ustunde, ustune binmeden duran ince kontur kalp. */
+.together__days-heartwrap {
+  grid-column:2;
+  grid-row:1;
+  align-self:end;
+  display:block;
+  flex:none;
+  margin-bottom:3px;
+  transform:rotate(-8deg) translateY(-1px)}
+.together__days-heart {
+  display:block;
+  width:13px;
+  height:13px;
+  overflow:visible;
+  fill:#ff9ec0;
+  stroke:none;
+  opacity:.97;
+  filter:drop-shadow(0 1px 5px #ff8fb073)}
+/* "gun" rakamin saginda, alt hizada; rakama degmez. */
+.together__days-word {
+  grid-column:2;
+  grid-row:2;
+  font-family:var(--font-body);
+  font-size:15px;
+  font-weight:400;
+  line-height:1;
+  letter-spacing:.01em;
+  color:#fdf1eae0}
 
 /* --- sag blok --- */
 .together__right {
-  position:absolute;
-  left:175px;
-  right:68px;
-  top:36px;
   display:flex;
   flex-direction:column;
-  gap:10px;
+  justify-content:center;
+  align-items:center;
+  flex:1 1 auto;
+  padding-left:10px;
+  padding-right:22px;
+  padding-bottom:6px;
+  gap:6px;
   min-width:0}
 .together__anniv {
   display:flex;
   align-items:center;
-  gap:9px;
-  font-size:17px;
+  justify-content:flex-start;
+  font-size:13.8px;
   font-weight:700;
-  letter-spacing:.002em;
-  line-height:1.1;
-  color:#f0b96a;
+  letter-spacing:-.02em;
+  line-height:1.2;
+  color:#ffdf9c;
   white-space:nowrap}
 .together__anniv svg {
   flex:none}
 .together__anniv > svg:first-child {
-  width:28px;
-  height:19px;
-  color:#e0a55e;
-  stroke-width:1.6}
+  width:34px;
+  height:18px;
+  margin-right:-4px;
+  color:#f5be76;
+  stroke-width:1.9;
+  filter:drop-shadow(0 0 9px #ffbe6b70)}
 .together__sub {
   display:flex;
   align-items:center;
-  gap:8px;
-  font-size:13.5px;
+  justify-content:center;
+  font-size:13px;
   font-weight:400;
-  color:#cfc0bbc4;
+  color:#d6c6c0d6;
   white-space:nowrap}
 .together__sub svg {
-  width:14px;
-  height:14px;
+  width:12px;
+  height:12px;
+  margin-right:5px;
   flex:none;
-  opacity:.7;
-  stroke-width:1.6}
+  opacity:.78;
+  stroke-width:1.7}
 
-/* Altin pariltilar. */
+/* Altin parilti. */
 .together__spark {
   position:absolute;
-  top:22px;
-  right:70px;
-  width:14px;
-  height:14px;
-  color:#ffdfae;
-  opacity:.9}
+  top:15px;
+  right:48px;
+  width:13px;
+  height:13px;
+  color:#fff0d4;
+  opacity:.95;
+  filter:drop-shadow(0 0 6px #ffe0a8b3)}
+/* Takvim yapragi: ustte iki halka, icinde pembe kalp. */
 .together__hint {
   position:absolute;
-  top:15px;
-  right:13px;
+  top:10px;
+  right:10px;
+  z-index:2;
   display:grid;
   place-items:center;
-  width:36px;
-  height:36px;
-  border-radius:11px;
-  background:#1b100d99;
-  border:1px solid rgba(226,180,140,.42);
-  color:#f0ddd2c9;
-  box-shadow:inset 0 1px #ffffff14}
-.together__hint svg {
-  width:17px;
-  height:17px;
-  stroke-width:1.6}
+  width:27px;
+  height:26px;
+  border-radius:8px;
+  background:#2a1a15d9;
+  border:1px solid rgba(246,176,158,.62);
+  color:#f9a9bd;
+  box-shadow:inset 0 1px #ffffff1a,0 4px 12px -6px #000000b3}
+.together__hint:before,
+.together__hint:after {
+  content:"";
+  position:absolute;
+  top:6px;
+  width:2px;
+  height:3px;
+  border-radius:1px;
+  background:#f6cfc0}
+.together__hint:before { left:10px }
+.together__hint:after  { right:10px }
+/* Takvim govdesi: cerceve, ust cizgi ve icinde pembe kalp. */
+.together__cal {
+  position:relative;
+  display:grid;
+  place-items:center;
+  width:16px;
+  height:14px;
+  padding-top:4px;
+  box-sizing:border-box;
+  border:1.3px solid #f8d8c9;
+  border-radius:3px}
+.together__cal:after {
+  content:"";
+  position:absolute;
+  top:3.5px;
+  left:-1.3px;
+  right:-1.3px;
+  height:1.3px;
+  background:#f8d8c9}
+.together__cal svg {
+  width:7px;
+  height:7px;
+  margin-top:1px;
+  color:#ff9dc0;
+  filter:drop-shadow(0 0 4px #ff7ba659)}
+/* Kose pariltisi. */
+.together__cal-spark {
+  position:absolute;
+  top:4px;
+  right:4px;
+  width:4px;
+  height:4px;
+  border-radius:1px;
+  background:#ffe6cf;
+  transform:rotate(45deg);
+  box-shadow:0 0 6px #ffd9b8cc}
 
-/* Sag alttaki iki pembe oval. */
+/* Sag alttaki iki pembe yaprak. */
 .together__leaf {
   position:absolute;
-  width:14px;
-  height:9px;
-  border-radius:60% 40% 60% 40%;
-  background:linear-gradient(120deg,#ff9dc3,#f0709a);
-  opacity:.82;
+  border-radius:72% 28% 72% 28%;
+  background:linear-gradient(120deg,#ffa8c8,#ef6f97);
+  opacity:.92;
   pointer-events:none}
 .together__leaf--1 {
-  right:26px;
-  bottom:38px;
-  transform:rotate(-38deg)}
-.together__leaf--2 {
-  right:11px;
-  bottom:23px;
+  right:7px;
+  bottom:16px;
   width:12px;
   height:8px;
-  transform:rotate(-16deg);
-  opacity:.62}
+  transform:rotate(-32deg)}
+.together__leaf--2 {
+  right:25px;
+  bottom:6px;
+  width:8px;
+  height:5px;
+  transform:rotate(12deg);
+  opacity:.8}
 
 .together--anniv {
   background:linear-gradient(112deg,#2a1512ee,#3a1d13e6 55%,#241310ee);
@@ -1357,4 +1441,51 @@
     width: 16px;
     height: 16px;
   }
+}
+.together__anniv-img {
+  max-height: 48px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 2px 8px rgba(255, 150, 180, 0.3));
+}
+
+/* Yil donumu gununde kartin tamamini kaplayan birlikte.png stili */
+.together--anniv-card {
+  height: auto;
+  min-height: 0;
+  padding: 0 !important;
+  /* Gorselin kendi yuvarlak koseleri var; CSS ile kirpmak onlari
+     kesip koseyi duz gostermemek icin kirpma yapilmaz. */
+  overflow: visible;
+  border-radius: 0;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.together--anniv-card::before {
+  display: none;
+}
+/* .together:after gorselin uzerine vinyet ve ic golge bindiriyordu;
+   hazir gorselde bunlar zaten var, katman kapatilir. */
+.together--anniv-card::after {
+  display: none;
+}
+
+.together__image-btn {
+  display: block;
+  width: 100%;
+  aspect-ratio: 2048 / 376;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.together__image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  border-radius: 0;
 }
