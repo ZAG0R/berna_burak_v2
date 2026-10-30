@@ -85,33 +85,34 @@ function makeBuddy(opts: { body: string; accent: string; crown?: boolean; lash?:
   const browMat = new THREE.MeshStandardMaterial({ color: "#4a3340", roughness: 0.5 });
 
   for (const sx of [-1, 1]) {
-    const ex = sx * 0.16;
+    /* Gözler başın kenarına fazla yakındı: karakterler birbirine
+       döndüğünde göz küresi kafanın siluetinden dışarı taşıp yanağın
+       kenarında siyah bir çıkıntı gibi görünüyordu. */
+    const ex = sx * 0.145;
     const ey = 0.09;
     const ez = surfZ(ex, ey);
     const eye = new THREE.Mesh(eyeGeo, eyeMat);
-    eye.position.set(ex, ey, ez - 0.012);
-    eye.scale.set(1, 1.06, 0.55);
+    eye.position.set(ex, ey, ez - 0.03);
+    eye.scale.set(1, 1.06, 0.46);
     face.add(eye);
     eyes.push(eye);
 
     const shine = new THREE.Mesh(shineGeo, shineMat);
-    shine.position.set(ex + 0.024, ey + 0.026, ez + 0.03);
+    shine.position.set(ex + 0.022, ey + 0.024, ez + 0.012);
     face.add(shine);
 
     const brow = new THREE.Mesh(browGeo, browMat);
     brow.position.set(ex, 0.225, surfZ(ex, 0.225) + 0.008);
+    /* Kaşlar düz çubuk gibi durup öfkeli bir ifade veriyordu; dış uca
+       doğru hafif kalkık, yumuşak bir eğim. */
+    brow.rotation.z = sx * 0.13;
+    brow.scale.x = 0.92;
     face.add(brow);
     brows.push(brow);
 
-    if (opts.lash) {
-      const lash = new THREE.Mesh(
-        new THREE.TorusGeometry(0.088, 0.011, 6, 14, Math.PI * 0.85),
-        eyeMat,
-      );
-      lash.position.set(ex, ey + 0.024, ez + 0.02);
-      lash.rotation.z = sx > 0 ? -0.2 : Math.PI + 0.2;
-      face.add(lash);
-    }
+    /* Kirpik yayı kaldırıldı: torus göz küresinin içine girip gözün
+       altında/kenarında siyah bir çentik gibi görünüyordu. Kaş, göz
+       parlaması ve yanak yüzü zaten yeterince ifade ediyor. */
   }
 
   const blushMat = new THREE.MeshBasicMaterial({ color: opts.accent, transparent: true, opacity: 0.4 });
@@ -221,17 +222,22 @@ type Actor = {
   jump: number;
   angry: number;
   lean: number;
+  /** El sallama yoğunluğu (0-1). */
+  wave: number;
 };
 
 type Particle = { mesh: THREE.Mesh; vx: number; vy: number; life: number; spin: number };
 
-type Phase = "exit" | "enterHer" | "bored" | "enterHim" | "meet" | "idle" | "squabble";
+type Phase = "exit" | "enterHer" | "bored" | "enterHim" | "meet" | "idle" | "squabble" | "chat";
 
 export default function Buddy({ scene, reducedMotion, dancing = false }: Props) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const bubbleRef = useRef<HTMLDivElement | null>(null);
   const sayRef = useRef<((text: string, who?: 0 | 1) => void) | null>(null);
   const pauseRef = useRef<((v: boolean) => void) | null>(null);
+  /* Selamlama, iki karakter de sahnedeyken söylenmeli; biri ekran
+     dışındayken "buradayım" demek mantıksız duruyor. */
+  const greetPending = useRef(true);
   const danceRef = useRef(dancing);
   danceRef.current = dancing;
   const [line, setLine] = useState<string | null>(null);
@@ -271,10 +277,8 @@ export default function Buddy({ scene, reducedMotion, dancing = false }: Props) 
     sayRef.current?.(pickLine(kind, sceneRef.current, who), who);
 
   useEffect(() => {
-    const id = window.setTimeout(() => {
-      sayRef.current?.(pickLine("greet", { slot: slotKey, condition: condKey }, 0), 0);
-    }, 1600);
-    return () => window.clearTimeout(id);
+    /* Sahne/saat değişince selamlama yeniden kuyruğa girer. */
+    greetPending.current = true;
   }, [slotKey, condKey]);
 
   useEffect(() => {
@@ -401,6 +405,7 @@ export default function Buddy({ scene, reducedMotion, dancing = false }: Props) 
       jump: 0,
       angry: 0,
       lean: 0,
+      wave: 0,
     });
 
     const herA = mkActor(her, -1);
@@ -473,6 +478,9 @@ export default function Buddy({ scene, reducedMotion, dancing = false }: Props) 
     let squabbleRound = 0;
     let meetJump = 0;
     let meetBurst = 0;
+    let chatAt = 0;
+    let chatRound = 0;
+    let herLineAt = 0;
     let steamAt = 0;
     let ambientAt = 0.6;
     let nextIdle = 12;
@@ -485,25 +493,33 @@ export default function Buddy({ scene, reducedMotion, dancing = false }: Props) 
     const setPhase = (p: Phase) => {
       phase = p;
       pt = 0;
+      herA.wave = 0;
+      himA.wave = 0;
+      herLineAt = 0;
       switch (p) {
         case "exit":
+          /* Sahnede yalnızca Berna çıkar; Burak kalıp onu bekler.
+             Böylece tekrar girişte "nerede kaldı bu kız" mantıklı olur. */
           herA.targetX = -offX;
-          himA.targetX = offX;
-          phaseDur = Math.max(walkTime(herA, herA.targetX), walkTime(himA, himA.targetX));
+          himA.targetX = idleX;
+          phaseDur = walkTime(herA, herA.targetX);
           sayKind("leave", 0);
           break;
         case "enterHer":
           herA.targetX = -meetX;
           phaseDur = walkTime(herA, herA.targetX);
+          /* Berna gelirken cevap verir: "Geldim, geldimmmm!" */
+          herLineAt = 0.3;
           break;
         case "bored":
+          /* Bu kez yalnız bekleyen Burak: Berna'yı sorar. */
           phaseDur = 6;
           boredAt = 1.2;
           break;
         case "enterHim":
           himA.targetX = meetX;
           phaseDur = walkTime(himA, himA.targetX);
-          sayKind("arrive", 1);
+          /* Burak sessizce gelir; sorusu bekleme sahnesinde sorulur. */
           break;
         case "meet":
           phaseDur = 4.6;
@@ -511,7 +527,9 @@ export default function Buddy({ scene, reducedMotion, dancing = false }: Props) 
           meetBurst = 1.2;
           break;
         case "idle":
-          phaseDur = 11 + Math.random() * 9;
+          /* Boşta bekleme kısaltıldı: karakterler daha sık birbirine
+             dönüp konuşuyor. */
+          phaseDur = 8 + Math.random() * 6;
           herA.targetX = -idleX;
           himA.targetX = idleX;
           break;
@@ -522,28 +540,50 @@ export default function Buddy({ scene, reducedMotion, dancing = false }: Props) 
           steamAt = 0;
           sayKind("squabble", 0);
           break;
+        case "chat":
+          /* Yan yana durup sırayla konuşurlar; ilki el sallar. */
+          phaseDur = 12;
+          chatAt = 0.9;
+          chatRound = 0;
+          herA.wave = 1;
+          herA.targetX = -idleX;
+          himA.targetX = idleX;
+          break;
       }
     };
 
     const nextPhase = () => {
       switch (phase) {
         case "exit":
-          setPhase("enterHer");
+          /* Berna gitti; Burak yalnız kalıp bekler. */
+          setPhase("bored");
           break;
-        case "enterHer":
+        case "enterHim":
+          /* Burak tek başına geldi; Berna'yı bekler. */
           setPhase("bored");
           break;
         case "bored":
-          setPhase("enterHim");
+          /* Berna gelir: "Geldim, geldimmmm!" */
+          setPhase("enterHer");
           break;
-        case "enterHim":
+        case "enterHer":
           setPhase("meet");
           break;
         case "meet":
           setPhase("idle");
           break;
         case "idle":
-          setPhase(Math.random() < 0.45 ? "squabble" : "exit");
+          /* Sıradaki sahne rastgele: sohbet, atışma ya da yeni giriş. */
+          {
+            const r = Math.random();
+            setPhase(r < 0.4 ? "chat" : r < 0.68 ? "squabble" : "exit");
+          }
+          break;
+        case "chat":
+          setPhase("idle");
+          break;
+        case "squabble":
+          setPhase("idle");
           break;
         default:
           setPhase("idle");
@@ -570,6 +610,18 @@ export default function Buddy({ scene, reducedMotion, dancing = false }: Props) 
       burst(a.x, groundY + 0.95 * unit, 7, 2.6);
       idleSince = t;
       sayKind("click", a === herA ? 0 : 1);
+      /* Yanındaki de tepki verir: bir süre sonra o da zıplayıp
+         karşılık verir, böylece tıklama iki karakteri de hareket
+         ettiriyor. */
+      const partner = a === herA ? himA : herA;
+      window.setTimeout(() => {
+        partner.jumping = true;
+        partner.jump = 0;
+        burst(partner.x, groundY + 0.95 * unit, 4, 2.2);
+        /* Partner tıklanmadı; "beni mi tıkladın" demek yerine
+           arkadaşına cevap verir. */
+        sayKind("chat", partner === herA ? 0 : 1);
+      }, 700);
     };
 
     const onPoke = (e: PointerEvent) => {
@@ -639,7 +691,8 @@ export default function Buddy({ scene, reducedMotion, dancing = false }: Props) 
 
     const faceTarget = (a: Actor, i: number) => {
       if (phase === "squabble") return i === 0 ? 0.85 : -0.85;
-      if (phase === "bored" && i === 0) return Math.sin(t * 0.7) * 0.35;
+      /* Yalnız bekleyen Burak etrafına bakınır. */
+      if (phase === "bored" && i === 1) return Math.sin(t * 0.7) * 0.35;
       if (phase === "meet" || phase === "idle" || danceRef.current) return 0;
       return a.moving ? a.face : 0;
     };
@@ -663,8 +716,16 @@ export default function Buddy({ scene, reducedMotion, dancing = false }: Props) 
 
       if (phase === "bored" && boredAt > 0 && pt >= boredAt) {
         boredAt = -1;
-        herA.lean = 0.45;
-        sayKind("bored", 0);
+        /* Bekleyen Burak: "Nerede kaldı bu kız?" */
+        himA.lean = 0.45;
+        sayKind("wait", 1);
+      }
+
+      /* Berna gelirken cevap: "Geldim, geldimmmm!" */
+      if (phase === "enterHer" && herLineAt > 0 && pt >= herLineAt) {
+        herLineAt = -1;
+        herA.wave = 1;
+        sayKind("wait", 0);
       }
       if (phase === "squabble") {
         if (squabbleAt > 0 && pt >= squabbleAt) {
@@ -695,8 +756,40 @@ export default function Buddy({ scene, reducedMotion, dancing = false }: Props) 
           meetBurst = -1;
           const cx = (herA.x + himA.x) / 2;
           burst(cx, groundY + 0.95 * unit, 14, 3.4);
-          sayKind("love", 0);
+          /* Karşılaşınca iltifat Burak'tan gelir. */
+          sayKind("chat", 1);
         }
+      }
+
+      /* Sohbet: sırayla konuşurlar, konuşan hafifçe öne eğilir. */
+      if (phase === "chat" && chatAt > 0 && pt >= chatAt) {
+        if (chatRound >= 4) {
+          chatAt = -1;
+          /* Sohbet sonu: küçük bir kalp bulutu. */
+          burst((herA.x + himA.x) / 2, groundY + 1.0 * unit, 6, 2.2);
+        } else {
+          /* Sohbeti Burak açar (iltifat), sonra sırayla devam ederler. */
+          const who: Who = chatRound % 2 === 0 ? 1 : 0;
+          /* Sohbet havuzu ayrı: yan yana dururken "nerede kaldı bu"
+             gibi yalnızlık replikleri söylenmiyor. */
+          sayKind("chat", who);
+          if (who === 0) herA.wave = 1;
+          else himA.wave = 1;
+          chatRound += 1;
+          chatAt = pt + 2.8;
+        }
+      }
+
+      /* Selamlama yalnızca ikisi de sahnedeyken ve konuşma balonu
+         boşken söylenir; devam eden bir repliği kesmesin. */
+      if (
+        greetPending.current &&
+        phase === "idle" &&
+        pt > 3.5 &&
+        !lineRef.current
+      ) {
+        greetPending.current = false;
+        sayKind("greet", 0);
       }
 
       if (!dancingNow) {
@@ -727,7 +820,13 @@ export default function Buddy({ scene, reducedMotion, dancing = false }: Props) 
         const bob = Math.sin(a.walk * (a.moving ? 1.1 : 0.8)) * bobAmp * slow;
 
         a.angry = damp(a.angry, phase === "squabble" ? 1 : 0, dt * 4);
-        a.lean = damp(a.lean, phase === "bored" ? 0.35 : a.moving ? 0.16 : 0, dt * 3);
+        a.lean = damp(
+          a.lean,
+          phase === "bored" && i === 1 ? 0.35 : a.moving ? 0.16 : 0,
+          dt * 3,
+        );
+        /* El sallama kısa sürer: bir süre sonra kendiliğinden söner. */
+        a.wave = Math.max(0, a.wave - dt * 0.55);
 
         const shake = a.angry * Math.sin(t * 34) * 0.035;
 
@@ -759,8 +858,10 @@ export default function Buddy({ scene, reducedMotion, dancing = false }: Props) 
             foot.position.z = 0.1 + s * 0.24;
             foot.position.y = -0.44 + Math.max(0, s) * 0.09;
           } else {
-            const tap = phase === "bored" && fi === 1 ? Math.max(0, Math.sin(t * 7)) * 0.07 : 0;
-            const dz = phase === "bored" && fi === 1 ? 0.14 : 0;
+            /* Yalnızca bekleyen Burak ayağını yere vurur. */
+            const tapping = phase === "bored" && i === 1 && fi === 1;
+            const tap = tapping ? Math.max(0, Math.sin(t * 7)) * 0.07 : 0;
+            const dz = tapping ? 0.14 : 0;
             foot.position.z = damp(foot.position.z, 0.1 + dz, dt * 8);
             foot.position.y = damp(foot.position.y, -0.44 + tap, dt * 8);
           }
@@ -783,6 +884,14 @@ export default function Buddy({ scene, reducedMotion, dancing = false }: Props) 
             const s = Math.sin(a.walk + (ai === 0 ? Math.PI : 0));
             az = 0.06 + s * 0.24;
             ay = -0.14 + Math.abs(s) * 0.04;
+          } else if (a.wave > 0.05) {
+            /* Sağ kol havada, el sallar gibi. */
+            const w = Math.sin(t * 9) * 0.22 * a.wave;
+            if (ai === 1) {
+              ay = 0.3 * a.wave;
+              ax = sx * (0.3 - 0.05 * a.wave) + w * 0.12;
+              az = 0.1;
+            }
           } else if (a.angry > 0.4) {
             ay = -0.02 + Math.sin(t * 18 + ai) * 0.06;
             ax = sx * 0.44;
@@ -795,7 +904,8 @@ export default function Buddy({ scene, reducedMotion, dancing = false }: Props) 
         for (let bi = 0; bi < b.brows.length; bi += 1) {
           const brow = b.brows[bi];
           const sx = bi === 0 ? -1 : 1;
-          brow.rotation.z = damp(brow.rotation.z, a.angry * sx * 0.5, dt * 8);
+          /* Temel eğim korunur; öfke yalnızca üstüne eklenir. */
+          brow.rotation.z = damp(brow.rotation.z, sx * 0.13 + a.angry * sx * 0.42, dt * 8);
           brow.position.y = damp(brow.position.y, 0.225 - a.angry * 0.035, dt * 8);
         }
 
@@ -828,7 +938,11 @@ export default function Buddy({ scene, reducedMotion, dancing = false }: Props) 
       if (t > nextIdle) {
         nextIdle = t + 16 + Math.random() * 18;
         if (phase === "idle" && !dancingNow) {
-          sayKind("idle", Math.random() < 0.5 ? 0 : 1);
+          /* Boşta bekleme replikleri ("nerede kaldı bu" gibi) yalnızca
+             karakter yalnızken anlamlı. İkisi yan yanayken sohbet
+             havuzundan konuşulur. */
+          const together = Math.abs(herA.x - himA.x) < 2.2 * unit;
+          sayKind(together ? "chat" : "idle", Math.random() < 0.5 ? 0 : 1);
         }
       }
 
@@ -844,8 +958,11 @@ export default function Buddy({ scene, reducedMotion, dancing = false }: Props) 
       renderer.render(scene3, camera);
     };
 
-    /* İlk perde: kız ekran dışından ortaya yürür, biraz bekler. */
-    setPhase("enterHer");
+    /* İlk perde: önce Burak tek başına gelir ve Berna'yı bekler;
+       ardından Berna gelip cevap verir. */
+    herA.x = -offX;
+    herA.targetX = -offX;
+    setPhase("enterHim");
 
     const loop = () => {
       raf = requestAnimationFrame(loop);

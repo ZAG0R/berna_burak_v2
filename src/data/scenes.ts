@@ -17,6 +17,7 @@ import yemek from "../assets/yemek.webp";
 import sabirYazi from "../assets/sabir.png";
 import gunaydinYeni from "../assets/gunaydin_yeni.png";
 import iyigeceYeni from "../assets/iyigece_yeni.png";
+import guzelHavaYazi from "../assets/guzel_hava_yazi.png";
 
 /* Mobil (dikey) karşılıklar — aynı isimler, 941x1672 */
 import arkaplanM from "../assets/mobile/arkaplan.webp";
@@ -67,6 +68,8 @@ const GREET = {
   rain: { src: yagmurluYazi, label: "Yağmurlu hava" },
   snow: { src: sogukhavaYazi, label: "Kar yağışlı, sıkı giyin" },
   cold: { src: sogukhavaYazi, label: "Soğuk hava" },
+  /* Kötü hava yoksa gündüz bu selamlama gösterilir. */
+  clear: { src: guzelHavaYazi, label: "Hava senin gibi güzel" },
 } as const;
 
 /* Selam metinleri — preloader ve sol sidebar aynı kaynaktan okur. */
@@ -162,8 +165,9 @@ export function buildScene(hour: number, code: number, temp: number): Scene {
   const slot = slotForHour(hour);
   const condition = conditionFor(code, temp);
   /* Sağ üst başlıkta yalnızca hava durumu yazısı durur; selamlar sol
-     kenar çubuğuna taşındı. Hava yoksa başlık boş kalır. */
-  const greet = condition ? [GREET[condition]] : [];
+     kenar çubuğuna taşındı. Yağmur/kar/soğuk yoksa "hava güzel" yazısı
+     gösterilir; böylece kötü hava olmayan her saatte başlık dolu kalır. */
+  const greet = condition ? [GREET[condition]] : [GREET.clear];
   const bg = condition ? conditionSlice(condition, hour) : sliceForHour(hour);
 
   return {

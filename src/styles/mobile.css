@@ -1,0 +1,824 @@
+/* ============================================================
+   MOBİL DÜZEN (<= 900px)
+
+   Masaüstü düzeniyle ortak markup kullanılır; burada yalnızca
+   yerleşim yeniden kurulur. Sıra referanstaki telefon tasarımıyla
+   aynıdır:
+
+     selamlama görseli (fotoğrafın üstünde)
+     dört mini kart
+     müzik çubuğu
+     alıntı + hava durumu (yan yana)
+     birlikteyiz
+     günün planı
+     alt sekme çubuğu
+
+   Tüm kurallar medya sorgusunun içinde; masaüstü hiç etkilenmez.
+   ============================================================ */
+
+/* Masaüstünde mobil selamlama görünmez. */
+.home__mobile-greet {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  :root {
+    --nav-h: 74px;
+    --m-pad: 14px;
+  }
+
+  /* ---------- Kabuk ---------- */
+
+  .app__shell {
+    zoom: 1;
+  }
+
+  .app__content {
+    /* sections.css'teki !important alt boşluk mobilde plan kartını
+       sabit sekme çubuğunun arkasında bırakıyordu; burada açıkça
+       sekme yüksekliği kadar pay bırakılıyor. */
+    padding: 0 var(--m-pad) 28px !important;
+  }
+
+  /* Ana sayfa dışındaki sayfalar (Sürprizler, Plan, Anılar...) sabit
+     burger düğmesinin altından başlamalı; yoksa başlık düğmenin
+     arkasında kalıyor. */
+  .page > .section {
+    padding-top: calc(env(safe-area-inset-top) + 64px);
+  }
+
+  .page {
+    animation: none;
+  }
+
+  /* Fotoğraf tam ekran kalsın: üstte selamlama, altta kartlar. */
+  .app__bg-photo {
+    background-size: cover;
+    background-position: 50% 28%;
+  }
+
+  .app__bg-scrim {
+    background:
+      linear-gradient(180deg, rgba(18, 10, 9, 0.44) 0%, rgba(18, 10, 9, 0.06) 26%, rgba(18, 10, 9, 0.34) 58%, rgba(18, 10, 9, 0.86) 86%, rgba(18, 10, 9, 0.96) 100%);
+  }
+
+  /* ---------- Üst bar: fotoğrafın üstünde yüzen daire ---------- */
+
+  .topbar {
+    position: absolute;
+    top: calc(env(safe-area-inset-top) + 10px);
+    left: 0;
+    right: 0;
+    z-index: 45;
+    padding: 0 var(--m-pad);
+    pointer-events: none;
+  }
+
+  .topbar .iconbtn--burger {
+    pointer-events: auto;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    color: #fff4ef;
+    background: rgba(28, 18, 16, 0.52);
+    border: 1px solid rgba(255, 236, 228, 0.2);
+    backdrop-filter: blur(16px) saturate(1.2);
+    -webkit-backdrop-filter: blur(16px) saturate(1.2);
+    box-shadow: 0 8px 24px -10px rgba(0, 0, 0, 0.7);
+  }
+
+  .topbar .iconbtn--burger svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* ---------- Ana sayfa: tek sütun, referans sırası ---------- */
+
+  .home {
+    height: auto;
+    overflow: visible;
+  }
+
+  .home__grid {
+    display: grid;
+    position: relative;
+    /* Alıntı solda daha dar, hava durumu sağda daha geniş dursun:
+       referansta hava kartı üç sütunlu içeriği taşıyabiliyor. */
+    grid-template-columns: minmax(0, 0.86fr) minmax(0, 1.14fr);
+    height: auto;
+    min-height: 0;
+    gap: 10px;
+    padding-top: 0;
+  }
+
+  /* Aside'ı kaldır: çocukları doğrudan sütunun parçası olsun,
+     böylece araya alt kartlar ve müzik girebilsin. */
+  .home__aside {
+    display: contents;
+  }
+
+  .home__hero,
+  .home__aside-header {
+    order: 0;
+  }
+
+  .home__bottom {
+    order: 1;
+    display: block;
+    padding-top: 0;
+  }
+
+  .home__music {
+    order: 2;
+    width: 100%;
+  }
+
+  .quotecard {
+    order: 3;
+  }
+
+  .weathercard {
+    order: 4;
+  }
+
+  .togethercard {
+    order: 5;
+  }
+
+  .plancard {
+    order: 6;
+  }
+
+  /* Referans sırası bir tam genişlik / iki yan yana ritmiyle ilerler. */
+  .home__aside-header,
+  .home__mobile-greet,
+  .home__bottom,
+  .home__music,
+  .togethercard,
+  .plancard {
+    grid-column: 1 / -1;
+  }
+
+  .quotecard {
+    grid-column: 1;
+  }
+
+  .weathercard {
+    grid-column: 2;
+  }
+
+  /* ---------- Selamlama görseli ---------- */
+
+  /* Fotoğrafın üstünde duran el yazısı selamlama. */
+  .home__mobile-greet {
+    order: -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    /* Üstte fotoğrafın görünmesi için boşluk bırakılır; hava yazısı
+       sağ üst köşeye taşındığı için bu alanın içinde durmaz. */
+    padding: calc(env(safe-area-inset-top) + 265px) 20px 10px;
+    text-align: center;
+    line-height: 1;
+  }
+
+  /* Kartlar hafif transparan: arkadaki fotoğraf sezilsin, yazı okunur
+     kalsın diye üstüne ince bir bulanıklık biner. */
+  .home .card {
+    background: rgba(26, 17, 16, 0.44);
+    border-color: rgba(255, 232, 224, 0.16);
+    backdrop-filter: blur(10px) saturate(1.15);
+    -webkit-backdrop-filter: blur(10px) saturate(1.15);
+  }
+
+  .home__mobile-line1,
+  .home__mobile-line2 {
+    font-family: var(--font-hand);
+    font-weight: 400;
+    color: #fffdfb;
+    text-shadow:
+      0 2px 6px rgba(0, 0, 0, 0.85),
+      0 4px 24px rgba(0, 0, 0, 0.9),
+      0 0 40px rgba(0, 0, 0, 0.6);
+  }
+
+  /* Saat dilimi selamı ("Allah sabır versin" vb.) mobilde çekme menüde
+     zaten yazıyor; ana ekranda tekrar edilmez. */
+  .home__mobile-line1,
+  .home__mobile-line2 {
+    display: none;
+  }
+
+  .home__mobile-line1 {
+    font-size: 34px;
+  }
+
+  .home__mobile-line2 {
+    /* line1 ile birlikte gizli kalır: selam çekme menüde yazıyor. */
+    display: none;
+    align-items: center;
+    gap: 5px;
+    font-size: 40px;
+  }
+
+  .home__mobile-line2 svg {
+    width: 20px;
+    height: 20px;
+    color: var(--accent);
+    filter: drop-shadow(0 0 10px var(--glow));
+  }
+
+  /* Hava durumu yazısı (yağmur / kar / açık hava) selamlamanın altında
+     durur; sağında küçük bir kalp eşlik eder. */
+  .home__mobile-weatherrow {
+    /* Mobilde sağ üst köşeye taşınır: selamlama alanı boş kalmasın,
+       fotoğrafın üst kısmı da açıkta dursun. */
+    position: absolute;
+    top: calc(env(safe-area-inset-top) + 6px);
+    right: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-top: 0;
+    max-width: 70%;
+  }
+
+  .home__mobile-weather {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.6));
+  }
+
+  .home__aside-header {
+    display: block;
+    width: 100%;
+    padding: 0;
+    margin-bottom: 2px;
+    text-align: center;
+  }
+
+  /* Masaüstü selamlama görseli mobilde tekrar etmez: başlığı
+     yukarıdaki el yazısı blok zaten veriyor. */
+  /* extras.css'teki ".home .home__aside-header" kuralı daha güçlü
+     olduğu için aynı özgüllükte yazılıyor; yoksa hava yazısı iki kez
+     (selamlamanın altında ve kartların arasında) görünüyordu. */
+  .home .home__aside-header {
+    display: none;
+  }
+
+  /* ---------- Dört mini kart: yan yana, dikey ---------- */
+
+  .home__cards {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .home__cards > * {
+    flex: none;
+    scroll-snap-align: none;
+  }
+
+  .home__cards .card {
+    border-radius: 16px;
+  }
+
+  .home__cards .bottomcard {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 7px;
+    padding: 7px 7px 9px;
+    min-height: 0;
+    height: 100%;
+  }
+
+  .home__cards .bottomcard__thumb {
+    width: 100%;
+    align-self: auto;
+    aspect-ratio: 1 / 1;
+    height: auto;
+    border-radius: 12px;
+  }
+
+  .home__cards .bottomcard__body {
+    gap: 2px;
+    justify-content: flex-start;
+  }
+
+  .home__cards .bottomcard__like {
+    display: none;
+  }
+
+  .home__cards .bottomcard__title {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    min-height: calc(1.24em * 2);
+    font-size: 10px;
+    line-height: 1.24;
+    overflow: hidden;
+    padding-right: 0;
+    white-space: normal;
+    text-overflow: clip;
+    overflow-wrap: anywhere;
+  }
+
+  .home__cards .bottomcard__tag {
+    white-space: normal;
+  }
+
+  .home__cards .bottomcard__text {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    min-height: 0;
+    font-size: 10px;
+    line-height: 1.32;
+    color: rgba(247, 240, 236, 0.62);
+  }
+
+  .home__cards .bottomcard .card__arrow {
+    display: none;
+  }
+
+  /* Ok gizlendiğinde sağdaki boşluk da kalksın. */
+  .home__cards .bottomcard {
+    padding-right: 7px;
+  }
+
+  /* ---------- Müzik çubuğu: iki satır ---------- */
+
+  .musicbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px 12px;
+    padding: 10px 12px;
+    border-radius: 18px;
+  }
+
+  .musicbar__left {
+    order: 1;
+    grid-column: 1;
+    gap: 10px;
+  }
+
+  .musicbar__thumb {
+    width: 46px;
+    height: 46px;
+    border-width: 1.5px;
+    border-radius: 12px;
+  }
+
+  .musicbar__title {
+    font-size: 14px;
+  }
+
+  .musicbar__artist {
+    font-size: 11.5px;
+  }
+
+  .musicbar__like {
+    display: none;
+  }
+
+  .musicbar__controls {
+    order: 2;
+    grid-column: 2;
+    gap: 4px;
+  }
+
+  .musicbar__controls .mbtn:nth-child(1),
+  .musicbar__controls .mbtn:nth-child(5) {
+    display: none;
+  }
+
+  .musicbar__timeline {
+    order: 3;
+    grid-column: 1 / -1;
+    max-width: none;
+    min-width: 0;
+    gap: 8px;
+  }
+
+  .musicbar__volume {
+    display: none;
+  }
+
+  /* ---------- Alıntı + hava durumu yan yana ---------- */
+
+  .quotecard,
+  .weathercard {
+    width: 100%;
+    align-self: stretch;
+    height: 100%;
+  }
+
+  .quotecard .quote {
+    height: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 7px;
+    padding: 11px 12px 12px;
+    min-height: 0;
+  }
+
+  /* Alıntı metni ikonun yanında sıkışıp kırpılıyordu; artık tam
+     genişlikte, ikonun altında. */
+  .quotecard .quote > div {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .quotecard .quote__text {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    overflow: hidden;
+    font-size: 11.5px;
+    line-height: 1.36;
+  }
+
+  .quotecard .quote__by {
+    font-size: 11px;
+  }
+
+  .quotecard .quote__mark {
+    width: 22px;
+    height: 22px;
+  }
+
+  .weathercard .weather {
+    display: grid;
+    /* Referans: solda ikon, ortada sıcaklık, sağda dikey ayraçla
+       rüzgar/nem/hissedilen. Böylece kart alıntıyla aynı boya iner. */
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      'art body extra';
+    align-items: center;
+    gap: 7px;
+    height: 100%;
+    padding: 10px 10px 9px;
+    min-height: 0;
+  }
+
+  .weathercard .weather__art {
+    grid-area: art;
+    width: 24px;
+    height: 24px;
+  }
+
+  .weathercard .weather__art svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .weathercard .weather__body {
+    grid-area: body;
+  }
+
+  .weathercard .weather__city {
+    font-size: 10.5px;
+  }
+
+  .weathercard .weather__temp {
+    font-size: 26px;
+  }
+
+  .weathercard .weather__desc {
+    font-size: 11px;
+    line-height: 1.25;
+  }
+
+  .weathercard .weather__extra {
+    grid-area: extra;
+    align-self: stretch;
+    justify-content: center;
+    margin-left: 2px;
+    padding-left: 8px;
+    padding-top: 0;
+    border-top: 0;
+    border-left: 1px solid rgba(255, 226, 220, 0.14);
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+    font-size: 9px;
+    white-space: nowrap;
+  }
+
+  /* Dikey ayraç alt satıra geçtiğinde anlamsız kalıyor. */
+  .weathercard .weather__extra::before {
+    content: none;
+  }
+
+  .weathercard .weather .card__arrow {
+    display: none;
+  }
+
+  /* ---------- Birlikteyiz ---------- */
+
+  .togethercard .together__body {
+    gap: 0;
+  }
+
+  .togethercard .together__days b {
+    font-size: 32px;
+  }
+
+  /* ---------- Plan ---------- */
+
+  .plancard .plan {
+    padding: 10px 12px 12px;
+    max-height: none;
+  }
+
+  .plancard .plan__list {
+    overflow: visible;
+    max-height: none;
+  }
+
+  .plancard .planitem {
+    padding: 6px 6px;
+    font-size: 12.5px;
+  }
+
+  .plancard .card__head {
+    margin-bottom: 6px;
+  }
+
+  /* ---------- Alt sekme çubuğu ---------- */
+
+  .mobilenav {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0;
+    left: 10px;
+    right: 10px;
+    bottom: max(8px, env(safe-area-inset-bottom));
+    padding: 6px 4px;
+    border-radius: 22px;
+    background: rgba(20, 13, 12, 0.86);
+    border: 1px solid rgba(255, 232, 224, 0.13);
+    box-shadow: 0 14px 44px -14px rgba(0, 0, 0, 0.9);
+    transition: opacity 0.22s var(--ease-soft), transform 0.22s var(--ease-soft);
+    /* Varsayılan: gizli. Yalnızca kaydırma sırasında görünür. */
+    opacity: 0;
+    transform: translateY(calc(100% + 24px));
+    pointer-events: none;
+  }
+
+  .mobilenav--peek {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  /* Menü açıkken alt çubuk tamamen çekilir; çekme menü tam yükseklik alır. */
+  .mobilenav--hidden {
+    opacity: 0;
+    transform: translateY(calc(100% + 24px));
+    pointer-events: none;
+  }
+
+  .mobilenav__item {
+    position: relative;
+    gap: 4px;
+    padding: 7px 2px 9px;
+    border-radius: 16px;
+    font-size: 9.5px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    color: rgba(247, 236, 233, 0.56);
+  }
+
+  .mobilenav__item svg {
+    width: 19px;
+    height: 19px;
+  }
+
+  .mobilenav__item span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+
+  .mobilenav__item--active {
+    color: var(--accent);
+    background: rgba(247, 154, 171, 0.1);
+  }
+
+  .mobilenav__dot {
+    position: absolute;
+    left: 50%;
+    bottom: 3px;
+    width: 16px;
+    height: 2.5px;
+    border-radius: 99px;
+    background: currentColor;
+    opacity: 0;
+    transform: translateX(-50%) scaleX(0.4);
+    transition: 0.3s var(--ease-out);
+  }
+
+  .mobilenav__item--active .mobilenav__dot {
+    opacity: 1;
+    transform: translateX(-50%) scaleX(1);
+  }
+
+  .toast {
+    bottom: calc(var(--nav-h) + 22px);
+  }
+
+  /* ---------- Çekme menü (hamburger) ---------- */
+
+  .sidebar {
+    width: min(324px, 88vw);
+    padding: 14px 14px calc(env(safe-area-inset-bottom) + 14px);
+    border-right: 1px solid rgba(255, 226, 220, 0.1);
+    background: linear-gradient(180deg, rgba(28, 17, 16, 0.97), rgba(16, 10, 9, 0.98));
+    backdrop-filter: blur(26px) saturate(1.1);
+    -webkit-backdrop-filter: blur(26px) saturate(1.1);
+  }
+
+  .sidebar__brand {
+    gap: 4px;
+    padding-bottom: 6px;
+  }
+
+  .sidebar__sun {
+    width: 30px;
+    height: 30px;
+  }
+
+  .sidebar__sun svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .sidebar__greet {
+    width: calc(100% + 16px);
+    max-width: 220px;
+    margin-inline: -8px;
+  }
+
+  .sidebar__date {
+    margin-top: 2px;
+    font-size: 11.5px;
+    letter-spacing: 0.14em;
+  }
+
+  .sidebar__weekday {
+    font-size: 10px;
+  }
+
+  .sidebar__nav {
+    gap: 2px;
+    margin-top: 10px;
+    margin-bottom: 8px;
+  }
+
+  .navitem {
+    padding: 10px 12px;
+    border-radius: 13px;
+    font-size: 14px;
+  }
+
+  .navitem svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .navitem--active {
+    background: rgba(247, 154, 171, 0.12);
+    color: var(--accent);
+  }
+
+  .navitem__hint {
+    opacity: 0.5;
+  }
+
+  .sidebar__tagline {
+    margin-inline: -6px;
+    padding: 4px 0 10px;
+  }
+
+  .sidebar__tagline img {
+    max-width: 150px;
+  }
+
+  .sidebar__people {
+    gap: 8px;
+    padding: 9px;
+  }
+
+  .sidebar__tools {
+    gap: 10px;
+    margin-top: 12px;
+    padding: 8px 0 0;
+  }
+
+  .sidebtn {
+    width: 38px;
+    height: 38px;
+  }
+
+  .sidebtn svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  /* ---------- Sürprizler ---------- */
+
+  /* Masaüstünde iki sütun; mobilde tek sütuna iner, aksi hâlde hediye
+     kutusu 2px'e sıkışıyordu. */
+  .surprise {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 14px !important;
+    max-height: none !important;
+    width: 100%;
+  }
+
+  .surprise .gift {
+    width: 100%;
+    min-height: 300px !important;
+    max-height: none !important;
+    height: auto;
+    aspect-ratio: 4 / 3;
+  }
+
+  /* Kutu açılınca içerik mutlak konumdan çıkıp kendi yüksekliğini
+     belirler; yoksa uzun sürpriz metni ve düğmeler alttan kırpılıyor. */
+  .surprise .gift:has(.gift__reveal--on) {
+    aspect-ratio: auto;
+    min-height: 0 !important;
+  }
+
+  .surprise .gift:has(.gift__reveal--on) .gift__canvas {
+    display: none;
+  }
+
+  .surprise .gift:has(.gift__reveal--on) .gift__overlay {
+    display: none;
+  }
+
+  .surprise .gift__reveal {
+    position: static;
+    inset: auto;
+    padding: 20px 16px 22px;
+  }
+
+  .surprise__side {
+    width: 100%;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .section__title {
+    font-size: 27px;
+  }
+
+  .section__lead {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .gift__hint {
+    font-size: 19px !important;
+  }
+
+  .gift__reveal h3 {
+    font-size: 24px !important;
+  }
+
+  .gift__reveal p {
+    font-size: 14px !important;
+  }
+
+  .sgrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .surprise__board .card__head {
+    margin-bottom: 10px;
+  }
+}
+
+/* Çok dar telefonlar: 4 mini kart tek satırda sığmazsa iki sütuna düşer. */
+@media (max-width: 359px) {
+  .home__cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

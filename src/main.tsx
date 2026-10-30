@@ -5,6 +5,7 @@ import './styles/global.css'
 import './styles/components.css'
 import './styles/sections.css'
 import './styles/extras.css'
+import './styles/mobile.css'
 
 const host = document.getElementById('root')
 if (!host) throw new Error('#root bulunamadı')

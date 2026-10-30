@@ -4,20 +4,30 @@ import { Icon } from "./Icons";
 const ITEMS: { key: NavKey; label: string; icon: string }[] = [
   { key: "home", label: "Ana Sayfa", icon: "home" },
   { key: "letter", label: "Mesajım", icon: "chat" },
-  { key: "surprise", label: "Sürpriz", icon: "gift" },
+  { key: "memories", label: "Anılarımız", icon: "camera" },
+  { key: "plan", label: "Günün Planı", icon: "calendar" },
   { key: "quiz", label: "Oyun", icon: "sparkles" },
-  { key: "memories", label: "Anılar", icon: "heart" },
 ];
 
 export default function MobileNav({
   active,
   onNavigate,
+  hidden = false,
+  peek = false,
 }: {
   active: NavKey;
   onNavigate: (k: NavKey) => void;
+  /** Çekme menü açıkken alt çubuk gizlenir; menü tam yükseklik alır. */
+  hidden?: boolean;
+  /** Kaydırma sırasında çubuk görünür, durunca yeniden çekilir. */
+  peek?: boolean;
 }) {
   return (
-    <nav className="mobilenav" aria-label="Hızlı menü">
+    <nav
+      className={`mobilenav ${hidden ? "mobilenav--hidden" : ""} ${peek ? "mobilenav--peek" : ""}`}
+      aria-label="Hızlı menü"
+      aria-hidden={hidden || undefined}
+    >
       {ITEMS.map((item) => {
         const isActive = item.key === active;
         return (
@@ -30,6 +40,7 @@ export default function MobileNav({
           >
             <Icon name={item.icon} />
             <span>{item.label}</span>
+            <i className="mobilenav__dot" aria-hidden />
           </button>
         );
       })}

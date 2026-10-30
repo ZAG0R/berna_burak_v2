@@ -42,6 +42,12 @@ export default function App() {
   const [introDone, setIntroDone] = useState(false);
   const [nav, setNav] = useState<NavKey>("home");
   const [sidebar, setSidebar] = useState(false);
+  /* Alt sekme çubuğu yalnızca sayfa kaydırılırken görünür; kaydırma
+     durunca kısa bir gecikmeyle yeniden çekilir. */
+  const [navPeek, setNavPeek] = useState(false);
+  /* Sayfa hiç kaydırılamıyorsa çubuk sürekli görünür kalsın, yoksa
+     menüye ulaşmanın yolu kalmaz. */
+  const [navStatic, setNavStatic] = useState(false);
 
   const [accent, setAccent] = useStoredState<string>("ui:accent", "amber");
   const [soundOn, setSoundOn] = useStoredState<boolean>("ui:sound", true);
@@ -68,6 +74,38 @@ export default function App() {
     setPlanDone({});
     setPlanDay(today);
   }, [today, planDay, setPlanDone, setPlanDay]);
+
+  /* Alt sekme çubuğu yalnızca kaydırma sırasında görünür: kaydırma
+     başlayınca belirir, durunca kısa bir gecikmeyle yine çekilir. */
+  useEffect(() => {
+    let idle: number | undefined;
+    const onScroll = () => {
+      setNavPeek(true);
+      window.clearTimeout(idle);
+      /* Kaydırma durduktan sonra çubuk bir süre daha dursun; çok çabuk
+         kaybolunca menüye basmak zorlaşıyordu. */
+      idle = window.setTimeout(() => setNavPeek(false), 2600);
+    };
+
+    /* Kısa sayfalarda kaydırma hiç olmaz; o zaman çubuk sabit dursun. */
+    const measure = () => {
+      const el = document.documentElement;
+      setNavStatic(el.scrollHeight - el.clientHeight < 8);
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", measure);
+    measure();
+    const mo = new MutationObserver(measure);
+    mo.observe(document.body, { childList: true, subtree: true });
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", measure);
+      mo.disconnect();
+      window.clearTimeout(idle);
+    };
+  }, []);
 
   const [songIndex, setSongIndex] = useStoredState<number>("music:index", 0);
   const [playing, setPlaying] = useState(false);
@@ -509,7 +547,7 @@ export default function App() {
         </div>
       </div>
 
-      <MobileNav active={nav} onNavigate={go} />
+      <MobileNav active={nav} onNavigate={go} hidden={sidebar} peek={navPeek || navStatic} />
 
       {finePointer && introDone ? (
         <CursorLight />
@@ -560,14 +598,6 @@ function CursorLight() {
 }
 
 export { ACCENTS };
-
-
-
-
-
-
-
-
 
 
 

@@ -21,6 +21,8 @@ export type LineKind =
   | "greet"
   | "click"
   | "idle"
+  | "chat"
+  | "wait"
   | "leave"
   | "bored"
   | "arrive"
@@ -182,6 +184,84 @@ const TABLE: Record<LineKind, Record<"her" | "him", Voice>> = {
         rain: ["Yağmur başladı, camdan bak 🌧"],
         snow: ["Kar yağıyor, sessiz olalım ☃"],
         cold: ["Bu soğukta ev en güzel yer"],
+      },
+    },
+  },
+
+  /* ---------- yan yana sohbet ----------
+     Bu satırlar yalnızca iki karakter karşı karşıya/yan yanayken
+     kullanılır; "nerede kaldı" gibi yalnızlık replikleri buraya
+     girmemeli, yoksa yanındaki kişiye sorulmuş gibi mantıksız durur. */
+  chat: {
+    her: {
+      base: [
+        "Buradayım, kaçmadım ya ♡",
+        "Hep buradaydım, sen bakmadın",
+        "Yanında olmak dünyanın en kolay işi",
+        "Konuşmasak da olur, sadece burada dur",
+        "Ben de tam seni düşünüyordum",
+        "Aynı şeyi düşünmüşüz, yine",
+      ],
+      slot: {
+        morning: ["Günaydın! Ben zaten uyanıktım, seni bekledim ☀"],
+        work: ["Molada kaçtım geldim, kimse görmedi"],
+        evening: ["Geldim! Gün bitti, en güzel kısmı şimdi"],
+        night: ["Bu saatte bile seninle oturmak iyi geliyor 🌙"],
+      },
+      cond: {
+        rain: ["Yağmur yağarken yan yana olmak en güzeli 🌧"],
+        snow: ["Kar dışarıda, biz içeride. İyi plan ☃"],
+        cold: ["Üşüyorsan omzuma yaslan ♡"],
+      },
+    },
+    him: {
+      base: [
+        /* İltifatlar Burak'tan: Berna'ya söylenir. */
+        "Saçların yine çok güzel olmuş",
+        "Bugün her zamankinden daha güzelsin, biliyorsun değil mi",
+        "Gülüşün günümü düzeltiyor",
+        "Sen konuşurken dinlemek istiyorum, devam et",
+        "Gözlerin yorgun ama hâlâ en güzel şey bu odada",
+        "Sana bakınca işler o kadar da kötü gelmiyor",
+      ],
+      slot: {
+        morning: ["Sabah saçın dağınıkken bile en tatlı hâlin 🌞"],
+        work: ["Bu kadar çalışıp yine de güzel kalman haksızlık"],
+        evening: ["Akşam ışığında gözlerin başka bir güzel"],
+        night: ["Uyumadan önce son gördüğüm sen ol 🌙"],
+      },
+      cond: {
+        rain: ["Yağmur sesi bize fon müziği 🌧"],
+        snow: ["Dışarısı buz, burada sıcacık ☃"],
+        cold: ["Ellerim soğuk ama kalbim değil 🧊♡"],
+      },
+    },
+  },
+
+  /* ---------- Burak'ın beklemesi ----------
+     Burak yalnızken Berna'yı sorar; Berna gelince chat havuzundan
+     "Geldim, geldimmmm!" diye cevap verir. */
+  wait: {
+    her: {
+      base: ["Geldim, geldimmmm! ♡", "Buradayım! Geç kalmadım, sen erken geldin"],
+    },
+    him: {
+      base: [
+        "Nerede kaldı bu kız?",
+        "Hâlâ gelmedi... merak ettim",
+        "Bekliyorum ama söylemesi benden ♡",
+        "Gelince ona sarılacağım",
+      ],
+      slot: {
+        morning: ["Sabah sabah nerede kaldı bu?"],
+        work: ["Mola bitti mi, gelmedi daha"],
+        evening: ["Yemekten önce gelir umarım"],
+        night: ["Bu saatte gelen olur mu ki?"],
+      },
+      cond: {
+        rain: ["Yağmur var, belki sıkıştı 🌧"],
+        snow: ["Bu soğukta yolu uzatmıştır ☃"],
+        cold: ["Üşümeye başladım, hadi ama"],
       },
     },
   },

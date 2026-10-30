@@ -19,7 +19,7 @@ import anniversaryImage from "../assets/birlikte-anniv.png";
 export function WeatherCard({ w, id }: { w: Weather; live?: boolean; id?: string }) {
   const WeatherArt = WEATHER_ICONS[w.icon];
   return (
-    <article className="card card--hover" id={id}>
+    <article className="card card--hover weathercard" id={id}>
       <div className="weather">
         <div className="weather__art weather__art--float" aria-hidden>
           <WeatherArt />
@@ -58,7 +58,7 @@ export function WeatherCard({ w, id }: { w: Weather; live?: boolean; id?: string
 
 export function QuoteCard({ text, by }: { text: string; by: string }) {
   return (
-    <article className="card card--hover">
+    <article className="card card--hover quotecard">
       <div className="quote">
         <span className="quote__mark" aria-hidden>
           <Icon name="quote" />
@@ -90,7 +90,7 @@ export function PlanCard({
   const pct = total === 0 ? 0 : Math.round((count / total) * 100);
 
   return (
-    <article className="card">
+    <article className="card plancard">
       <div className="plan">
         <header className="card__head">
           <span className="card__icon" aria-hidden>
@@ -455,7 +455,7 @@ export function TogetherCard({
   /* Yil donumu gunu: kartin tamami hazir gorselle degisir. */
   if (isAnniversary) {
     return (
-      <article className="card together together--anniv-card">
+      <article className="card together togethercard together--anniv-card">
         <button
           type="button"
           className="together__image-btn"
@@ -470,7 +470,7 @@ export function TogetherCard({
   }
 
   return (
-    <article className="card together">
+    <article className="card together togethercard">
       <div className="together__body">
         {/* Sol blok: etiket ve buyuk gun sayisi. */}
         <div className="together__left">
