@@ -1,33 +1,30 @@
-import type { Condition, Slot } from "./scenes";
+﻿import type { Condition, Slot } from "./scenes";
 
 /* ============================================================
    Minik dostların replikleri
 
-   Sol taraf HER (Berna), sağ taraf HIM (Burak). Her replik türünün
-   iki ayrı sesi vardır; böylece hangi balonun kime ait olduğu
-   karışmaz. Balonda da isim yazar.
+   Sol taraf HER (Berna), sağ taraf HIM (Burak).
 
-   Her sesin içinde üç katman var:
-     base — her zaman geçerli
-     slot — saat dilimine özel (sabah / iş / akşam / gece)
-     cond — hava durumuna özel (yağmur / kar / soğuk)
+   İki tür replik var:
+
+   1) Tek replikler (SOLO) - yalnızca bir karakterin tek başına
+      söylediği sözler: selamlama, tıklanma, yalnız bekleme, çıkış.
+      Bunların cevabı yok, çünkü karşısında kimse yok.
+
+   2) Diyaloglar (DIALOGUES) - iki karakter yan yanayken oynayan,
+      baştan sona yazılmış konuşmalar. Her repliğin cevabı belli,
+      böylece "saçların güzel olmuş" deyip "molada kaçtım geldim"
+      cevabını almak gibi kopukluk olmuyor.
    ============================================================ */
 
 export type BuddyScene = { slot: Slot; condition: Condition | null };
 
 export type Who = 0 | 1;
 
-export type LineKind =
-  | "greet"
-  | "click"
-  | "idle"
-  | "chat"
-  | "wait"
-  | "leave"
-  | "bored"
-  | "arrive"
-  | "love"
-  | "squabble";
+/* Tek başına söylenen replik türleri. */
+export type SoloKind = "greet" | "click" | "idle" | "wait" | "leave";
+
+export type Beat = { who: Who; text: string };
 
 type Voice = {
   base: string[];
@@ -35,71 +32,45 @@ type Voice = {
   cond?: Partial<Record<Condition, string[]>>;
 };
 
-const TABLE: Record<LineKind, Record<"her" | "him", Voice>> = {
-  /* ---------- sahne değişince bir kez ---------- */
+const SOLO: Record<SoloKind, Record<"her" | "him", Voice>> = {
+  /* ---------- sahne açılırken, ikisi de sahnedeyken ---------- */
   greet: {
     her: {
-      base: ["Buradayım Burak! Merak ettiysen diye söylüyorum ♡", "Ben geldim. Sen de fark ettin mi?"],
+      base: [
+        "Buradayım, kaçmadım ya ♡",
+        "Geldim. Sen de fark ettin mi?",
+      ],
       slot: {
         morning: [
           "Günaydın! Perdeyi aç, güneş girdi ☀",
           "Kahve hazır mı? Ben bekliyorum...",
-          "Bu saatte uyanan insan efsane olur",
-          "Saçın dağılmış ama tatlı olmuş",
         ],
         work: [
-          "Kolay gelsin! Mola da hakkın ♡",
+          "Kolay gelsin, ben yanındayım ♡",
           "Su iç. Evet, şimdi. Ben beklerim 💧",
-          "Omuzların yukarıda, indir bakayım",
-          "Kimse fark etmez ama ben fark ediyorum ♡",
         ],
         evening: [
-          "Hoş geldin! Terlikleri çıkar ♡",
-          "Ben hâlâ buradayım, bekledim",
+          "Hoş geldin, terlikleri çıkar ♡",
           "Gün bitti sayılır, artık yavaşla",
-          "Sana bir çay borcum var, söylemesi benden",
         ],
         night: [
           "İyi geceler... gözlerimi kapatıyorum",
-          "Yarın erken kalkacağız, hadi uyu 🌙",
-          "Gece düşünceleri yalan söyler, inanma",
           "Bu saatte ayaktaysan sebebi güzeldir umarım",
         ],
       },
       cond: {
-        rain: ["Şemsiyeni al! Ben su geçirmezim 🌂", "Yağmur var, camdan bakalım mı?"],
-        snow: ["Sarıl bana, üşüdüm ☃", "Kar yağıyor, dışarısı kartpostal"],
-        cold: ["Brrr! Önce terlik, sonra konuşma", "Soğuk... sen içeri geç ♡"],
+        rain: ["Şemsiyeni al! Ben su geçirmezim 🌂"],
+        snow: ["Sarıl bana, üşüdüm ☃"],
+        cold: ["Brrr! Önce terlik, sonra konuşma"],
       },
     },
     him: {
-      base: ["Buradayım, sen devam et ♡", "Ben buralardayım, gözüm üstünde"],
+      base: ["Buradayım, sen devam et ♡"],
       slot: {
-        morning: [
-          "Günaydın Berna! Ben de yeni uyandım 🌞",
-          "Kahveyi ben yapayım, sen otur",
-          "Bugün plan ne? Bana her şey uyar",
-        ],
-        work: [
-          "Kolay gelsin! Bir şey lazımsa söyle",
-          "Bilgisayar da senin gibi ısındı",
-          "Mola verince haber ver, yanındayım",
-        ],
-        evening: [
-          "Hoş geldin! Bugün nasıl geçti?",
-          "Akşam yemeğini birlikte yapalım mı?",
-          "Ayakkabılar kenarda, dertler kapıda",
-        ],
-        night: [
-          "İyi geceler Berna 🌙",
-          "Ben nöbetteyim, sen uyu",
-          "Bir yudum su, bir derin nefes, yatak",
-        ],
-      },
-      cond: {
-        rain: ["Şemsiye bende, merak etme 🌂", "Yağmur sesi en güzel beyaz gürültü 🌧"],
-        snow: ["Kar topu atma, ben de kardanım ☃", "Dışarısı kartpostal ama soğuk"],
-        cold: ["Ceketini giy dedim... giydin mi?", "Ellerim buz, ısıt beni 🧊"],
+        morning: ["Günaydın Berna 🌞"],
+        work: ["Kolay gelsin, bir şey lazımsa söyle"],
+        evening: ["Hoş geldin, bugün nasıl geçti?"],
+        night: ["İyi geceler Berna 🌙"],
       },
     },
   },
@@ -111,69 +82,63 @@ const TABLE: Record<LineKind, Record<"her" | "him", Voice>> = {
         "Beni mi tıkladın? Tekrar 😜",
         "Hop! Kalplerim dağıldı ♡",
         "Güldüm, bir daha!",
-        "Burak, ben buradayım ♡",
       ],
-      slot: {
-        morning: ["Sabah sabah bu enerji nereden geldi 😄"],
-        work: ["Mola mı? Mola mı? Molaa! 🎉"],
-        evening: ["Günü kurtardın, tebrikler ♡"],
-        night: ["Bu saatte tıklarsan uyku kaçar 🌙"],
-      },
-      cond: {
-        rain: ["Islandım sanırım. Yine tıkla 😅"],
-        snow: ["Kar topu atma, ben de kardanım ☃"],
-        cold: ["Elin buz gibi! Isıtayım mı? 🔥"],
-      },
     },
     him: {
       base: [
         "Hey! Dikkat et, düşeceğim 😄",
-        "Tıkladın, ben de zıpladım",
-        "Yine mi sen? Hoşuma gitti ♡",
         "Bak, kalpler saçıldı ♡",
+        "Yine mi sen? Hoşuma gitti ♡",
       ],
-      slot: {
-        morning: ["Sabahın bu saatinde bu enerji bana da geçti 🌞"],
-        work: ["Molada tıklarsan kaçmam 🏃"],
-        evening: ["Günü kurtardın, tebrikler ♡"],
-        night: ["Uyku kaçtı, sorumlu sensin 🌙"],
-      },
-      cond: {
-        rain: ["Islandım, ama tıklamaya devam 😅"],
-        snow: ["Eldivenlerim nerede, dur ☃"],
-        cold: ["Ellerim buz, ısıt beni 🧊"],
-      },
     },
   },
 
-  /* ---------- ara ara kendi kendine ---------- */
+  /* ---------- biri yokken, kalan kendi kendine ---------- */
+  wait: {
+    him: {
+      base: [
+        "Nerede kaldı bu kız?",
+        "Hâlâ gelmedi... merak ettim",
+        "Bekliyorum ama söylemesi benden ♡",
+      ],
+      slot: {
+        morning: ["Sabah sabah nerede kaldı bu?"],
+        work: ["Mola bitti mi, gelmedi daha"],
+        evening: ["Yemekten önce gelir umarım"],
+        night: ["Bu saatte gelen olur mu ki?"],
+      },
+      cond: {
+        rain: ["Yağmur var, belki sıkıştı 🌧"],
+        snow: ["Bu soğukta yolu uzatmıştır ☃"],
+        cold: ["Üşümeye başladım, hadi ama"],
+      },
+    },
+    her: {
+      base: ["Bekliyorum, acelem yok", "Gelir birazdan..."],
+    },
+  },
+
+  /* ---------- yan yana, konuşma başlamamışken ---------- */
   idle: {
     her: {
       base: [
         "Bakışlarımı takip etme, utanırım 👀",
         "Bir nefes almayı unutma 🌬",
-        "Zaman geçiyor, sen hep güzelsin",
-        "Burak... ben sadece dekor değilim",
       ],
       slot: {
-        morning: ["Sabah ışığı perdeden giriyor, kalk hadi ☀"],
+        morning: ["Sabah ışığı perdeden giriyor ☀"],
         work: ["Ekrana çok yaklaştın, biraz geri gel"],
         evening: ["Gün batımı buradan çok güzel görünüyor"],
-        night: ["Uyumadan önce bir bardak su 💧", "Ben nöbetteyim, sen uyu 🌙"],
+        night: ["Uyumadan önce bir bardak su 💧"],
       },
       cond: {
         rain: ["Yağmur sesi en güzel beyaz gürültü 🌧"],
         snow: ["Camdan kar seyretmek en kârlı iş ☃"],
-        cold: ["Bu soğukta dışarı çıkmak yürek ister"],
+        cold: ["Bu soğukta ev en güzel yer"],
       },
     },
     him: {
-      base: [
-        "Sıkılırsan konuş, buradayım ♡",
-        "Bir bardak su iç, sonra devam",
-        "Ellerim cepte, keyfim yerinde",
-        "Sen işini yap, ben seni izlerim",
-      ],
+      base: ["Ellerim cepte, keyfim yerinde", "Sen işini yap, ben seni izlerim"],
       slot: {
         morning: ["Sabah ışığı güzel, gün senin 🌞"],
         work: ["Ekran ile gözün arası bir karış olsun"],
@@ -188,85 +153,7 @@ const TABLE: Record<LineKind, Record<"her" | "him", Voice>> = {
     },
   },
 
-  /* ---------- yan yana sohbet ----------
-     Bu satırlar yalnızca iki karakter karşı karşıya/yan yanayken
-     kullanılır; "nerede kaldı" gibi yalnızlık replikleri buraya
-     girmemeli, yoksa yanındaki kişiye sorulmuş gibi mantıksız durur. */
-  chat: {
-    her: {
-      base: [
-        "Buradayım, kaçmadım ya ♡",
-        "Hep buradaydım, sen bakmadın",
-        "Yanında olmak dünyanın en kolay işi",
-        "Konuşmasak da olur, sadece burada dur",
-        "Ben de tam seni düşünüyordum",
-        "Aynı şeyi düşünmüşüz, yine",
-      ],
-      slot: {
-        morning: ["Günaydın! Ben zaten uyanıktım, seni bekledim ☀"],
-        work: ["Molada kaçtım geldim, kimse görmedi"],
-        evening: ["Geldim! Gün bitti, en güzel kısmı şimdi"],
-        night: ["Bu saatte bile seninle oturmak iyi geliyor 🌙"],
-      },
-      cond: {
-        rain: ["Yağmur yağarken yan yana olmak en güzeli 🌧"],
-        snow: ["Kar dışarıda, biz içeride. İyi plan ☃"],
-        cold: ["Üşüyorsan omzuma yaslan ♡"],
-      },
-    },
-    him: {
-      base: [
-        /* İltifatlar Burak'tan: Berna'ya söylenir. */
-        "Saçların yine çok güzel olmuş",
-        "Bugün her zamankinden daha güzelsin, biliyorsun değil mi",
-        "Gülüşün günümü düzeltiyor",
-        "Sen konuşurken dinlemek istiyorum, devam et",
-        "Gözlerin yorgun ama hâlâ en güzel şey bu odada",
-        "Sana bakınca işler o kadar da kötü gelmiyor",
-      ],
-      slot: {
-        morning: ["Sabah saçın dağınıkken bile en tatlı hâlin 🌞"],
-        work: ["Bu kadar çalışıp yine de güzel kalman haksızlık"],
-        evening: ["Akşam ışığında gözlerin başka bir güzel"],
-        night: ["Uyumadan önce son gördüğüm sen ol 🌙"],
-      },
-      cond: {
-        rain: ["Yağmur sesi bize fon müziği 🌧"],
-        snow: ["Dışarısı buz, burada sıcacık ☃"],
-        cold: ["Ellerim soğuk ama kalbim değil 🧊♡"],
-      },
-    },
-  },
-
-  /* ---------- Burak'ın beklemesi ----------
-     Burak yalnızken Berna'yı sorar; Berna gelince chat havuzundan
-     "Geldim, geldimmmm!" diye cevap verir. */
-  wait: {
-    her: {
-      base: ["Geldim, geldimmmm! ♡", "Buradayım! Geç kalmadım, sen erken geldin"],
-    },
-    him: {
-      base: [
-        "Nerede kaldı bu kız?",
-        "Hâlâ gelmedi... merak ettim",
-        "Bekliyorum ama söylemesi benden ♡",
-        "Gelince ona sarılacağım",
-      ],
-      slot: {
-        morning: ["Sabah sabah nerede kaldı bu?"],
-        work: ["Mola bitti mi, gelmedi daha"],
-        evening: ["Yemekten önce gelir umarım"],
-        night: ["Bu saatte gelen olur mu ki?"],
-      },
-      cond: {
-        rain: ["Yağmur var, belki sıkıştı 🌧"],
-        snow: ["Bu soğukta yolu uzatmıştır ☃"],
-        cold: ["Üşümeye başladım, hadi ama"],
-      },
-    },
-  },
-
-  /* ---------- sahneden çıkarken ---------- */
+  /* ---------- çıkarken ---------- */
   leave: {
     her: {
       base: ["Ben bir bakayım, hemen dönerim!", "Mutfağa bakıyorum, koku güzeldi"],
@@ -274,188 +161,261 @@ const TABLE: Record<LineKind, Record<"her" | "him", Voice>> = {
         morning: ["Kahve alıp geliyorum, sen bekle ☕"],
         work: ["Bir bardak su almaya gidiyorum, sen devam et"],
         evening: ["Mutfağa bakayım, hemen geliyorum"],
-        night: ["Pijamalarımı giyip geliyorum 🌙"],
-      },
-      cond: {
-        rain: ["Şemsiyeyi alıp geliyorum, ıslanmayayım 🌂"],
-        snow: ["Atkımı alayım, yoksa donarım ☃"],
-        cold: ["Çorap. Kesinlikle çorap lazım 🧦"],
+        night: ["Su alıp geliyorum, kalkma 🌙"],
       },
     },
     him: {
-      base: ["Şöyle bir tur atıp geliyorum", "Bir şey unuttum, hemen dönerim"],
+      base: ["Ben bir bakayım, hemen dönerim!", "Bir şey alıp geliyorum"],
       slot: {
-        morning: ["Ekmek alıp geliyorum, beş dakika 🥖"],
-        work: ["Kısa bir mola, geliyorum"],
-        evening: ["Balkona bakıp geliyorum"],
-        night: ["Suyumu alıp geliyorum 🌙"],
-      },
-      cond: {
-        rain: ["Şemsiyeyi kapıp geliyorum 🌂"],
-        snow: ["Botlarımı giyip geliyorum ☃"],
-        cold: ["Montu alıyorum, geliyorum 🧥"],
-      },
-    },
-  },
-
-  /* ---------- yalnız kalınca ---------- */
-  bored: {
-    her: {
-      base: [
-        "Hâlâ gelmedi... ben burada çimleniyorum",
-        "Sıkıldım. Ciddiyim. Çok sıkıldım.",
-        "*iç çeker* Nerede kaldı bu?",
-      ],
-      slot: {
-        morning: ["Sabahın bu saatinde beni yalnız bıraktı 😤"],
-        work: ["Toplantı mı? Yine mi toplantı?"],
-        evening: ["Akşam yemeği de mi bekleyeceğim?"],
-        night: ["Bu saatte gelmezse ben de uyurum 😴"],
-      },
-      cond: {
-        rain: ["Yağmurda beklemek de ayrı bir romantizm 🌧"],
-        snow: ["Bu soğukta bekliyorum, bunu unutma ☃"],
-        cold: ["Donuyorum. Kelimenin tam anlamıyla."],
-      },
-    },
-    him: {
-      base: [
-        "Kendi kendime konuşmaya başladım, hayırlısı",
-        "Gelmezse ben de uyurum 😴",
-        "Burada beklemek de bir iş sayılır mı?",
-      ],
-      slot: {
-        morning: ["Sabah sabah nerede kaldı bu?"],
-        work: ["Toplantı bitmedi herhalde"],
-        evening: ["Yemekten önce gelir umarım"],
-        night: ["Bu saatte gelen olur mu ki?"],
-      },
-      cond: {
-        rain: ["Yağmur var, belki sıkıştı 🌧"],
-        snow: ["Bu soğukta yolu uzatmıştır ☃"],
-        cold: ["Üşümeye başladım, hadi ama"],
-      },
-    },
-  },
-
-  /* ---------- öbürü gelince ---------- */
-  arrive: {
-    her: {
-      base: ["Geldim! Geç kalmadım, sen erken geldin!", "Yolda bir kedi vardı, ondan geciktim"],
-      slot: {
-        morning: ["Günaydın, uyuyakalmışım, özür 🌞"],
-        work: ["Molada kaçtım geldim, kimse görmedi"],
-        evening: ["İşten çıktım, direkt sana geldim ♡"],
-        night: ["Gece yarısı buluşması, çok romantik 🌙"],
-      },
-      cond: {
-        rain: ["Şemsiyem yoktu, ıslandım, sarıl 🌧"],
-        snow: ["Kardan adam gibi geldim, bak ☃"],
-        cold: ["Ellerim buz, ısıt beni 🧊"],
-      },
-    },
-    him: {
-      base: ["Geldim! Geç kalmadım, sen erken geldin!", "Bak kim geldi ♡", "Yolda bir kedi vardı, ondan geciktim"],
-      slot: {
-        morning: ["Günaydın Berna! Uyandım, geldim 🌞"],
-        work: ["Molada kaçtım geldim, kimse görmedi"],
-        evening: ["İşten çıktım, direkt sana geldim ♡"],
-        night: ["Gece yarısı buluşması, çok romantik 🌙"],
-      },
-      cond: {
-        rain: ["Şemsiyem vardı ama rüzgâr vardı 🌂"],
-        snow: ["Kardan adam gibi geldim, bak ☃"],
-        cold: ["Ellerim buz, ısıt beni 🧊"],
-      },
-    },
-  },
-
-  /* ---------- sevgi anı ---------- */
-  love: {
-    her: {
-      base: [
-        "Seni seviyorum, biliyorsun ♡",
-        "İyi ki varsın. Gerçekten.",
-        "Kalbim hep seninle ♡",
-      ],
-      slot: {
-        morning: ["Günün en güzel haberi: sen varsın ☀"],
-        work: ["Bugünü seninle bölmek isterdim ♡"],
-        evening: ["Bütün gün seni düşündüm, itiraf ediyorum"],
-        night: ["Rüyalarımda bile seni arıyorum 🌙"],
-      },
-      cond: {
-        rain: ["Yağmurda bile seninle olmak güzel 🌧♡"],
-        snow: ["Kar yağarken elini tutmak isterdim ☃"],
-        cold: ["Üşüyorsan gel, ben ısıtırım ♡"],
-      },
-    },
-    him: {
-      base: [
-        "Seni seviyorum Berna ♡",
-        "Burada seni bekleyen bir şey var ♡",
-        "İyi ki varsın. Gerçekten.",
-      ],
-      slot: {
-        morning: ["Günaydın demek bile güzel, senin sayende ☀"],
-        work: ["Bugünü seninle bölmek isterdim ♡"],
-        evening: ["Gün bitti, en güzel kısmı sen kaldın"],
-        night: ["İyi geceler, kalbim sende 🌙"],
-      },
-      cond: {
-        rain: ["Yağmurda seninle yürümek güzel 🌧♡"],
-        snow: ["Kar yağarken elini tutmak isterdim ☃"],
-        cold: ["Üşüyorsan gel, ben ısıtırım ♡"],
-      },
-    },
-  },
-
-  /* ---------- atışma: sırayla bir o bir o ---------- */
-  squabble: {
-    her: {
-      base: [
-        "Ben haklıydım, kabul et.",
-        "Bana öyle bakma!",
-        "Sen böyle yapınca sinirleniyorum.",
-        "Yine mi kaşlarını çattın?",
-      ],
-      slot: {
-        morning: ["Sabahın yedisinde tartışma mı başlatıyoruz?", "Kahveden önce konuşma benimle ☕"],
-        work: ["Sen işini yap, ben kendi işimi yapıyorum!", "Bu toplantı daha uzun süremez!"],
-        evening: ["Akşam akşam bunu mu konuşacağız?", "Yemeği ben yaptım, ödülü de ben alacağım"],
-        night: ["Bu saatte kavga edilir mi hiç?", "Uyumam lazım, seninle uğraşamam 🌙"],
-      },
-      cond: {
-        rain: ["Şemsiyeyi yine almadın, değil mi?", "Islanınca bana geliyorsun, biliyorum"],
-        snow: ["Kar topu atma dedim! ☃", "Donacaksın, sonra ben bakacağım"],
-        cold: ["Ceketini giy dedim, giymedin!", "Ben mi üşüyorum, sen mi inatçısın?"],
-      },
-    },
-    him: {
-      base: [
-        "Ben bir şey yapmadım ki!",
-        "Tamam tamam, sen haklısın.",
-        "Bağırma, komşular duyacak.",
-        "Peki... özür dilerim ♡",
-      ],
-      slot: {
-        morning: ["Günaydın demeden kavga mı? Güzel 🌞", "Tamam, kahveyi ben yapıyorum, tamam!"],
-        work: ["Ben de çalışıyorum ama kimse sormuyor", "Tamam, molada konuşalım mı?"],
-        evening: ["Akşam yemeğinden sonra tartışsak?", "Haklısın, hep haklısın. Mutlu musun?"],
-        night: ["Tamam, yarın tartışırız, uyuyalım 🌙", "Ben yatağa gidiyorum, sen de gel"],
-      },
-      cond: {
-        rain: ["Şemsiye vardı ama... rüzgâr vardı 🌂", "Tamam, bir daha alırım, söz"],
-        snow: ["Kar topunu ben atmadım, rüzgâr attı ☃", "Tamam, eldiven takacağım"],
-        cold: ["Ceketim vardı, gerçekten!", "Üşümüyorum... tamam biraz üşüyorum"],
+        morning: ["Kahve alıp geliyorum, bekle ☕"],
+        work: ["Su almaya gidiyorum, devam et"],
+        evening: ["Mutfağa bakayım, hemen geliyorum"],
+        night: ["Su alıp geliyorum 🌙"],
       },
     },
   },
 };
 
+/* ============================================================
+   Diyaloglar: baştan sona yazılmış, cevabı belli konuşmalar.
+   Burak iltifat eder, Berna karşılık verir.
+   ============================================================ */
+
+type Dialogue = { beats: Beat[] };
+
+/* İltifat -> karşılık. */
+const FLIRT: Dialogue[] = [
+  {
+    beats: [
+      { who: 1, text: "Saçların bugün çok güzel olmuş." },
+      { who: 0, text: "Yeni kestirdim. Fark etmen hoşuma gitti ♡" },
+    ],
+  },
+  {
+    beats: [
+      { who: 1, text: "Gülüşün bütün günümü düzeltiyor, biliyor musun?" },
+      { who: 0, text: "O zaman daha çok gülerim." },
+    ],
+  },
+  {
+    beats: [
+      { who: 1, text: "Bugün de seni gördüm, gün tamam oldu." },
+      { who: 0, text: "Abartma... ama devam et." },
+    ],
+  },
+  {
+    beats: [
+      { who: 1, text: "Gözlerin yorgun görünüyor." },
+      { who: 0, text: "Yorgunum ama yanında oturunca geçiyor." },
+      { who: 1, text: "O zaman biraz daha otur." },
+    ],
+  },
+  {
+    beats: [
+      { who: 1, text: "Sen konuşurken dinlemek istiyorum, devam et." },
+      { who: 0, text: "Ne anlatayım? Aklımda bir şey yok." },
+      { who: 1, text: "Hiçbir şey. Sesin yeter." },
+    ],
+  },
+  {
+    beats: [
+      { who: 1, text: "Bu kadar güzel olman haksızlık." },
+      { who: 0, text: "Bugün aynaya bakmadım, senden duyuyorum." },
+    ],
+  },
+];
+
+/* Günlük hâller. */
+const EVERYDAY: Dialogue[] = [
+  {
+    beats: [
+      { who: 1, text: "Bugün ne yaptın, anlat." },
+      { who: 0, text: "Hiçbir şey. Seni bekledim, o da bir şey sayılır." },
+    ],
+  },
+  {
+    beats: [
+      { who: 1, text: "Akşama ne yesek?" },
+      { who: 0, text: "Sen ne istersen. Ama bulaşıklar senin." },
+    ],
+  },
+  {
+    beats: [
+      { who: 1, text: "Yorulmuşsun, biraz otur." },
+      { who: 0, text: "Oturursam kalkmam, biliyorsun değil mi?" },
+      { who: 1, text: "Kalkma. Ben hallederim." },
+    ],
+  },
+  {
+    beats: [
+      { who: 1, text: "Bugün seni çok düşündüm." },
+      { who: 0, text: "Ben de. Aynı anda düşünmüşüz yine." },
+    ],
+  },
+  {
+    beats: [
+      { who: 0, text: "Canım sıkılıyor." },
+      { who: 1, text: "Otur, sana bir şey anlatayım." },
+      { who: 0, text: "Anlat bakalım." },
+    ],
+  },
+];
+
+/* Saate özel diyaloglar. */
+const SLOT_CHAT: Partial<Record<Slot, Dialogue[]>> = {
+  morning: [
+    {
+      beats: [
+        { who: 1, text: "Uyandın mı? Sesi duydum." },
+        { who: 0, text: "Duydun demek. Kahveyi sen yapıyorsun o zaman." },
+        { who: 1, text: "Zaten kalkıyordum ☀" },
+      ],
+    },
+    {
+      beats: [
+        { who: 1, text: "Sabah saçın dağınık, çok tatlı." },
+        { who: 0, text: "Taramadım. Sen de taramadın." },
+      ],
+    },
+  ],
+  work: [
+    {
+      beats: [
+        { who: 1, text: "Molada mısın?" },
+        { who: 0, text: "Evet, on dakika. Sadece seninle oturmak istedim." },
+      ],
+    },
+    {
+      beats: [
+        { who: 1, text: "Bu kadar çalışıp yine de güzel kalman haksızlık." },
+        { who: 0, text: "Yorgunum ama bu cümle işe yaradı." },
+      ],
+    },
+  ],
+  evening: [
+    {
+      beats: [
+        { who: 1, text: "Gün bitti, artık hiçbir şey yapmayalım." },
+        { who: 0, text: "Anlaştık. Sadece burada oturalım." },
+      ],
+    },
+    {
+      beats: [
+        { who: 1, text: "Akşam ışığında gözlerin başka bir güzel." },
+        { who: 0, text: "Işık mı, ben mi?" },
+        { who: 1, text: "Sen." },
+      ],
+    },
+  ],
+  night: [
+    {
+      beats: [
+        { who: 1, text: "Geç oldu, uyusak mı?" },
+        { who: 0, text: "Biraz daha. Bu saatte konuşmak daha kolay." },
+      ],
+    },
+    {
+      beats: [
+        { who: 1, text: "Uyumadan önce son gördüğüm sen olacaksın." },
+        { who: 0, text: "İyi geceler o zaman ♡" },
+      ],
+    },
+  ],
+};
+
+/* Havaya özel diyaloglar. */
+const COND_CHAT: Partial<Record<Condition, Dialogue[]>> = {
+  rain: [
+    {
+      beats: [
+        { who: 1, text: "Yağmur bastırdı, dışarı çıkmayalım." },
+        { who: 0, text: "Zaten niyetim yoktu. Sesi dinleyelim." },
+      ],
+    },
+  ],
+  snow: [
+    {
+      beats: [
+        { who: 1, text: "Kar yağıyor, camdan bak." },
+        { who: 0, text: "Bakıyorum. Dışarısı buz, burada sıcacık." },
+      ],
+    },
+  ],
+  cold: [
+    {
+      beats: [
+        { who: 1, text: "Ellerin buz gibi, ver bakayım." },
+        { who: 0, text: "Isıt o zaman, bırakmam." },
+      ],
+    },
+  ],
+};
+
+/* Atışma: suçlama -> savunma -> uzlaşma. */
+const SQUABBLE: Dialogue[] = [
+  {
+    beats: [
+      { who: 0, text: "Bulaşıkları yine bana bıraktın." },
+      { who: 1, text: "Ben bir şey bırakmadım, orada duruyorlardı!" },
+      { who: 0, text: "Tamam. Bu seferlik ben yıkıyorum." },
+      { who: 1, text: "Yarın hepsini ben yıkarım, söz." },
+    ],
+  },
+  {
+    beats: [
+      { who: 0, text: "Beni dinlemiyorsun." },
+      { who: 1, text: "Dinliyorum ya, devam et." },
+      { who: 0, text: "Ne dedim peki?" },
+      { who: 1, text: "...Tekrar edeyim, en baştan." },
+    ],
+  },
+  {
+    beats: [
+      { who: 0, text: "Ceketini yine almadın, değil mi?" },
+      { who: 1, text: "Aldım! Yani... arabada kaldı ama aldım." },
+      { who: 0, text: "Of. Yarın alacaksın." },
+      { who: 1, text: "Alacağım, tamam ♡" },
+    ],
+  },
+  {
+    beats: [
+      { who: 0, text: "Telefonuna yine daldın." },
+      { who: 1, text: "Bir saniye, bitiyor... tamam, bitti. Buyur." },
+      { who: 0, text: "Bak, böyle olunca kızmıyorum." },
+    ],
+  },
+];
+
+/* Burak bekler, Berna gelir. Tek parça senaryo:
+   ilk replik Burak yalnızken, kalanı Berna gelince oynar. */
+const ARRIVALS: { wait: string; beats: Beat[] }[] = [
+  {
+    wait: "Nerede kaldı bu kız?",
+    beats: [
+      { who: 0, text: "Geldim, geldimmmm! ♡" },
+      { who: 1, text: "Sonunda. Merak ettim." },
+      { who: 0, text: "Trafik vardı, kusura bakma." },
+    ],
+  },
+  {
+    wait: "Hâlâ gelmedi... merak ettim.",
+    beats: [
+      { who: 0, text: "Geldim, geldimmmm!" },
+      { who: 1, text: "İyi ki geldin." },
+      { who: 0, text: "Yolda biriyle karşılaştım, ondan geciktim." },
+    ],
+  },
+  {
+    wait: "Bekliyorum ama söylemesi benden ♡",
+    beats: [
+      { who: 0, text: "Geldim, geldimmmm! Beklettim mi?" },
+      { who: 1, text: "Beklettin. Ama önemli değil." },
+    ],
+  },
+];
+
 const lastPicked = new Map<string, string>();
 
-/* Aynı sesin aynı repliği üst üste söylemesini engeller. */
 function pickFrom(pool: string[], key: string): string {
   if (pool.length === 0) return "";
   const prev = lastPicked.get(key);
@@ -465,15 +425,56 @@ function pickFrom(pool: string[], key: string): string {
   return line;
 }
 
-export function linesFor(kind: LineKind, scene: BuddyScene, who: Who): string[] {
-  const voice = TABLE[kind][who === 0 ? "her" : "him"];
+export function linesFor(kind: SoloKind, scene: BuddyScene, who: Who): string[] {
+  const voice = SOLO[kind][who === 0 ? "her" : "him"];
   const slot = voice.slot?.[scene.slot] ?? [];
   const cond = scene.condition ? voice.cond?.[scene.condition] ?? [] : [];
   return [...slot, ...cond, ...voice.base];
 }
 
-export function pickLine(kind: LineKind, scene: BuddyScene, who: Who): string {
+export function pickLine(kind: SoloKind, scene: BuddyScene, who: Who): string {
   return pickFrom(linesFor(kind, scene, who), `${kind}:${who}`);
+}
+
+function poolFor(scene: BuddyScene, kind: "chat" | "squabble"): Dialogue[] {
+  if (kind === "squabble") return SQUABBLE;
+  const slot = SLOT_CHAT[scene.slot] ?? [];
+  const cond = scene.condition ? COND_CHAT[scene.condition] ?? [] : [];
+  return [...cond, ...slot, ...FLIRT, ...EVERYDAY];
+}
+
+/* Bir diyalog seçer; aynı diyalog üst üste gelmez. */
+export function pickDialogue(scene: BuddyScene, kind: "chat" | "squabble"): Beat[] {
+  const pool = poolFor(scene, kind);
+  const keys = pool.map((d) => d.beats.map((b) => b.text).join("|"));
+  const chosen = pickFrom(keys, `dialogue:${kind}`);
+  const found = pool[keys.indexOf(chosen)];
+  return found ? found.beats : [];
+}
+
+/* Burak'ın beklemesi + Berna'nın gelişi. */
+export function pickArrival(): { wait: string; beats: Beat[] } {
+  const waits = ARRIVALS.map((a) => a.wait);
+  const chosen = pickFrom(waits, "arrival");
+  return ARRIVALS[waits.indexOf(chosen)] ?? ARRIVALS[0];
+}
+
+/* Kavuşunca Burak'ın söylediği tek cümle. */
+const MEET = ["Sonunda geldin.", "Seni gördüm, gün güzelleşti.", "Gel buraya ♡"];
+
+export function pickMeetLine(): string {
+  return pickFrom(MEET, "meet");
+}
+
+/* Bir karakter tıklanınca yanındakinin verdiği kısa karşılık.
+   "Beni mi tıkladın" yanlış olur, çünkü tıklanan o değil. */
+const POKE_REPLY: Record<"her" | "him", string[]> = {
+  her: ["Ne oldu? 😄", "Ben de zıpladım!"],
+  him: ["Hey, ben de buradayım 😄", "Bana da mı?"],
+};
+
+export function pickPokeReply(who: Who): string {
+  return pickFrom(POKE_REPLY[who === 0 ? "her" : "him"], `poke:${who}`);
 }
 
 /* Balonda görünecek isim. */
